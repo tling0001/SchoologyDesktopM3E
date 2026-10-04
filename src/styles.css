@@ -1230,3 +1230,12 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .schoolProfileNativePage{padding:20px;background:#fff;min-height:100%;box-sizing:border-box}.schoolProfileHeader h1{margin:0 0 8px}.schoolProfileHeader p{margin:0;color:#6d7780}
 #composeMessageDialog{display:flex!important;align-items:center!important;justify-content:center!important;position:fixed!important;inset:0!important;z-index:2147483647!important;pointer-events:auto!important}
 #composeMessageDialog .composeMessageDialog{pointer-events:auto!important}
+
+/* M3E shell integration: layout only; component visuals remain owned by @m3e/web. */
+.m3eShell{height:100vh;width:100vw;overflow:hidden;background:var(--m3e-color-surface,#fff)}
+.m3eAppDrawerContainer{height:100%;width:100%;--m3e-drawer-container-width:320px}
+.m3eDrawer{height:100%;overflow:auto;box-sizing:border-box;padding:12px}
+.m3eDrawerList{display:block}.m3eDrawerAction,.m3eDrawerProfile{width:100%}
+.m3eDrawerSubBar{position:sticky;top:0;z-index:2}.m3eShellMain{height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.m3eMainAppBar{flex:0 0 auto;--m3e-app-bar-container-color:#002137;--m3e-app-bar-title-text-color:#fff;--m3e-app-bar-title-text-font-size:20px;--m3e-app-bar-title-max-lines:1}.m3eMainAppBar #toolbarActionSlot{display:flex;align-items:center;gap:4px}.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:#fff}
+.m3eShellMain>#content{flex:1 1 auto;min-height:0;height:auto;overflow:hidden}.m3eDrawer .drawerSub{height:100%;display:flex;flex-direction:column;min-height:0}.m3eDrawer .courseSubList{flex:1 1 auto;min-height:0;overflow:auto}

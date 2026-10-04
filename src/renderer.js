@@ -23,7 +23,7 @@ function showUpdateDialog(u){
   }}]);
 }
 
-window.closeDrawerThen=function closeDrawerThen(fn){const drawer=document.getElementById('drawer'),shade=document.getElementById('drawerShade');drawer?.classList.remove('open');shade?.classList.remove('open');setTimeout(()=>{state.drawerPage=null;if(typeof fn==='function')fn()},280)};const closeDrawerThen=(fn)=>window.closeDrawerThen(fn);
+window.closeDrawerThen=function closeDrawerThen(fn){const c=document.getElementById('appDrawerContainer');if(c)c.start=false;setTimeout(()=>{state.drawerPage=null;if(typeof fn==='function')fn()},280)};const closeDrawerThen=(fn)=>window.closeDrawerThen(fn);
 function messageDetail(){
  const m=state.message||{}; const thread=state.messageThread;
  const msgs=thread?.messages||[]; const users=thread?.users||{};
@@ -57,7 +57,7 @@ function officialIcon(name,alt=''){const src=officialIconData[name]||officialIco
 function officialOrAssetIcon(name,alt=''){const embedded=officialIcon(name,alt);if(embedded)return embedded;const src=String(name||'').endsWith('.svg')||String(name||'').endsWith('.png')?name:`${name}.png`;return `<img class="officialEmbeddedIcon" src="../assets/icons/${src}" alt="${esc(alt)}">`}
 
 function render(){let h=state.message?messageDetail():state.screen==='login'?login():state.screen==='search'?schoolSearchScreen():state.screen==='credentials'?credentials():state.screen==='externalSelect'?externalSelect():state.screen==='qr'?qr():shell();app.innerHTML=h;bind();syncWindowChrome();return h}
-function syncWindowChrome(){if(A.platform!=='win32'&&A.platform!=='linux')return;let color='#002137';if(state.screen!=='app'){color=(state.screen==='login'||state.screen==='search'||state.screen==='credentials'||state.screen==='externalSelect'||state.screen==='qr')?'#44505d':'#22303e'}else if(document.getElementById('drawer')?.classList.contains('open'))color='#001827';A.setWindowChrome?.({color,symbolColor:'#ffffff',height:56}).catch?.(()=>{})}
+function syncWindowChrome(){if(A.platform!=='win32'&&A.platform!=='linux')return;let color='#002137';if(state.screen!=='app'){color=(state.screen==='login'||state.screen==='search'||state.screen==='credentials'||state.screen==='externalSelect'||state.screen==='qr')?'#44505d':'#22303e'}else if(document.getElementById('appDrawerContainer')?.start)color='#001827';A.setWindowChrome?.({color,symbolColor:'#ffffff',height:56}).catch?.(()=>{})}
 function m3eTheme(content,extraClass=''){
   return `<m3e-theme class="m3eRoot ${extraClass}" color="#2e66a3" variant="expressive" scheme="dark" motion="expressive" strong-focus>${content}</m3e-theme>`;
 }
@@ -74,27 +74,21 @@ function externalSelect(){
 }
 function qr(){return m3eTheme(`<main class="m3eQrScreen loginAnimated"><m3e-app-bar size="small" class="m3eQrAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><m3e-icon name="arrow_back"></m3e-icon></m3e-icon-button><span slot="title">QR Code Login</span></m3e-app-bar><section class="m3eQrCamera"><video id="video" autoplay playsinline muted></video><canvas id="canvas"></canvas><div class="m3eQrOverlay"><m3e-heading variant="title" size="large" level="1">Scan Your Code</m3e-heading><div class="qrbox"></div><p>Point your camera at the QR code shown in Schoology.</p></div>${state.error?`<div class="m3eQrError" role="alert">${esc(state.error)}<m3e-button id="qrRetry" variant="outlined" size="small">Try again</m3e-button></div>`:''}</section></main>`,'m3eQrLoginScreen');}
 function drawerItemMarkup(id,label,icon){
- return `<button class="drawerItem" data-drawer="${id}"><span class="drawerIcon"><img src="../assets/icons/${icon}.svg" alt=""></span><span class="drawerLabel">${label}</span>${['messages','notifications','requests'].includes(id)?'<span class="drawerBadge"></span>':''}${id==='courses'||id==='groups'||id==='grades'?'<span class="disclosure">›</span>':''}</button>`;
+ const iconMap={messages:'mail',notifications:'notifications',requests:'request_quote',home:'home',courses:'book',groups:'groups',resources:'folder',grades:'assignment',calendar:'calendar_month',settings:'settings',logout:'logout'};
+ const name=iconMap[id]||'menu';
+ const disclosure=(id==='courses'||id==='groups'||id==='grades')?'<m3e-icon slot="trailing" name="chevron_right"></m3e-icon>':'';
+ return `<m3e-list-action class="m3eDrawerAction" data-drawer="${id}" tabindex="0"><m3e-icon slot="leading" name="${name}"></m3e-icon>${label}${disclosure}</m3e-list-action>`;
 }
 function shell(){
  const drawerItems=[
-  ['messages','Messages','ic_menu_messages'],['notifications','Notifications','ic_menu_notifications'],['requests','Requests','ic_menu_requests'],
-  ['home','Home','ic_menu_home'],['courses','Courses','ic_menu_courses'],['groups','Groups','ic_menu_groups'],['resources','Resources','ic_menu_resources'],['grades','Grades','ic_menu_grades'],['calendar','Calendar','ic_menu_calender'],
-  ['settings','Settings','ic_menu_account_settings'],['logout','Logout','ic_menu_logout']
+  ['messages','Messages'],['notifications','Notifications'],['requests','Requests'],
+  ['home','Home'],['courses','Courses'],['groups','Groups'],['resources','Resources'],['grades','Grades'],['calendar','Calendar'],
+  ['settings','Settings'],['logout','Logout']
  ];
- const drawerPage=state.drawerPage==='courses'||state.drawerPage==='groups'||state.drawerPage==='grades'?`
-   <div class="drawerSub">
-    <div class="drawerSubHeader"><button id="drawerBack" class="drawerBack">‹</button><span>${state.drawerPage==='grades'?'Grades':state.drawerPage==='groups'?'Groups':'Courses'}</span>${state.drawerPage==='courses'?'<button id="joinCourse" class="drawerHeaderAction" style="display:none">+</button>':state.drawerPage==='groups'?'<button id="joinGroup" class="drawerHeaderAction" style="display:none">+</button>':'<span class="drawerHeaderSpacer"></span>'}</div>
-    <div id="courseSubList" class="courseSubList"><div class="drawerLoading">Loading ${state.drawerPage==='grades'?'grades':state.drawerPage==='groups'?'groups':'courses'}…</div></div>
-   </div>`:'';
- const drawerList=drawerItems.map(([id,label,icon],i)=>`${i===3?'<div class="drawerDivider"></div>':''}${i===9?'<div class="drawerDivider"></div>':''}${drawerItemMarkup(id,label,icon)}`).join('');
- return `<div class="shell">
- <header class="toolbar">${state.assignmentView||state.embeddedTitle?`<button id="toolbarBack" class="iconButton" aria-label="Back">‹</button>`:`<button id="menuButton" class="iconButton" aria-label="Navigation menu">${menuImg}</button>`}<span class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span><span id="toolbarActionSlot" class="toolbarActionSlot"></span></header>
- <main id="content"><div class="loading"><img class="androidInlineSpinner" src="../assets/android_loading_spinner_72.gif" alt=""><span>Loading…</span></div></main>
- <div id="drawerShade" class="drawerShade ${drawerPage?'submenuShade':''}"></div><aside id="drawer" class="drawer ${drawerPage?'drawerSubMode':''}">
-   ${drawerPage||`<button id="drawerProfile" class="profileRow" aria-label="Open profile"><span class="profileAvatarCircle"><img data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt=""></span><span>${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</span></button><div class="drawerList">${drawerList}</div>`}
- </aside>
- </div>`;
+ const drawerPage=state.drawerPage==='courses'||state.drawerPage==='groups'||state.drawerPage==='grades'?`<div class="drawerSub"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><m3e-icon name="arrow_back"></m3e-icon></m3e-icon-button><span slot="title">${state.drawerPage==='grades'?'Grades':state.drawerPage==='groups'?'Groups':'Courses'}</span><span slot="trailing">${state.drawerPage==='courses'?'<m3e-icon-button id="joinCourse" aria-label="Join course" style="display:none"><m3e-icon name="add"></m3e-icon></m3e-icon-button>':state.drawerPage==='groups'?'<m3e-icon-button id="joinGroup" aria-label="Join group" style="display:none"><m3e-icon name="add"></m3e-icon></m3e-icon-button>':''}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><div class="drawerLoading">Loading ${state.drawerPage==='grades'?'grades':state.drawerPage==='groups'?'groups':'courses'}…</div></div></div>`:'';
+ const drawerList=drawerItems.map(([id,label],i)=>`${i===3?'<m3e-divider></m3e-divider>':''}${i===9?'<m3e-divider></m3e-divider>':''}${drawerItemMarkup(id,label)}`).join('');
+ const leading=state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><m3e-icon name="arrow_back"></m3e-icon></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu" toggle><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><m3e-icon name="menu"></m3e-icon><m3e-icon slot="selected" name="menu_open"></m3e-icon></m3e-icon-button>`;
+ return `<div class="shell m3eShell"><m3e-drawer-container id="appDrawerContainer" start-mode="auto" class="m3eAppDrawerContainer"><nav slot="start" id="startDrawer" aria-label="Navigation" class="m3eDrawer">${drawerPage||`<m3e-list class="m3eDrawerList"><m3e-list-action id="drawerProfile" class="m3eDrawerProfile"><m3e-avatar slot="leading" size="small"><img data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt=""></m3e-avatar>${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</m3e-list-action>${drawerList}</m3e-list>`}</nav><main class="m3eShellMain"><m3e-app-bar id="mainAppBar" size="small" class="m3eMainAppBar">${leading}<span slot="title" class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span><span id="toolbarActionSlot" slot="trailing" class="toolbarActionSlot"></span></m3e-app-bar><main id="content"><div class="loading"><img class="androidInlineSpinner" src="../assets/android_loading_spinner_72.gif" alt=""><span>Loading…</span></div></main></main></m3e-drawer-container></div>`;
 }
 function setDownloadButtonState(button,active,label='Downloading…'){
   if(!button)return;
@@ -280,19 +274,17 @@ function bind(){
   const credentialForm=document.getElementById('credentialForm');
   if(credentialForm)credentialForm.addEventListener('submit',async e=>{e.preventDefault();const user=document.getElementById('user')?.value||'',password=document.getElementById('pass')?.value||'';state.error='';if(!user||!password){state.error='Enter your username or email and password.';render();return}const si=document.getElementById('signIn');if(si)si.disabled=true;try{state.auth=await A.loginCredentials({user,password,schoolId:state.school?.id??null});await afterLogin()}catch(e){state.error=e.message||'Login failed.';render()}});
 
-  const shade=document.getElementById('drawerShade'),drawer=document.getElementById('drawer');
-  const setDrawer=(open)=>{drawer?.classList.toggle('open',open);shade?.classList.toggle('open',open);if(!open)state.drawerPage=null;syncWindowChrome()};
-  document.getElementById('menuButton')?.addEventListener('click',()=>setDrawer(true));
-  shade?.addEventListener('click',()=>setDrawer(false));
+  const drawerContainer=document.getElementById('appDrawerContainer');
+  const drawer=document.getElementById('startDrawer');
+  const setDrawer=(open)=>{if(drawerContainer)drawerContainer.start=open;if(!open)state.drawerPage=null;syncWindowChrome()};
 
   hydrateProfileDrawer();updateDrawerBadges();document.getElementById('drawerProfile')?.addEventListener('click',()=>{closeDrawerThen(()=>{state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.embeddedTitle=null;state.profileUser=state.auth?.user||null;state.profileTab='updates';state.tab='profile';state.toolbarTitle='Profile';render();loadTab()})});
-  document.getElementById('drawerBack')?.addEventListener('click',()=>{const d=document.getElementById('drawer'); if(!d)return; d.classList.add('noSlide'); state.drawerPage=null; render(); requestAnimationFrame(()=>{document.getElementById('drawer')?.classList.add('open'); requestAnimationFrame(()=>document.getElementById('drawer')?.classList.remove('noSlide'))})});
-  document.getElementById('joinCourse')?.addEventListener('click',()=>{state.drawerPage=null;render();document.getElementById('drawer')?.classList.add('open')});
+  document.getElementById('drawerBack')?.addEventListener('click',()=>{state.drawerPage=null;render();requestAnimationFrame(()=>{const c=document.getElementById('appDrawerContainer');if(c)c.start=true})});
 
   document.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',async()=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      state.drawerPage=id;const drawer=document.getElementById('drawer');if(drawer){drawer.innerHTML=`<div class="drawerSub"><div class="drawerSubHeader"><button id="drawerBack" class="drawerBack">‹</button><span>${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span>${id==='courses'?'<button id="joinCourse" class="drawerHeaderAction" style="display:none">+</button>':id==='groups'?'<button id="joinGroup" class="drawerHeaderAction" style="display:none">+</button>':'<span class="drawerHeaderSpacer"></span>'}</div><div id="courseSubList" class="courseSubList"><div class="drawerLoading"><img class="androidInlineSpinner" src="../assets/android_loading_spinner_72.gif" alt=""><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></div></div>`;drawer.classList.add('open');document.getElementById('drawerShade')?.classList.add('open')}bind();loadCourseSubmenu();return;
+      state.drawerPage=id;const drawer=document.getElementById('startDrawer');if(drawer){drawer.innerHTML=`<div class="drawerSub"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><m3e-icon name="arrow_back"></m3e-icon></m3e-icon-button><span slot="title">${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span><span slot="trailing">${id==='courses'?'<m3e-icon-button id="joinCourse" aria-label="Join course" style="display:none"><m3e-icon name="add"></m3e-icon></m3e-icon-button>':id==='groups'?'<m3e-icon-button id="joinGroup" aria-label="Join group" style="display:none"><m3e-icon name="add"></m3e-icon></m3e-icon-button>':''}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><div class="drawerLoading"><img class="androidInlineSpinner" src="../assets/android_loading_spinner_72.gif" alt=""><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></div></div>`;document.getElementById('appDrawerContainer')?.setAttribute('start','')}bind();loadCourseSubmenu();return;
     }
     closeDrawerThen(async()=>{
       if(id==='logout'){await A.logout();state.auth=null;state.school=null;state.tab='home';state.screen='login';render();return}
@@ -416,15 +408,17 @@ function openProfileById(id,name='Profile'){
   render(); loadTab();
 }
 function syncToolbar(){
-  const header=document.querySelector('.toolbar');if(!header)return;
+  const bar=document.getElementById('mainAppBar');if(!bar)return;
   const needs=!!(state.assignmentView||state.embeddedTitle||state.resourceCollection||state.profileReturn) && !(state.courseView && !state.assignmentView && !state.embeddedTitle);
-  const existing=header.querySelector('#toolbarBack');
-  const menu=header.querySelector('#menuButton');
-  if(needs&&!existing){const b=document.createElement('button');b.id='toolbarBack';b.className='iconButton';b.setAttribute('aria-label','Back');b.textContent='‹';b.addEventListener('click',navigateBack);header.insertBefore(b,header.firstChild);if(menu)menu.remove();}
-  if(!needs&&!existing&&menu===null){const b=document.createElement('button');b.id='menuButton';b.className='iconButton';b.setAttribute('aria-label','Navigation menu');b.innerHTML=`${menuImg}`;header.insertBefore(b,header.firstChild);b.addEventListener('click',()=>{document.getElementById('drawer')?.classList.add('open');document.getElementById('drawerShade')?.classList.add('open');syncWindowChrome()});}
-  if(!needs&&existing){existing.remove();const b=document.createElement('button');b.id='menuButton';b.className='iconButton';b.setAttribute('aria-label','Navigation menu');b.innerHTML=`${menuImg}`;header.insertBefore(b,header.firstChild);b.addEventListener('click',()=>{document.getElementById('drawer')?.classList.add('open');document.getElementById('drawerShade')?.classList.add('open');syncWindowChrome()});}
-  const title=header.querySelector('.toolbarTitle');if(title)title.textContent=state.toolbarTitle||'Home';header.classList.toggle('toolbarAccountInfo',state.embeddedTheme==='account');header.classList.toggle('toolbarLti',state.embeddedTheme==='lti');
-  const slot=header.querySelector('#toolbarActionSlot');if(!slot)return;
+  if(needs){
+    bar.querySelector('#menuButton')?.remove();
+    if(!bar.querySelector('#toolbarBack')){const b=document.createElement('m3e-icon-button');b.id='toolbarBack';b.setAttribute('slot','leading');b.setAttribute('aria-label','Back');b.innerHTML='<m3e-icon name="arrow_back"></m3e-icon>';b.addEventListener('click',navigateBack);bar.insertBefore(b,bar.firstChild);}
+  }else{
+    bar.querySelector('#toolbarBack')?.remove();
+    if(!bar.querySelector('#menuButton')){const b=document.createElement('m3e-icon-button');b.id='menuButton';b.setAttribute('slot','leading');b.setAttribute('aria-label','Navigation menu');b.setAttribute('toggle','');b.innerHTML='<m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><m3e-icon name="menu"></m3e-icon><m3e-icon slot="selected" name="menu_open"></m3e-icon>';bar.insertBefore(b,bar.firstChild);}
+  }
+  const title=bar.querySelector('.toolbarTitle');if(title)title.textContent=state.toolbarTitle||'Home';bar.classList.toggle('toolbarAccountInfo',state.embeddedTheme==='account');bar.classList.toggle('toolbarLti',state.embeddedTheme==='lti');
+  const slot=bar.querySelector('#toolbarActionSlot');if(!slot)return;
   slot.innerHTML='';
   if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<button id="homeCreatePlus" class="iconButton toolbarImageButton" aria-label="Create">${officialIcon('ic_action_new.png','')}</button>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
   if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<button id="calendarCreatePlus" class="iconButton toolbarImageButton" aria-label="Create event">${officialIcon('ic_action_new.png','')}</button>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
