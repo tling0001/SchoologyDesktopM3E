@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; img-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' https: blob:; connect-src 'self' https: http: blob:;">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schoology</title>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "@m3e/web/core": "../node_modules/@m3e/web/dist/core.js",
+    "@m3e/web/core/a11y": "../node_modules/@m3e/web/dist/core-a11y.js",
+    "@m3e/web/core/anchoring": "../node_modules/@m3e/web/dist/core-anchoring.js",
+    "@m3e/web/core/bidi": "../node_modules/@m3e/web/dist/core-bidi.js",
+    "@m3e/web/core/layout": "../node_modules/@m3e/web/dist/core-layout.js",
+    "@m3e/web/core/platform": "../node_modules/@m3e/web/dist/core-platform.js",
+    "@m3e/web/": "../node_modules/@m3e/web/dist/",
+    "@m3e/icons/": "../node_modules/@m3e/icons/dist/",
+    "lit": "../node_modules/lit/index.js",
+    "lit/": "../node_modules/lit/",
+    "tslib": "../node_modules/tslib/tslib.es6.mjs",
+    "@floating-ui/dom": "../node_modules/@floating-ui/dom/dist/floating-ui.dom.esm.js",
+    "@floating-ui/core": "../node_modules/@floating-ui/core/dist/floating-ui.core.esm.js",
+    "@floating-ui/utils": "../node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.esm.js",
+    "@material/material-color-utilities": "../node_modules/@material/material-color-utilities/index.js",
+    "composed-offset-position": "../node_modules/composed-offset-position/dist/index.js"
+  }
+}
+</script>
+<script src="m3e-bootstrap.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<div id="startupSplash" class="androidSplash appStartupSplash" aria-label="Loading Schoology"><img class="androidSplashLogo" src="../assets/android_loading_logo.png" alt="Schoology"><img class="androidSplashSpinner" src="../assets/android_loading_spinner_72.gif" alt=""></div>
+<script src="appboot.js"></script>
+</body>
+</html>

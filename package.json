@@ -1,0 +1,72 @@
+{
+  "name": "schoology-desktop-port",
+  "version": "2026.06.0-port.103",
+  "description": "Schoology desktop port aligned with the supplied Schoology Android 2026.06.0 source",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis dir --publish never",
+    "dist:win": "electron-builder --win nsis dir --publish never",
+    "dist:mac": "electron-builder --mac dmg --publish never",
+    "dist:linux": "electron-builder --linux deb rpm --publish never"
+  },
+  "devDependencies": {
+    "electron": "^39.1.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0",
+    "@m3e/web": "file:vendor/m3e/web-2.8.3.tgz",
+    "@m3e/icons": "file:vendor/m3e/icons-1.0.18.tgz",
+    "@floating-ui/dom": "file:vendor/m3e/dom-1.8.0.tgz",
+    "@floating-ui/core": "file:vendor/m3e/core-1.8.0.tgz",
+    "@floating-ui/utils": "file:vendor/m3e/utils-0.2.12.tgz",
+    "@material/material-color-utilities": "file:vendor/m3e/material-color-utilities-0.4.0.tgz",
+    "composed-offset-position": "file:vendor/m3e/composed-offset-position-0.0.6.tgz",
+    "lit": "^3.3.0",
+    "tslib": "^2.8.1"
+  },
+  "author": {
+    "name": "Schoology Desktop Port",
+    "email": "schoology-desktop-port@users.noreply.github.com"
+  },
+  "build": {
+    "appId": "com.schoology.app",
+    "productName": "Schoology",
+    "artifactName": "Schoology-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/jsqr/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "dir"
+      ],
+      "icon": "assets/ic_launcher_256.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "Schoology-${version}-Setup-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "identity": "-",
+      "hardenedRuntime": false,
+      "icon": "assets/ic_launcher.icns"
+    }
+  },
+  "productName": "Schoology"
+}
