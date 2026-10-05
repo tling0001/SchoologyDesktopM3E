@@ -307,7 +307,14 @@ function bind(){
   document.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',async()=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      state.drawerPage=id;const drawer=document.getElementById('startDrawer');if(drawer){drawer.innerHTML=`<m3e-drawer-container id="subDrawerContainer" start-mode="over" class="m3eSubDrawerContainer"><nav slot="start" id="subDrawerPane" class="m3eSubDrawer"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><m3e-list variant="segmented"><div class="drawerLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></m3e-list></div></nav><div class="m3eSubDrawerHost"></div></m3e-drawer-container>`;document.getElementById('appDrawerContainer')?.setAttribute('start','')}bind();loadCourseSubmenu();return;
+      state.drawerPage=id;
+      const drawer=document.getElementById('startDrawer');
+      const container=document.getElementById('appDrawerContainer');
+      if(drawer){
+        drawer.innerHTML=`<div class="drawerSub m3eDrawerSub"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><m3e-list variant="segmented"><div class="drawerLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></m3e-list></div></div>`;
+        if(container)container.start=true;
+      }
+      bind();loadCourseSubmenu();return;
     }
     closeDrawerThen(async()=>{
       if(id==='logout'){await A.logout();state.auth=null;state.school=null;state.tab='home';state.screen='login';render();return}
@@ -316,11 +323,8 @@ function bind(){
     });
   }));
 
-  document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{const order=['recent','dashboard','upcoming'];const oldIndex=order.indexOf(state.homeTab),newIndex=order.indexOf(b.dataset.homeTab);state.homeTabDirection=newIndex>=oldIndex?'forward':'back';state.homeTab=b.dataset.homeTab;syncM3eTabSelection(c,'homeTab',state.homeTab);loadHomeTab()});
-  document.querySelectorAll('[data-message]').forEach(b=>b.onclick=()=>{const i=+b.dataset.message;const m=window.__schoologyMessages?.[i];if(m){state.message=m;render();}});
+  document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{const root=b.closest('.homeTabViewport')||document;const order=['recent','dashboard','upcoming'];const oldIndex=order.indexOf(state.homeTab),newIndex=order.indexOf(b.dataset.homeTab);state.homeTabDirection=newIndex>=oldIndex?'forward':'back';state.homeTab=b.dataset.homeTab;syncM3eTabSelection(root,'homeTab',state.homeTab);loadHomeTab()});
   document.getElementById('messageBack')?.addEventListener('click',()=>{state.message=null;state.messageThread=null;render();loadTab()});
-  document.querySelectorAll('[data-message-tab]').forEach(b=>b.onclick=()=>{state.messageTab=b.dataset.messageTab;loadTab()});
-  document.querySelectorAll('[data-message]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.message;const m=window.__schoologyMessages?.[i];if(!m)return;state.message=m;state.messageFolder=state.messageTab;state.messageThread=null;render();await loadMessageThread(m)});
   document.querySelectorAll('[data-download-url]').forEach(b=>b.onclick=async()=>{try{const r=await downloadWithFeedback(b,{url:b.dataset.downloadUrl,filename:b.dataset.downloadName,mime:b.dataset.downloadMime});const err=await A.openDownloadedFile({path:r.path});if(err)alert(err)}catch(e){alert('Unable to open file: '+e.message)}});
   document.querySelectorAll('[data-open-url]').forEach(b=>b.onclick=()=>openWithPressTransition(b,()=>showEmbeddedWeb(b.dataset.openUrl,'Link')));
   document.querySelectorAll('[data-embed-html]').forEach(b=>b.onclick=()=>showEmbeddedWeb('data:text/html;charset=utf-8,'+encodeURIComponent(b.dataset.embedHtml),'Embedded content'));
@@ -441,6 +445,11 @@ function syncToolbar(){
     if(!bar.querySelector('#menuButton')){const b=document.createElement('m3e-icon-button');b.id='menuButton';b.setAttribute('slot','leading');b.setAttribute('aria-label','Navigation menu');b.setAttribute('toggle','');b.innerHTML='<m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">'+originalM3Icon('menu')+'</span><span class="m3eOriginalIcon" slot="selected">'+originalM3Icon('menu_open')+'</span>';bar.insertBefore(b,bar.firstChild);}
   }
   const title=bar.querySelector('.toolbarTitle');if(title)title.textContent=state.toolbarTitle||'Home';bar.classList.toggle('toolbarAccountInfo',state.embeddedTheme==='account');bar.classList.toggle('toolbarLti',state.embeddedTheme==='lti');
+  const barActions=bar.querySelectorAll('[data-toolbar-action]');barActions.forEach(el=>el.remove());
+  if(state.embeddedTitle && state.embeddedTheme!=='quiz'){
+    const reload=document.createElement('m3e-icon-button');reload.id='embeddedReload';reload.setAttribute('slot','trailing');reload.setAttribute('data-toolbar-action','');reload.setAttribute('aria-label','Reload');reload.innerHTML=`<span class="m3eOriginalIcon">${originalM3Icon('refresh')}</span>`;reload.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');try{w?.reload()}catch{}});bar.appendChild(reload);
+    if(state.embeddedCanOpenExternal){const open=document.createElement('m3e-icon-button');open.id='embeddedOpenBrowser';open.setAttribute('slot','trailing');open.setAttribute('data-toolbar-action','');open.setAttribute('aria-label','Open in browser');open.title='Open in browser';open.innerHTML=`<span class="m3eOriginalIcon">${officialOrAssetIcon('ic_external_tool.png','')}</span>`;open.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');const u=normalizeSchoologyWebUrl(w?.getURL?.()||'');if(u)A.openExternal(u).catch(e=>{console.warn('External browser failed:',e);showEmbeddedWeb(u,state.embeddedTitle||'Link',{allowBrowser:false})})});bar.appendChild(open)}
+  }
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
   if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" size="small" variant="primary" aria-label="Create">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
@@ -457,11 +466,6 @@ function syncToolbar(){
     return;
   }
   if(state.albumView){ return; }
-  if(state.embeddedTitle && state.embeddedTheme!=='quiz'){
-    slot.innerHTML=`<m3e-icon-button id="embeddedReload" aria-label="Reload"><span class="m3eOriginalIcon">${originalM3Icon('refresh')}</span></m3e-icon-button>${state.embeddedCanOpenExternal?`<m3e-icon-button id="embeddedOpenBrowser" aria-label="Open in browser" title="Open in browser"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_external_tool.png','')}</span></m3e-icon-button>`:''}`;
-    document.getElementById('embeddedReload')?.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');try{w?.reload()}catch{}});
-    document.getElementById('embeddedOpenBrowser')?.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');const u=normalizeSchoologyWebUrl(w?.getURL?.()||'');if(u)A.openExternal(u).catch(e=>{console.warn('External browser failed:',e);showEmbeddedWeb(u,state.embeddedTitle||'Link',{allowBrowser:false})})});return;
-  }
   if(state.embeddedTitle && state.embeddedCanOpenExternal){slot.innerHTML=`<m3e-icon-button id="embeddedOpenBrowser" aria-label="Open in browser" title="Open in browser"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_external_tool.png','')}</span></m3e-icon-button>`;document.getElementById('embeddedOpenBrowser')?.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');const u=normalizeSchoologyWebUrl(w?.getURL?.()||'');if(u)A.openExternal(u).catch(e=>{console.warn('External browser failed:',e);showEmbeddedWeb(u,state.embeddedTitle||'Link',{allowBrowser:false})})});return;}
   if(state.assignmentView&&state.assignmentLandscape&&!state.assignmentSubpage&&(state.assignmentTab==='info'||state.assignmentTab==='comments')){
     if(state.assignmentAllowComments||state.assignmentCanSubmit){
@@ -1353,7 +1357,7 @@ function renderUpcoming(events){
  const html=[];
  for(const g of groups){
    const dateLabel=Number.isNaN(g.date.getTime())?'':g.date.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'});
-   html.push(`<m3e-list variant="segmented" class="upcomingSegmentedList"><m3e-list-item class="upcomingDateHeader"><span class="upcomingDateLabel">${esc(dateLabel)}</span></m3e-list-item>`);
+   html.push(`<m3e-list variant="segmented" class="upcomingSegmentedList"><m3e-list-action class="upcomingDateHeader" disabled tabindex="-1"><span class="upcomingDateLabel">${esc(dateLabel)}</span></m3e-list-action>`);
    for(const e of g.items){
      const type=String(e.type||'').toLowerCase();
      const icon=type==='assignment'?'ic_assignment.png':type==='assessment'?'ic_test_quiz.png':['assessment_v2','managed_assessment','quiz'].includes(type)?'ic_assessment_48dp.png':type==='discussion'?'ic_discussion.png':type==='external_tool'?'ic_external_tool.png':type==='event'?'home_dash_upcoming.png':'ic_date_range_24px.png';
@@ -1742,8 +1746,8 @@ function renderMessageFolderInto(c,folder){
  const cache=state.messageCache?.[folder]||{arr:[],users:{}};const arr=cache.arr,users=cache.users;window.__schoologyMessages=arr;window.__schoologyMessageUsers=users;
  const listHtml=arr.map((m,i)=>{const uid=Number(folder==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId));const u=users[uid]||{};const me=Number(state.auth?.userId||state.auth?.user?.id||0)===uid;const name=me?'You':(u.name_display||u.nameDisplay||u.display_name||u.name||'Schoology');const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');const ts=m.last_updated||m.lastUpdated||m.created||m.timestamp;const date=ts?(typeof ts==='number'||/^\d+$/.test(String(ts))?new Date(Number(ts)*1000).toLocaleString():String(ts)):'';return `<m3e-list-action class="messageListItem ${m.message_status==='unread'?'unread':''}" data-message="${i}" tabindex="0"><span slot="leading" class="messageListAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`${esc(String(name).charAt(0))}`}</span><span class="messageListText"><b>${esc(name)}</b><strong>${esc(m.subject||'Message')}</strong><small>${esc(date)}</small></span>${m.message_status==='unread'?'<span class="messageUnreadDot"></span>':''}</m3e-list-action>`}).join('')||'<div class="empty">No messages.</div>';
  let page=c.querySelector('.messagesAndroidPage');
- if(!page){c.innerHTML=`<section class="messagesAndroidPage"><div class="messageTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e"><m3e-tab class="messageTab" data-message-tab="inbox" ${folder==='inbox'?'selected':''}>Inbox</m3e-tab><m3e-tab class="messageTab" data-message-tab="sent" ${folder==='sent'?'selected':''}>Sent</m3e-tab></m3e-tabs></div><m3e-list variant="segmented" class="messageList"></m3e-list></section>`;page=c.querySelector('.messagesAndroidPage');}
- const list=page.querySelector('.messageList');if(list)list.innerHTML=listHtml;page.querySelectorAll('[data-message-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.messageTab===folder);syncM3eTabSelection(page,'messageTab',folder);b.onclick=async()=>{const next=b.dataset.messageTab;if(state.messageTab===next)return;state.messageTab=next;if(!state.messageCache?.[next]){list.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';const uid=state.auth?.userId||state.auth?.user?.id;const endpoint=next==='sent'?'messages/sent':'messages/inbox';try{const x=await A.api({path:endpoint,params:{limit:50}});const a=x.message||x.messages||[];const ids=[...new Set(a.map(m=>Number(next==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId))).filter(Boolean))];const users2={};await Promise.all(ids.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});users2[id]=u?.user||u}catch{}}));state.messageCache=state.messageCache||{};state.messageCache[next]={arr:a,users:users2};}catch(e){list.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`;return}}renderMessageFolderInto(c,next);};});
+ if(!page){c.innerHTML=`<section class="messagesAndroidPage"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e"><m3e-tab class="messageTab" data-message-tab="inbox" ${folder==='inbox'?'selected':''}>Inbox</m3e-tab><m3e-tab class="messageTab" data-message-tab="sent" ${folder==='sent'?'selected':''}>Sent</m3e-tab></m3e-tabs><m3e-list variant="segmented" class="messageList"></m3e-list></section>`;page=c.querySelector('.messagesAndroidPage');}
+ const list=page.querySelector('.messageList');if(list)list.innerHTML=listHtml;page.querySelectorAll('[data-message-tab]').forEach(b=>{syncM3eTabSelection(page,'messageTab',folder);b.onclick=async()=>{const next=b.dataset.messageTab;if(state.messageTab===next)return;state.messageTab=next;if(!state.messageCache?.[next]){list.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';const uid=state.auth?.userId||state.auth?.user?.id;const endpoint=next==='sent'?'messages/sent':'messages/inbox';try{const x=await A.api({path:endpoint,params:{limit:50}});const a=x.message||x.messages||[];const ids=[...new Set(a.map(m=>Number(next==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId))).filter(Boolean))];const users2={};await Promise.all(ids.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});users2[id]=u?.user||u}catch{}}));state.messageCache=state.messageCache||{};state.messageCache[next]={arr:a,users:users2};}catch(e){list.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`;return}}renderMessageFolderInto(c,next);};});
  hydrateMediaImages(page);list?.querySelectorAll('[data-message]').forEach(b=>b.onclick=async()=>{const m=window.__schoologyMessages?.[+b.dataset.message];if(!m)return;state.message=m;state.messageFolder=state.messageTab;state.messageThread=null;render();await loadMessageThread(m);});
 }
 
@@ -1951,7 +1955,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.112</div></section>`;
+      <div class="settingsVersion">Version: 2026.06.0-port.119</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});
@@ -1988,7 +1992,7 @@ async function loadHomeTab(){
     const userMap={};
     await Promise.all(userIds.slice(0,20).map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});userMap[id]=u?.user||u}catch{}}));
     state.activityUsers=userMap;state.__activityById=Object.fromEntries(updates.map(u=>[String(u.id),u]));
-    c.classList.add('recentActivityScroll');c.style.overflowY='auto';c.style.height='100%';c.style.minHeight='0';
+    c.classList.add('recentActivityScroll');
     c.innerHTML=updates.length?updates.map(x=>{
       const uid=x.user_id||x.uid||x.author_id||x.authorId;
       const u=userMap[uid]||{};

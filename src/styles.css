@@ -1546,3 +1546,32 @@ m3e-fab-menu-item .m3eOriginalIcon{display:inline-flex!important;width:24px!impo
 m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{display:block!important;width:24px!important;height:24px!important;max-width:24px!important;max-height:24px!important;object-fit:contain!important}
 .m3eShellTheme .floatingActionSlot{pointer-events:none!important}
 .m3eShellTheme .floatingActionSlot m3e-fab{pointer-events:auto!important}
+
+/* v119: M3E owns message tabs and Upcoming row geometry. No legacy tab strip styling. */
+.messagesAndroidPage{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;overflow:hidden!important}
+.messagesAndroidPage>.messageTabsM3e{flex:0 0 auto!important;margin:0!important;padding:0!important}
+.messagesAndroidPage>.messageList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;margin:0!important;padding:0!important}
+.messagesAndroidPage .messageTab{background:transparent!important;border:0!important;padding:0!important;margin:0!important;min-height:unset!important;height:auto!important;color:inherit!important}
+.upcomingList{display:flex!important;flex-direction:column!important;gap:16px!important;margin:0!important;padding:0!important}
+.upcomingSegmentedList{margin:0!important;padding:0!important}
+.upcomingSegmentedList .upcomingDateHeader{margin:0!important;padding:0!important;border:0!important}
+.upcomingSegmentedList .upcomingDateHeader .upcomingDateLabel{display:block!important;width:100%!important}
+.upcomingSegmentedList .upcomingAssignment{margin:0!important;padding-top:0!important;padding-bottom:0!important;border:0!important}
+/* Keep home tab content in a real flex scroll viewport instead of forcing 100% inline height. */
+.homeLandscapeSplitM3e .homeRightPane{height:100%!important}
+.homeLandscapeSplitM3e .homeRightPane>.homeTabs{flex:0 0 auto!important}
+.homeLandscapeSplitM3e #homeTabContent{height:0!important;flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.homeLandscapeSplitM3e #homeTabContent.recentActivityScroll,.homeLandscapeSplitM3e #homeTabContent.dashboardContentActive{height:0!important;flex:1 1 auto!important;overflow:auto!important}
+.homeTabViewport{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.homeTabViewport>.homeTabs{flex:0 0 auto!important}
+.homeTabViewport>#homeTabContent{height:0!important;flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+/* The shared M3E drawer container is the subdrawer container; its start slot stays a normal drawer pane. */
+.m3eDrawerSub{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#002137!important;color:#fff!important}
+.m3eDrawerSub .m3eDrawerSubBar{flex:0 0 auto!important}
+.m3eDrawerSub .courseSubList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+/* Embedded pages: app bar is outside the content flex viewport, WebView fills every remaining pixel. */
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content:has(.embeddedPage){flex:1 1 auto!important;height:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage webview{position:relative!important;inset:auto!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;display:block!important;border:0!important}
+.m3eMainAppBar [data-toolbar-action]{display:inline-flex!important}
