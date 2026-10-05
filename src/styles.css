@@ -1480,3 +1480,32 @@ body{overflow:hidden;background:#44505d}
 
 /* Dialogs need enough room for the Android-style comment/submission layouts. */
 .assignmentCommentDialog,.assignmentSubmissionDialog,.androidCreatePostDialog{width:min(720px,calc(100vw - 32px))!important;max-width:min(720px,calc(100vw - 32px))!important;max-height:min(760px,calc(100vh - 32px))!important}
+
+/* v117 final M3E corrections: let Matraic components own their surfaces, shape, spacing, and indicators. */
+.m3eShell #content{min-height:0!important;overflow:auto!important}
+.m3eShell #content .dashboardHybrid,.m3eShell #content .embeddedPage{min-height:0!important;overflow:hidden!important}
+.m3eShell #content .dashboardHybrid webview,.m3eShell #content .embeddedPage webview{height:100%!important;min-height:100%!important;flex:1 1 auto!important}
+.dashboardGrid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important}
+.dashboardCard{border:0!important;border-radius:0!important;background:transparent!important;padding:0!important;overflow:visible!important}
+.dashboardCard m3e-card{width:100%;box-sizing:border-box}
+.androidActivityCard{display:block!important;background:var(--md-sys-color-surface-container,#f2f4f7)!important;border:0!important;border-radius:12px!important;box-shadow:none!important;margin:8px 12px!important;padding:16px!important}
+.sectionFullUpdate,.groupFullUpdate{background:var(--md-sys-color-surface-container,#f2f4f7)!important;border:0!important;border-radius:12px!important;margin:10px 12px!important;padding:16px!important}
+.upcomingList,.upcomingSegmentedList{margin:0!important;padding:0!important;background:transparent!important}
+.upcomingAssignment{border-bottom:0!important;border-top:0!important;margin:0!important}
+.upcomingDateHeader{border:0!important;margin:0!important;padding:0!important}
+.homeUpcomingScroll,.homeUpcomingList{margin:0!important;padding:0!important}
+.homeUpcomingPane{min-width:25%!important}
+/* Only Matraic tabs draw indicators; old Android tab rules are neutralized. */
+.sectionProfileTabs,.messageTabs,.homeTabs,.assignmentTabs,.profileTabs,.groupTabs{background:transparent!important;border:0!important;padding:0!important}
+.sectionProfileTab,.assignmentTab,.profileTab,.groupTab,.messageTab,.calendarPagerTab{border:0!important;border-bottom:0!important;background:transparent!important;padding:0!important}
+.m3eSchoologyTabs m3e-tab::part(indicator),.m3eSchoologyTabs m3e-tab::part(active-indicator){border:0!important}
+/* Drawer: original Schoology blue/text, with original artwork remaining visible. */
+.m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer),.m3eDrawer{background:#002137!important;color:#fff!important}
+.m3eDrawer m3e-list-action,.m3eDrawer m3e-list-item{color:#fff!important;--m3e-list-item-label-text-color:#fff;--m3e-list-item-supporting-text-color:rgba(255,255,255,.78);--m3e-list-item-leading-icon-color:#fff;--m3e-list-item-trailing-icon-color:#fff}
+.m3eDrawer .m3eOriginalIcon,.m3eDrawer .m3eOriginalIcon img{filter:none!important;opacity:1!important}
+.courseSubList{background:#002137!important}.courseSubList m3e-list{background:#002137!important}.courseSubList m3e-list-action{color:#fff!important;--m3e-list-item-label-text-color:#fff;--m3e-list-item-supporting-text-color:rgba(255,255,255,.78);--m3e-list-item-trailing-icon-color:#fff}
+/* The FAB and its menu live in the floating action layer, never the app bar. */
+.floatingActionSlot{position:absolute!important;right:24px!important;bottom:24px!important;z-index:1000!important;display:flex!important;align-items:flex-end!important}
+.floatingActionSlot m3e-fab{position:static!important}
+/* Remove legacy message separators/row styling when Matraic list owns the rows. */
+.messageList{background:transparent!important;padding:0!important;border:0!important}.messageListItem{border:0!important;border-bottom:0!important;background:transparent!important;margin:0!important}

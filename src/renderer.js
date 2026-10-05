@@ -143,12 +143,15 @@ async function showJoinGroupDialog(){
   requestAnimationFrame(()=>wrap.querySelector('#joinGroupCode')?.focus());
 }
 function showHomeCreateMenu(){
-  document.getElementById('homeCreateMenu')?.remove();const plus=document.getElementById('homeCreatePlus');if(!plus)return;const r=plus.getBoundingClientRect();
-  const m=document.createElement('div');m.id='homeCreateMenu';m.className='assignmentActionMenu';m.innerHTML=`<button id="createHomeDiscussion"><span>Discussion</span></button><button id="createHomeEvent"><span>Event</span></button>`;document.body.appendChild(m);m.style.top=(r.bottom+6)+'px';m.style.right=(window.innerWidth-r.right)+'px';
-  document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{m.remove();showCreatePostDialog('discussion','',null)});
-  document.getElementById('createHomeEvent')?.addEventListener('click',()=>{m.remove();showCreatePostDialog('event','',null)});
-  setTimeout(()=>document.addEventListener('mousedown',function f(e){if(!m.contains(e.target)&&e.target!==plus){m.remove();document.removeEventListener('mousedown',f)}},0),0);
+  const old=document.getElementById('homeCreateMenu');old?.remove();
+  const plus=document.getElementById('homeCreatePlus');if(!plus)return;
+  const menu=document.createElement('m3e-fab-menu');menu.id='homeCreateMenu';
+  menu.innerHTML=`<m3e-fab-menu-item id="createHomeDiscussion"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_discussion.png','')}</span>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('home_dash_upcoming.png','')}</span>Event</m3e-fab-menu-item>`;
+  document.body.appendChild(menu);menu.show?.(plus);
+  document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('discussion','',null)});
+  document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('event','',null)});
 }
+
 function showCreatePostDialog(kind,realm,realmId){
   const old=document.getElementById('createPostDialog');old?.remove();
   const wrap=document.createElement('div');wrap.id='createPostDialog';wrap.className='assignmentCommentDialogOverlay';
@@ -1145,7 +1148,7 @@ async function loadCourseApps(course,targetEl){
   const sid=course.id||course.section_id||course.sectionId;
   const x=await A.api({path:`v2/sections/${sid}/applications`,params:{}});
   const apps=x?.['@extra']||x.extra||x.data?.['@extra']||x.data?.extra||[];
-  el.innerHTML=apps.length?`<m3e-list variant="segmented" class="courseAppList">${apps.map((a,i)=>{
+  el.innerHTML=apps.length?`<m3e-list variant="standard" class="courseAppList">${apps.map((a,i)=>{
     const title=a.title||a.name||'Course App', logo=normalizeImageUrl(a.logoUrl||a.logo_url||a.logo||'');
     return `<m3e-list-action class="courseAppRow" data-app-index="${i}" tabindex="0">
       <span slot="leading" class="courseAppIcon">${logo?`<img data-course-image-url="${esc(logo)}" alt="" style="display:none">`:''}<span class="courseAppFallback"><img src="../assets/icons/ic_resourceapps.png" alt=""></span></span>
@@ -1761,7 +1764,7 @@ async function loadTab(){
     const landscape=window.matchMedia('(min-aspect-ratio: 4/3)').matches;
     if(landscape){
       const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs homeTabsM3e">${`<m3e-tab data-home-tab="recent" ${state.homeTab==='recent'?'selected':''}>Recent Activity</m3e-tab>`}${state.courseDashboardEnabled?`<m3e-tab data-home-tab="dashboard" ${state.homeTab==='dashboard'?'selected':''}>Course Dashboard</m3e-tab>`:''}</m3e-tabs>`;
-      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" orientation="horizontal" value="75" min="50" max="75" step="5" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
+      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" orientation="horizontal" value="75" min="25" max="75" step="5" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
       document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{state.homeTab=b.dataset.homeTab;syncM3eTabSelection(c,'homeTab',state.homeTab);loadHomeTab()});
       await loadHomeUpcomingPane();
       await loadHomeTab();
