@@ -146,8 +146,8 @@ function showHomeCreateMenu(){
   const old=document.getElementById('homeCreateMenu');old?.remove();
   const plus=document.getElementById('homeCreatePlus');if(!plus)return;
   const menu=document.createElement('m3e-fab-menu');menu.id='homeCreateMenu';
-  menu.innerHTML=`<m3e-fab-menu-item id="createHomeDiscussion"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_discussion.png','')}</span>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('home_dash_upcoming.png','')}</span>Event</m3e-fab-menu-item>`;
-  document.body.appendChild(menu);menu.show?.(plus);
+  menu.innerHTML=`<m3e-fab-menu-item id="createHomeDiscussion"><span slot="icon" class="m3eOriginalIcon">${officialIcon('ic_action_new.png','')}</span>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><span slot="icon" class="m3eOriginalIcon">${officialIcon('ic_action_new.png','')}</span>Event</m3e-fab-menu-item>`;
+  document.body.appendChild(menu);requestAnimationFrame(()=>menu.show?.(plus));
   document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('discussion','',null)});
   document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('event','',null)});
 }
@@ -307,7 +307,7 @@ function bind(){
   document.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',async()=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      state.drawerPage=id;const drawer=document.getElementById('startDrawer');if(drawer){drawer.innerHTML=`<div class="drawerSub"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span><span slot="trailing">${id==='courses'?'<m3e-icon-button id="joinCourse" aria-label="Join course" style="display:none"><span class="m3eOriginalIcon">${originalM3Icon("add")}</span></m3e-icon-button>':id==='groups'?'<m3e-icon-button id="joinGroup" aria-label="Join group" style="display:none"><span class="m3eOriginalIcon">${originalM3Icon("add")}</span></m3e-icon-button>':''}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><m3e-list variant="segmented"><div class="drawerLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></m3e-list></div></div>`;document.getElementById('appDrawerContainer')?.setAttribute('start','')}bind();loadCourseSubmenu();return;
+      state.drawerPage=id;const drawer=document.getElementById('startDrawer');if(drawer){drawer.innerHTML=`<m3e-drawer-container id="subDrawerContainer" start-mode="over" class="m3eSubDrawerContainer"><nav slot="start" id="subDrawerPane" class="m3eSubDrawer"><m3e-app-bar size="small" class="m3eDrawerSubBar"><m3e-icon-button id="drawerBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">${id==='grades'?'Grades':id==='groups'?'Groups':'Courses'}</span></m3e-app-bar><div id="courseSubList" class="courseSubList"><m3e-list variant="segmented"><div class="drawerLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading ${id==='grades'?'grades':id==='groups'?'groups':'courses'}…</span></div></m3e-list></div></nav><div class="m3eSubDrawerHost"></div></m3e-drawer-container>`;document.getElementById('appDrawerContainer')?.setAttribute('start','')}bind();loadCourseSubmenu();return;
     }
     closeDrawerThen(async()=>{
       if(id==='logout'){await A.logout();state.auth=null;state.school=null;state.tab='home';state.screen='login';render();return}
@@ -711,7 +711,7 @@ async function showAssignment(sectionId,assignmentId){
     };
     const select=async(id)=>{
       state.assignmentTab=id; state.submissionMenu=false;
-      document.querySelectorAll('.assignmentTab').forEach(x=>x.classList.toggle('active',x.dataset.assignmentTab===id));
+      document.querySelectorAll('.assignmentTab').forEach(x=>x.toggleAttribute('selected',x.dataset.assignmentTab===id));
       if(id==='info')renderInfo();
       else if(id==='comments')await openAssignmentComments(sectionId,assignmentId,at);
       else if(id==='submit')await openAssignmentSubmissions(sectionId,assignmentId,at,isTeacher);
@@ -797,11 +797,12 @@ function showAssignmentActionMenu(){
   const plus=document.getElementById('assignmentPlus');if(!plus)return;
   const menu=document.createElement('m3e-fab-menu');menu.id='assignmentActionMenu';menu.setAttribute('popover','auto');menu.setAttribute('right','');
   const canComment=!!state.assignmentAllowComments,canSubmit=!!state.assignmentCanSubmit;
-  menu.innerHTML=`${canComment?`<m3e-fab-menu-item id="assignmentNewComment"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>New comment</m3e-fab-menu-item>`:''}${canSubmit?`<m3e-fab-menu-item id="assignmentNewSubmission"><span slot="icon" class="m3eOriginalIcon">${originalM3Icon('add')}</span>New submission</m3e-fab-menu-item>`:''}`;
+  menu.innerHTML=`${canSubmit?`<m3e-fab-menu-item id="assignmentUploadSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_ic_menu_folder.png','')}</span>Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="assignmentTextSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','')}</span>Create Text Submission</m3e-fab-menu-item>`:''}${canComment?`<m3e-fab-menu-item id="assignmentNewComment"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>Create Comment</m3e-fab-menu-item>`:''}`;
   document.body.appendChild(menu);
-  menu.show?.(plus);
+  requestAnimationFrame(()=>menu.show?.(plus));
   document.getElementById('assignmentNewComment')?.addEventListener('click',()=>{menu.hide?.();openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0')});
-  document.getElementById('assignmentNewSubmission')?.addEventListener('click',()=>{menu.hide?.();showSubmissionMenu()});
+  document.getElementById('assignmentUploadSubmission')?.addEventListener('click',()=>{menu.hide?.();showAssignmentAttachmentChooser()});
+  document.getElementById('assignmentTextSubmission')?.addEventListener('click',()=>{menu.hide?.();openTextSubmissionComposer()});
 }
 
 async function openAssignmentSubmissions(sectionId,assignmentId,assignment,isTeacher){
