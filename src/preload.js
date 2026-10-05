@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('schoology',{
   downloadLiquidGlass:()=>ipcRenderer.invoke('download-liquid-glass'),
   downloadClassic:()=>ipcRenderer.invoke('download-classic'),
   installUpdate:info=>ipcRenderer.invoke('install-update',info),
+  cancelUpdateDownload:()=>ipcRenderer.invoke('cancel-update-download'),
   onUpdateAvailable:fn=>{const h=(_,data)=>fn(data);ipcRenderer.on('update-available',h);return()=>ipcRenderer.removeListener('update-available',h)},
   onUpdateDownloadProgress:fn=>{const h=(_,data)=>fn(data);ipcRenderer.on('update-download-progress',h);return()=>ipcRenderer.removeListener('update-download-progress',h)},
   setWindowChrome:x=>ipcRenderer.invoke('set-window-chrome',x),

@@ -62,7 +62,7 @@
 
 /* Android 2026.06 menu/submenu and screen refinements */
 .drawerSub{min-height:100%;background:#002137;color:#fff}.drawerSubHeader{height:56px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.18);background:#002137}.drawerSubHeader span{font-size:18px;flex:1;text-align:center}.drawerBack{width:56px;height:56px;background:transparent;border:0;color:#fff;font-size:38px;line-height:56px;cursor:pointer}.drawerHeaderAction{width:48px;height:48px;background:transparent;border:0;color:#fff;font-size:28px;cursor:pointer}.courseSubList{padding:0}.courseSubItem{width:100%;min-height:88px;border:0;border-bottom:1px solid rgba(255,255,255,.12);background:#002137;color:#fff;display:flex;align-items:center;text-align:left;padding:8px 16px;cursor:pointer}.courseSubItem:hover{background:rgba(255,255,255,.08)}.courseThumb{width:64px;height:64px;flex:0 0 64px;border-radius:2px;background:#e7ebee;color:#002137;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;margin-right:16px}.courseSubItem b,.courseSubItem small{display:block}.courseSubItem b{font-size:16px;font-weight:400}.courseSubItem small{font-size:13px;color:#cbd5db;margin-top:6px}.disclosure{float:right;font-size:27px;color:#c8d1d6;line-height:16px}.drawerLoading,.drawerEmpty,.drawerError{padding:30px 20px;text-align:center;color:#d5dde1}.drawerError{color:#ffb8b8}
-.dashboardGrid{padding:10px;background:#f4f5f5;display:grid;grid-template-columns:1fr 1fr;gap:10px}.dashboardCard{border:1px solid #d1d5d8;background:#fff;border-radius:2px;padding:0;text-align:left;overflow:hidden;cursor:pointer;min-height:130px}.dashboardThumb{height:72px;background:#2e66a3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px}.dashboardCard b,.dashboardCard small{display:block;padding:9px 10px 0}.dashboardCard b{font-size:15px;font-weight:400;color:#333}.dashboardCard small{padding-top:3px;padding-bottom:10px;color:#777;font-size:12px}.upcomingList{background:#fff}.upcomingCard{display:flex;align-items:center;min-height:78px;border-bottom:1px solid #ddd;padding:10px 14px}.dateBadge{width:58px;text-align:center;color:#2e66a3;font-size:12px;margin-right:14px}.upcomingCard b,.upcomingCard small{display:block}.upcomingCard b{font-size:15px;font-weight:400;color:#333}.upcomingCard small{font-size:12px;color:#888;margin-top:5px}.courseDetail{background:#f4f5f5;min-height:100%;padding-bottom:30px}.courseHero{background:#fff;padding:22px 18px;display:flex;align-items:center;border-bottom:1px solid #ddd}.courseAvatar{width:72px;height:72px;background:#2e66a3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;border-radius:2px;margin-right:16px}.courseHero h1{font-size:21px;font-weight:400;margin:0 0 6px;color:#333}.courseHero p{margin:0;color:#777}.courseRows{margin-top:10px;background:#fff}.courseRows button{display:flex;width:100%;justify-content:space-between;border:0;border-bottom:1px solid #ddd;background:#fff;padding:18px;color:#333;text-align:left;font-size:16px}.courseRows button span{color:#999;font-size:24px}.clickable{position:relative;width:100%;text-align:left;border:0}.messageChevron{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:25px;color:#aaa}.messageDetail{height:calc(100vh - 56px);overflow:auto;background:#fff;padding:22px 18px}.messageDetail h1{font-size:22px;font-weight:400;color:#333;margin:0 0 10px}.messageSender{font-size:14px;color:#555}.messageDate{font-size:12px;color:#888;margin-top:4px;padding-bottom:18px;border-bottom:1px solid #ddd}.messageBody{padding-top:20px;font-size:15px;line-height:1.6;color:#333;white-space:pre-wrap}.settingsPage{background:var(--md-sys-color-surface-container-low,#f7f7f7);min-height:100%;padding:24px clamp(16px,4vw,40px) 36px;color:var(--md-sys-color-on-surface,#1a1b1f)}.settingsSection{max-width:900px;margin:0 auto 24px}.settingsSection h2{font:var(--md-sys-typescale-title-medium-font,500 16px/24px sans-serif);margin:0 0 10px 4px;color:var(--md-sys-color-on-surface-variant,#44474e)}.settingsList{display:block}.settingsList m3e-list-item,.settingsList m3e-list-action{min-height:64px}.settingsList m3e-icon{font-size:22px}.settingsVersion{max-width:900px;margin:8px auto 0;text-align:center;color:var(--md-sys-color-on-surface-variant,#666);font:var(--md-sys-typescale-body-small-font,400 12px/16px sans-serif)}
+.dashboardGrid{padding:10px;background:#f4f5f5;display:grid;grid-template-columns:1fr 1fr;gap:10px}.dashboardCard{border:1px solid #d1d5d8;background:#fff;border-radius:2px;padding:0;text-align:left;overflow:hidden;cursor:pointer;min-height:130px}.dashboardThumb{height:72px;background:#2e66a3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px}.dashboardCard b,.dashboardCard small{display:block;padding:9px 10px 0}.dashboardCard b{font-size:15px;font-weight:400;color:#333}.dashboardCard small{padding-top:3px;padding-bottom:10px;color:#777;font-size:12px}.upcomingList{background:#fff}.upcomingCard{display:flex;align-items:center;min-height:78px;border-bottom:1px solid #ddd;padding:10px 14px}.dateBadge{width:58px;text-align:center;color:#2e66a3;font-size:12px;margin-right:14px}.upcomingCard b,.upcomingCard small{display:block}.upcomingCard b{font-size:15px;font-weight:400;color:#333}.upcomingCard small{font-size:12px;color:#888;margin-top:5px}.courseDetail{background:#f4f5f5;min-height:100%;padding-bottom:30px}.courseHero{background:#fff;padding:22px 18px;display:flex;align-items:center;border-bottom:1px solid #ddd}.courseAvatar{width:72px;height:72px;background:#2e66a3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;border-radius:2px;margin-right:16px}.courseHero h1{font-size:21px;font-weight:400;margin:0 0 6px;color:#333}.courseHero p{margin:0;color:#777}.courseRows{margin-top:10px;background:#fff}.courseRows button{display:flex;width:100%;justify-content:space-between;border:0;border-bottom:1px solid #ddd;background:#fff;padding:18px;color:#333;text-align:left;font-size:16px}.courseRows button span{color:#999;font-size:24px}.clickable{position:relative;width:100%;text-align:left;border:0}.messageChevron{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:25px;color:#aaa}.messageDetail{height:calc(100vh - 56px);overflow:auto;background:#fff;padding:22px 18px}.messageDetail h1{font-size:22px;font-weight:400;color:#333;margin:0 0 10px}.messageSender{font-size:14px;color:#555}.messageDate{font-size:12px;color:#888;margin-top:4px;padding-bottom:18px;border-bottom:1px solid #ddd}.messageBody{padding-top:20px;font-size:15px;line-height:1.6;color:#333;white-space:pre-wrap}.settingsPage{background:var(--md-sys-color-surface-container-low,#f7f7f7);min-height:100%;padding:24px clamp(16px,4vw,40px) 36px;color:var(--md-sys-color-on-surface,#1a1b1f)}.settingsSection{max-width:900px;margin:0 auto 24px}.settingsSection h2{font:var(--md-sys-typescale-title-medium-font,500 16px/24px sans-serif);margin:0 0 10px 4px;color:var(--md-sys-color-on-surface-variant,#44474e)}.settingsList{display:block}.settingsList m3e-list-item,.settingsList m3e-list-action{min-height:unset}.settingsList m3e-icon{font-size:22px}.settingsVersion{max-width:900px;margin:8px auto 0;text-align:center;color:var(--md-sys-color-on-surface-variant,#666);font:var(--md-sys-typescale-body-small-font,400 12px/16px sans-serif)}
 
 /* Android 2026-06 SectionNavViewModel / SlidingMenuSectionAdapter */
 .drawerHeaderSpacer{width:48px;height:48px;display:block}
@@ -1324,3 +1324,113 @@ body{overflow:hidden;background:#44505d}
 
 /* Ensure standard M3E pages do not inherit the old 56px viewport subtraction. */
 .m3eShellMain .embeddedPage,.m3eShellMain .dashboardHybrid,.m3eShellMain .homeLandscapeSplit{height:100%!important;min-height:0!important;max-height:none!important}
+
+/* v114 foundation corrections: let Matraic M3E own component geometry and use
+   the actual Schoology palette at the M3 system-token level. */
+.m3eRoot,.m3eShellTheme{
+  --schoology-primary:#2e66a3;
+  --schoology-dark:#002137;
+  --schoology-graphite:#44505d;
+  --md-sys-color-primary:#2e66a3;
+  --md-sys-color-on-primary:#ffffff;
+  --md-sys-color-primary-container:#d9e9f5;
+  --md-sys-color-on-primary-container:#002137;
+  --md-sys-color-secondary:#2e66a3;
+  --md-sys-color-on-secondary:#ffffff;
+  --md-sys-color-secondary-container:#d9e9f5;
+  --md-sys-color-on-secondary-container:#002137;
+  --md-sys-color-tertiary:#074f7b;
+  --md-sys-color-on-tertiary:#ffffff;
+  --md-sys-color-tertiary-container:#d8eaf6;
+  --md-sys-color-on-tertiary-container:#002137;
+  --md-sys-color-background:#f4f5f5;
+  --md-sys-color-on-background:#22303e;
+  --md-sys-color-surface:#f4f5f5;
+  --md-sys-color-on-surface:#22303e;
+  --md-sys-color-surface-variant:#e7ebee;
+  --md-sys-color-on-surface-variant:#56636c;
+  --md-sys-color-surface-container:#e7ebee;
+  --md-sys-color-surface-container-low:#eef1f3;
+  --md-sys-color-surface-container-high:#dfe4e8;
+  --md-sys-color-outline:#68757e;
+  --md-sys-color-outline-variant:#cfd6dd;
+}
+.m3eShellTheme{background:#f4f5f5!important;color:#22303e!important}
+.m3eSchoologyDrawer{--m3e-drawer-container-color:#002137}
+.m3eDrawer{background:#002137!important;color:#fff!important}
+.m3eDrawer m3e-list{background:#002137!important;color:#fff!important}
+.m3eDrawer m3e-list-action,.m3eDrawer m3e-list-item{--m3e-list-item-container-color:#002137;color:#fff!important}
+.m3eDrawer m3e-list-action:hover{--m3e-list-item-hover-container-color:#07314a}
+.m3eDrawerSubBar{--m3e-app-bar-container-color:#002137!important;--m3e-app-bar-title-text-color:#fff!important}
+.m3eMainAppBar{--m3e-app-bar-container-color:#002137!important;--m3e-app-bar-title-text-color:#fff!important;--m3e-app-bar-leading-space:0px;--m3e-app-bar-trailing-space:0px}
+.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:#fff!important}
+.m3eMainAppBar .toolbarActionSlot{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important}
+.m3eSchoologyTabs{background:#002137!important;--m3e-tabs-active-indicator-color:#fff;--m3e-tab-selected-color:#fff;--m3e-tab-unselected-color:rgba(255,255,255,.82)}
+.m3eSchoologyTabs m3e-tab{color:rgba(255,255,255,.82)!important}
+.m3eSchoologyTabs m3e-tab[selected]{color:#fff!important}
+/* Preserve the original centered tab presentation. */
+.homeTabsM3e:not([stretch]) .tabs,.courseTabsM3e:not([stretch]) .tabs,.assignmentTabsM3e:not([stretch]) .tabs,.groupTabsM3e:not([stretch]) .tabs,.profileTabsM3e:not([stretch]) .tabs,.calendarTabsM3e:not([stretch]) .tabs{justify-content:center}
+/* The legacy wrappers remain only as structural containers; the actual tabs are M3E. */
+.sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.homeTabs,.calendarPagerTabs,.messageTabs{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* Login follows the official Android 2026.06.0 graphite screen. */
+.m3eLogin,.m3eQrScreen{background:#44505d!important;color:#fff!important}
+.m3eLoginAppBar,.m3eQrAppBar{--m3e-app-bar-container-color:#44505d!important;--m3e-app-bar-title-text-color:#fff!important}
+.m3eLogin m3e-button{--m3e-button-filled-container-color:#002137;--m3e-button-filled-label-text-color:#fff}
+.m3eLogin m3e-button[variant="outlined"]{--m3e-button-outlined-outline-color:#fff;--m3e-button-outlined-label-text-color:#fff}
+.m3eLogin .m3eSearchStatus,.m3eLogin .m3eCredentialSchool{color:#fff!important}
+
+/* Actual M3E split pane owns the home split and exposes 50–75% start-pane sizing. */
+.homeLandscapeSplitM3e{height:100%!important;width:100%!important;min-height:0!important;--m3e-split-pane-drag-handle-container-width:24px}
+.homeLandscapeSplitM3e>.homeRightPane,.homeLandscapeSplitM3e>#homeUpcomingPane{min-width:0;min-height:0;overflow:hidden}
+.homeLandscapeSplitM3e #homeTabContent{min-height:0;flex:1 1 auto;overflow:auto}
+.homeLandscapeSplitM3e #homeUpcomingPane{height:100%;display:flex;flex-direction:column}
+
+/* Webviews must occupy the complete flex content area below the default app bar. */
+.m3eShellMain>#content:has(.embeddedPage),.m3eShellMain>#content:has(.dashboardHybrid){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid{position:relative!important;inset:auto!important;display:flex!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage) webview,.m3eShellMain>#content:has(.dashboardHybrid) webview{position:relative!important;inset:auto!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important}
+.webviewLoading m3e-circular-progress-indicator{--m3e-circular-progress-indicator-size:56px!important;width:56px!important;height:56px!important}
+
+/* Matraic default segmented lists: no custom row gaps, margins, or heights. */
+.settingsList,.messagesList,.courseAppList,.upcomingSegmentedList,.drawerSub .courseSubList>m3e-list{margin:0!important;padding:0!important}
+.settingsList,.messagesList,.courseAppList{width:100%!important}
+.settingsList m3e-list-action,.settingsList m3e-list-item,.messagesList m3e-list-action,.messagesList m3e-list-item{margin:0!important;min-height:unset!important}
+.upcomingList{padding:0!important;margin:0!important}
+.upcomingSegmentedList{margin:0!important}
+.upcomingDateHeader{padding:0!important;min-height:48px!important;color:#22303e!important}
+.upcomingDateHeader .upcomingDateLabel{font-weight:500}
+.upcomingDateRule{display:none!important}
+
+/* Responsive dashboard grid: cards reflow naturally as the available width grows. */
+.nativeDashboardCourses{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))!important;padding:16px!important;gap:16px!important}
+.nativeDashboardCourse{width:100%!important;min-width:0!important}
+.nativeDashboardCourse .nativeDashboardCourseImage{height:130px!important;min-height:130px!important;max-height:130px!important}
+
+/* Subdrawer lists use the same dark-blue segmented treatment as Android. */
+.drawerSub .courseSubList{background:#002137!important;padding:0!important}
+.drawerSub .courseSubList>m3e-list{background:#002137!important;--m3e-segmented-list-item-container-color:#002137}
+.drawerSub .courseSubList m3e-list-action,.drawerSub .courseSubList m3e-list-item{color:#fff!important}
+.drawerSub .courseSubList .m3eOriginalIcon{color:#fff}
+
+/* M3E FABs in app-bar action slots. */
+.m3eMainAppBar .toolbarActionSlot m3e-fab{--m3e-primary-fab-container-color:#2e66a3;--m3e-primary-fab-color:#fff;--m3e-fab-icon-size:24px}
+.m3eMainAppBar .toolbarActionSlot m3e-fab-menu{z-index:30}
+
+/* Proper M3E dialog geometry/backdrop. Legacy dialog styling is scoped away. */
+.m3eAppDialog,.schoologyErrorDialog,.androidSimpleDialog,.androidCreatePostDialog,.assignmentSubmissionDialog,.assignmentCommentDialog{width:auto!important;max-width:min(560px,calc(100vw - 48px))!important;max-height:min(720px,calc(100vh - 48px))!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+.m3eAppDialog::backdrop,.schoologyErrorDialog::backdrop,.androidSimpleDialog::backdrop,.androidCreatePostDialog::backdrop,.assignmentSubmissionDialog::backdrop,.assignmentCommentDialog::backdrop{background:color-mix(in srgb,var(--md-sys-color-scrim,#000) 32%,transparent)!important}
+.schoologyErrorOverlay{position:fixed!important;inset:0!important;z-index:2147483646!important;display:contents!important}
+.schoologyErrorDialog{--m3e-dialog-container-color:#f4f5f5}
+.schoologyErrorDialog .schoologyErrorClose{display:none!important}
+
+/* Keep download/alternate-release dialogs cancellable with a Cancel action rather than an X. */
+.updateDownloadProgressWrap{padding:8px 0 4px}
+.updateDownloadProgressWrap m3e-linear-progress-indicator{width:100%;--m3e-linear-progress-indicator-active-indicator-color:#2e66a3}
+
+/* Official splash: make the logo twice the Android width and use a white M3E indicator. */
+.androidSplashLogo{width:442px!important;height:78px!important;margin-bottom:16px!important}
+.androidSplashSpinner{width:48px!important;height:48px!important;--m3e-circular-progress-indicator-active-indicator-color:#fff!important}
+
+/* Remove the old custom upcoming press animation; M3E supplies the interaction motion. */
+.pressTransition{transform:none!important;transition:none!important}
