@@ -1575,3 +1575,110 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 .m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 .m3eShellMain>#content:has(.embeddedPage)>.embeddedPage webview{position:relative!important;inset:auto!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;display:block!important;border:0!important}
 .m3eMainAppBar [data-toolbar-action]{display:inline-flex!important}
+
+
+/* v120: structural M3E cleanup. These rules only size page-level viewports;
+   Matraic list/card/tab components own their internal geometry. */
+.m3eShellMain{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;overflow:hidden!important}
+.m3eShellMain>#content{flex:1 1 auto!important;height:0!important;min-height:0!important;overflow:auto!important;display:flex!important;flex-direction:column!important}
+
+/* Messages: one segmented M3E list for the selected folder, with page spacing
+   outside the list. No custom row padding/separators. */
+.messagesAndroidPage{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;overflow:hidden!important;padding:0 16px 16px!important;background:var(--md-sys-color-background,#f4f5f5)!important}
+.messagesAndroidPage>.messageTabsM3e{flex:0 0 auto!important;margin-inline:-16px!important;width:calc(100% + 32px)!important}
+.messagesAndroidPage>.messageList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;margin:16px 0 0!important;padding:0!important;width:100%!important}
+.messageListItem{min-width:0!important}
+.messageListItem>span:not([slot]){min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.messageListAvatar{display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;flex:0 0 40px!important}
+.messageListAvatar img{display:block!important;width:40px!important;height:40px!important;object-fit:cover!important;border-radius:50%!important}
+.messageUnreadDot{width:8px!important;height:8px!important;border-radius:50%!important;background:var(--md-sys-color-primary,#2e66a3)!important}
+
+/* Upcoming: spacing belongs between whole M3E lists, not between rows. */
+.upcomingList{display:flex!important;flex-direction:column!important;gap:16px!important;padding:16px!important;margin:0!important;box-sizing:border-box!important}
+.upcomingSegmentedList{width:100%!important;margin:0!important;padding:0!important;box-sizing:border-box!important}
+.upcomingRow{margin:0!important;border:0!important}
+.upcomingDateHeader{font-weight:500!important}
+
+/* M3E card is the dashboard surface. The host itself contributes no second
+   border, radius, background, shadow, or padding. */
+.nativeDashboardCourses{padding:16px!important;gap:16px!important}
+.nativeDashboardCourse{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
+.nativeDashboardCourse::part(base){border-radius:initial!important;box-shadow:initial!important}
+.nativeDashboardCourse .nativeDashboardCourseInfo{border:0!important;box-shadow:none!important}
+
+/* Course/group M3E split panes replace the old CSS grid split. */
+.courseLandscapePage,.groupProfilePage{height:100%!important;min-height:0!important;overflow:hidden!important}
+.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{display:block!important;width:100%!important;height:100%!important;min-height:0!important;--m3e-split-pane-drag-handle-container-width:24px}
+.courseInnerSplit,.courseOuterSplit,.groupOuterSplit{background:var(--md-sys-color-background,#f4f5f5)!important}
+.courseAppsSidePane,.courseMainPane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseAppsSidePane,.courseUpcomingPane,.groupUpcomingPane{background:var(--md-sys-color-surface,#fff)!important}
+.courseAppsSideContent,.courseUpcomingContent,#groupUpcomingContent{min-width:0!important;min-height:0!important;overflow:auto!important;flex:1 1 auto!important}
+.courseMainPane{display:flex!important;flex-direction:column!important}
+.courseMainPane .sectionProfileContent,.groupMainPane #groupTabContent{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+
+/* Course apps/subdrawers: let the actual M3E list handle row spacing; text gets
+   ellipsis rather than escaping the pane. */
+.courseAppList{width:100%!important;min-width:0!important;overflow:hidden!important}
+.courseAppRow{min-width:0!important;max-width:100%!important}
+.courseAppRow>span:not([slot]){min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.courseAppIcon{flex:0 0 40px!important;width:40px!important;height:40px!important}
+.courseSubList{min-width:0!important;overflow:auto!important}
+.courseSubItem{min-width:0!important;max-width:100%!important}
+.courseSubItem .courseText{min-width:0!important;overflow:hidden!important}
+.courseSubItem .courseText b,.courseSubItem .courseText small{display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.courseSubItem .disclosure{flex:0 0 auto!important}
+
+/* Real M3E subdrawer container. */
+.m3eSubDrawerContainer{height:100%!important;width:100%!important;min-height:0!important;--m3e-drawer-container-width:100%!important;--m3e-drawer-container-color:#002137!important}
+.m3eSubDrawerContainer .m3eDrawerSub{height:100%!important;width:100%!important;box-sizing:border-box!important;background:#002137!important;color:#fff!important;overflow:hidden!important}
+.m3eSubDrawerContainer .courseSubList{height:calc(100% - 48px)!important;overflow:auto!important;background:#002137!important}
+.m3eSubDrawerContainer m3e-list{background:#002137!important}
+
+/* WebView: app bar remains the native M3E app bar; the WebView consumes the
+   entire content viewport below it. */
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content:has(.embeddedPage){overflow:hidden!important;display:flex!important;flex:1 1 auto!important;height:0!important;min-height:0!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{display:flex!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{position:relative!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;border:0!important}
+#embeddedOpenBrowser{--m3e-icon-button-icon-color:#fff!important}
+#embeddedOpenBrowser .m3eOriginalIcon img{filter:brightness(0) invert(1)!important}
+
+/* Native M3E message cards. */
+.messageDetail{box-sizing:border-box!important;height:100%!important;min-height:0!important;overflow:auto!important;background:var(--md-sys-color-background,#f4f5f5)!important;padding:16px!important}
+.messageThreadCard{display:block!important;margin:0 0 16px!important;padding:0!important;overflow:hidden!important;border:0!important;box-shadow:none!important}
+.messageThreadCard .messageThreadHeader{display:flex!important;align-items:center!important;gap:12px!important;padding:16px!important}
+.messageThreadCard .messageThreadBody{padding:0 16px 16px!important;white-space:pre-wrap!important}
+.messageThreadAvatar{width:40px!important;height:40px!important;border-radius:50%!important;object-fit:cover!important}
+
+/* Native M3E compose/update dialogs. */
+.composeMessageDialog{--m3e-dialog-max-width:min(760px,calc(100vw - 48px))!important;--m3e-dialog-max-height:min(760px,calc(100vh - 48px))!important}
+.composeNativeDialogHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;gap:8px!important;color:var(--md-sys-color-on-surface)!important}
+.composeNativeDialogHeader>span{flex:1 1 auto!important}
+.courseUpdateDialog{--m3e-dialog-max-width:min(720px,calc(100vw - 48px))!important}
+.courseUpdateComposerInner{padding:0!important}
+.courseUpdateComposerInner textarea{width:100%!important;min-height:180px!important;box-sizing:border-box!important}
+
+/* Grades are now native M3E accordion + standard lists. */
+.gradesAccordion{display:block!important;padding:16px!important}
+.gradeCategory{padding:8px 0 16px!important}
+.gradeCategory h3{font:500 16px/24px sans-serif!important;color:var(--md-sys-color-on-surface)!important;margin:0 0 8px!important}
+.gradeCategory h3 small{font-weight:400!important;color:var(--md-sys-color-on-surface-variant)!important}
+
+/* Remove the remaining legacy active-indicator surfaces. */
+.sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.homeTabs,.calendarPagerTabs,.messageTabs{background:transparent!important;border:0!important;box-shadow:none!important}
+.sectionProfileTab,.assignmentTab,.groupTab,.profileTab,.homeTab,.courseTab,.calendarPagerTab,.messageTab{border:0!important;box-shadow:none!important;background:transparent!important}
+.sectionProfileTab.active,.assignmentTab.active,.groupTab.active,.profileTab.active,.homeTab.active,.courseTab.active,.calendarPagerTab.active,.messageTab.active{border:0!important;box-shadow:none!important}
+
+/* Force the Schoology palette through every common M3E semantic token used by
+   Matraic controls, avoiding a generated purple secondary/tertiary palette. */
+.m3eShellTheme,.m3eRoot{
+ --md-sys-color-primary:#2e66a3!important;--md-sys-color-on-primary:#fff!important;
+ --md-sys-color-secondary:#2e66a3!important;--md-sys-color-on-secondary:#fff!important;
+ --md-sys-color-tertiary:#074f7b!important;--md-sys-color-on-tertiary:#fff!important;
+ --md-sys-color-primary-container:#d9e9f5!important;--md-sys-color-on-primary-container:#002137!important;
+ --md-sys-color-secondary-container:#d9e9f5!important;--md-sys-color-on-secondary-container:#002137!important;
+ --md-sys-color-tertiary-container:#d8eaf6!important;--md-sys-color-on-tertiary-container:#002137!important;
+}
+
+.m3eMessageDetailScreen{display:block!important;width:100%!important;height:100%!important;min-height:0!important;background:var(--md-sys-color-background,#f4f5f5)!important}
+.m3eMessageDetailScreen>.m3eMainAppBar{height:56px!important;min-height:56px!important;background:#2e66a3!important;--m3e-app-bar-container-color:#2e66a3!important;--m3e-app-bar-title-text-color:#fff!important}
