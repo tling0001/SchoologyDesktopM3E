@@ -1682,3 +1682,95 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 
 .m3eMessageDetailScreen{display:block!important;width:100%!important;height:100%!important;min-height:0!important;background:var(--md-sys-color-background,#f4f5f5)!important}
 .m3eMessageDetailScreen>.m3eMainAppBar{height:56px!important;min-height:56px!important;background:#2e66a3!important;--m3e-app-bar-container-color:#2e66a3!important;--m3e-app-bar-title-text-color:#fff!important}
+
+/* v121: let Matraic M3E own component geometry.  Page surfaces are provided by
+   m3e-theme; legacy page/background/card rules must not create another layer. */
+.m3eRoot{display:block!important;width:100%;height:100%;min-height:0;background:var(--md-sys-color-background)!important;color:var(--md-sys-color-on-background)!important}
+.m3eRoot,.m3eShellTheme{
+  --md-sys-color-primary:#2e66a3;
+  --md-sys-color-on-primary:#ffffff;
+  --md-sys-color-primary-container:#d9e9f5;
+  --md-sys-color-on-primary-container:#002137;
+  --md-sys-color-secondary:#4f6078;
+  --md-sys-color-on-secondary:#ffffff;
+  --md-sys-color-secondary-container:#d6e3f7;
+  --md-sys-color-on-secondary-container:#0b1d2e;
+  --md-sys-color-tertiary:#2f647e;
+  --md-sys-color-on-tertiary:#ffffff;
+  --md-sys-color-tertiary-container:#cfe8f5;
+  --md-sys-color-on-tertiary-container:#071e2a;
+  --md-sys-color-error:#ba1a1a;
+  --md-sys-color-on-error:#ffffff;
+  --md-sys-color-error-container:#ffdad6;
+  --md-sys-color-on-error-container:#410002;
+  --md-sys-color-background:#f9f9ff;
+  --md-sys-color-on-background:#1a1b20;
+  --md-sys-color-surface:#f9f9ff;
+  --md-sys-color-on-surface:#1a1b20;
+  --md-sys-color-surface-variant:#e0e2e9;
+  --md-sys-color-on-surface-variant:#44474e;
+  --md-sys-color-surface-dim:#dad9e0;
+  --md-sys-color-surface-bright:#f9f9ff;
+  --md-sys-color-surface-container-lowest:#ffffff;
+  --md-sys-color-surface-container-low:#f3f3fa;
+  --md-sys-color-surface-container:#ededf4;
+  --md-sys-color-surface-container-high:#e7e7ee;
+  --md-sys-color-surface-container-highest:#e1e2e8;
+  --md-sys-color-outline:#74777f;
+  --md-sys-color-outline-variant:#c4c6cf;
+  --md-sys-color-inverse-surface:#2f3035;
+  --md-sys-color-inverse-on-surface:#f1f0f7;
+  --md-sys-color-inverse-primary:#a9c7ff;
+  --md-sys-color-scrim:#000000;
+  --md-sys-color-shadow:#000000;
+}
+body:not(.splashVisible){background:var(--md-sys-color-background)!important;color:var(--md-sys-color-on-background)!important}
+.m3eShell,.m3eShellMain,.m3eAppDrawerContainer{background:var(--md-sys-color-background)!important}
+.m3eMainAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary)!important}
+.m3eSchoologyTabs,.m3eSchoologyTabs::part(base){background:var(--md-sys-color-primary)!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary)!important;--m3e-tab-unselected-color:rgba(255,255,255,.82)!important}
+.m3eDrawer,.m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer){background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important}
+
+/* Default M3E tab height/density: do not impose the old 48px tab geometry. */
+.sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.messageTabs,.calendarPagerTabs,.homeTabs{height:auto!important;min-height:0!important}
+.m3eSchoologyTabs{height:auto!important;min-height:0!important}
+.sectionProfileTab,.assignmentTab,.groupTab,.profileTab,.messageTab,.calendarPagerTab,.homeTab{height:auto!important;min-height:0!important}
+
+/* Messages: exactly one segmented list for each folder. The list component owns
+   all row geometry; only the page-to-list spacing is ours. */
+.messagesAndroidPage>.messageList{margin:16px 0 0!important;padding:0!important}
+.messagesAndroidPage>.messageList .messageListItem{margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:initial!important;min-height:initial!important}
+.messagesAndroidPage>.messageList .messageListItem.unread{background:transparent!important}
+
+/* Upcoming: one segmented list per date. The date is a non-actionable list item,
+   and no custom row margins/padding are applied, so date and event rows inherit
+   identical M3E list geometry. */
+.upcomingList{display:flex!important;flex-direction:column!important;gap:16px!important;padding:16px!important;margin:0!important;background:transparent!important}
+.upcomingSegmentedList{width:100%!important;margin:0!important;padding:0!important}
+.upcomingSegmentedList .upcomingRow{margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:initial!important}
+.upcomingSegmentedList .upcomingDateHeader{font-weight:500!important}
+
+/* Course dashboard: only the M3E card creates the card surface. */
+.nativeCourseDashboard{background:var(--md-sys-color-background)!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:16px!important}
+.nativeDashboardCourses{background:transparent!important;border:0!important;box-shadow:none!important}
+.nativeDashboardCourse{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin:0!important;overflow:visible!important}
+.nativeDashboardCourseInfo{background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* All ordinary page hosts inherit the theme surface rather than painting their
+   own legacy white/gray page layer. */
+.m3eShellMain>#content,.m3eShellMain>#content>*,.sectionProfilePage,.courseLandscapePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesAndroidPage,.nativeCourseDashboard{background-color:var(--md-sys-color-background)!important;color:var(--md-sys-color-on-background)!important}
+.courseMainPane,.courseAppsSidePane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{background-color:var(--md-sys-color-surface)!important}
+
+/* Shared webviews: exactly the remaining viewport below the M3E app bar. */
+.m3eShellMain{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content{position:relative!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{position:relative!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;background:var(--md-sys-color-background)!important}
+.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:relative!important;flex:1 1 auto!important;display:block!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important}
+
+/* Keep the reload/open-browser controls in the app bar, not over the WebView. */
+#embeddedOpenBrowser{--m3e-icon-button-icon-color:var(--md-sys-color-on-primary)!important}
+#embeddedOpenBrowser .m3eOriginalIcon img{filter:brightness(0) invert(1)!important}
+
+/* Compose dialog uses the native M3E title/action regions. */
+.composeMessageDialog{--m3e-dialog-container-color:var(--md-sys-color-surface-container-high)!important;--m3e-dialog-color:var(--md-sys-color-on-surface)!important}
+.composeDialogActions{display:flex!important;align-items:center!important;gap:4px!important}
