@@ -1,56 +1,37 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,'Helvetica Neue',sans-serif;color:#22303e;background:#22303e}button,input{font:inherit}.fatal{font-family:Arial,sans-serif;padding:32px;color:#22303e;background:#f4f5f5;height:100vh}.androidSplash{position:fixed;inset:0;z-index:9999}
 
-/* Material 3 Expressive login integration: M3E owns controls, typography, states, shapes and motion. */
-.m3eRoot{display:block;width:100%;height:100%;min-height:100vh;--m3e-filled-button-container-color:#2e66a3;--m3e-tonal-button-container-color:#ffffff;--m3e-tonal-button-label-text-color:#2e66a3;--m3e-outlined-button-label-text-color:#ffffff;--m3e-outlined-button-icon-color:#ffffff;--m3e-outlined-button-outline-color:rgba(255,255,255,.75);--m3e-form-field-outline-color:rgba(255,255,255,.62);--m3e-form-field-color:#ffffff;--m3e-form-field-focused-outline-color:#9ec9ff;--m3e-form-field-focused-color:#b9d9ff;--m3e-form-field-invalid-color:#ffb4ab;--m3e-form-field-subscript-color:#ffb4ab;}
-.m3eLogin{min-height:100%;height:100%;overflow:auto;background:#44505d;color:#fff;display:flex;flex-direction:column;align-items:center;padding:28px 24px 30px;position:relative;}
-.m3eLoginAppBar,.m3eQrAppBar{width:100%;flex:0 0 auto;--m3e-app-bar-container-color:transparent;--m3e-app-bar-title-text-color:#fff;--m3e-app-bar-small-title-text-font-size:18px;--m3e-app-bar-small-title-max-lines:1;}
+/* Material 3 Expressive integration: M3E owns component visuals, tokens, states, shapes and motion. */
+.m3eRoot{display:block;width:100%;height:100%;min-height:100vh;}
+.m3eLogin{min-height:100%;height:100%;overflow:auto;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);display:flex;flex-direction:column;align-items:center;padding:28px 24px 30px;position:relative;}
+.m3eLoginAppBar,.m3eQrAppBar{width:100%;flex:0 0 auto;}
 .m3eLoginLogo{width:min(265px,70vw);height:auto;display:block;margin:24px auto 42px;object-fit:contain;}
 .m3eLoginLogoSmall{width:min(230px,60vw);margin:18px auto 28px;}
 .m3eLoginActions,.m3eExternalActions{width:min(90%,520px);display:flex;flex-direction:column;gap:14px;margin:auto;}
 .m3eLoginButton,.m3eExternalActions m3e-button{width:100%;}
 .m3eLoginButton{--m3e-button-large-container-height:56px;--m3e-button-large-label-text-font-size:16px;--m3e-button-large-label-text-line-height:24px;}
 .m3eButtonLogo{width:28px;height:28px;object-fit:contain;display:block;}
-.m3eLoginHelp{margin-top:auto;--m3e-text-button-label-text-color:#f4f5f5;--m3e-button-medium-label-text-font-size:16px;}
-.m3eLoginError,.m3eQrError{width:min(90%,520px);margin:14px auto 0;padding:12px 16px;border-radius:12px;background:rgba(255,180,171,.14);color:#ffdad6;text-align:center;}
+.m3eLoginHelp{margin-top:auto;}
+.m3eLoginError,.m3eQrError{width:min(90%,520px);margin:14px auto 0;padding:12px 16px;border-radius:var(--md-sys-shape-corner-large,16px);background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container);text-align:center;}
 .m3eSearchArea{width:min(90%,560px);margin:0 auto;display:flex;flex-direction:column;min-height:0;flex:1;}
-.m3eSearchArea m3e-search-view{width:100%;--m3e-search-view-contained-container-color:#ffffff;--m3e-search-view-container-color:#ffffff;--m3e-search-view-contained-docked-bar-shape:28px;--m3e-search-view-contained-docked-results-shape:20px;--m3e-search-view-contained-docked-bar-results-gap:8px;--m3e-search-view-input-color:#22303e;}
-.m3eSearchArea m3e-search-view input{color:#22303e;background:transparent;border:0;outline:0;width:100%;}
-.m3eSchoolResult{cursor:pointer;--m3e-list-item-container-color:#ffffff;--m3e-list-item-label-text-color:#22303e;--m3e-list-item-supporting-text-color:#66737c;}
-.m3eSearchEmpty{--m3e-list-item-label-text-color:#66737c;}
-.m3eSearchStatus{color:#f4f5f5;text-align:center;padding:10px 0;font-size:14px;min-height:34px;}
+.m3eSearchArea m3e-search-view{width:100%;}
+.m3eSearchArea m3e-search-view input{width:100%;}
+.m3eSchoolResult{cursor:pointer;}
+.m3eSearchStatus{color:var(--md-sys-color-on-surface-variant);text-align:center;padding:10px 0;font-size:14px;min-height:34px;}
 .m3eCredentialForm{width:min(90%,520px);margin:0 auto;display:flex;flex-direction:column;gap:18px;}
-.m3eCredentialSchool{min-height:40px;display:flex;align-items:center;gap:10px;color:#fff;justify-content:center;text-align:center;}
-.m3eCredentialSchool m3e-icon{--m3e-icon-size:24px;}
-.m3eCredentialForm m3e-form-field{width:100%;--m3e-form-field-width:100%;}
-.m3eCredentialForm input{width:100%;height:48px;border:0;outline:0;background:transparent;color:#fff;font:inherit;}
+.m3eCredentialSchool{min-height:40px;display:flex;align-items:center;gap:10px;color:var(--md-sys-color-on-surface);justify-content:center;text-align:center;}
+.m3eCredentialForm m3e-form-field{width:100%;}
+.m3eCredentialForm input{width:100%;height:48px;border:0;outline:0;background:transparent;color:inherit;font:inherit;}
 .m3eCredentialForm m3e-button{width:100%;}
-.m3eQrScreen{height:100%;min-height:100vh;background:#22303e;color:#fff;display:flex;flex-direction:column;overflow:hidden;}
-.m3eQrCamera{position:relative;flex:1;min-height:0;overflow:hidden;background:#111;}
+.m3eQrScreen{height:100%;min-height:100vh;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);display:flex;flex-direction:column;overflow:hidden;}
+.m3eQrCamera{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--md-sys-color-scrim);}
 .m3eQrCamera video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .m3eQrCamera canvas{display:none;}
-.m3eQrOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.22),rgba(0,0,0,.08) 40%,rgba(0,0,0,.35));}
-.m3eQrOverlay m3e-heading{color:#fff;text-shadow:0 1px 3px #000;}
-.m3eQrOverlay .qrbox{position:relative;inset:auto;left:auto;top:auto;transform:none;width:min(62vw,300px);aspect-ratio:1;border:3px solid #fff;border-radius:24px;box-shadow:0 0 0 9999px rgba(0,0,0,.30);margin:24px 0 18px;}
-.m3eQrOverlay p{max-width:360px;margin:0;color:#fff;font-size:14px;line-height:1.45;text-shadow:0 1px 3px #000;}
+.m3eQrOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;pointer-events:none;background:color-mix(in srgb,var(--md-sys-color-scrim) 22%,transparent);}
+.m3eQrOverlay m3e-heading{color:var(--md-sys-color-on-surface);}
+.m3eQrOverlay .qrbox{position:relative;inset:auto;left:auto;top:auto;transform:none;width:min(62vw,300px);aspect-ratio:1;border:3px solid var(--md-sys-color-on-surface);border-radius:var(--md-sys-shape-corner-extra-large,28px);box-shadow:0 0 0 9999px color-mix(in srgb,var(--md-sys-color-scrim) 30%,transparent);margin:24px 0 18px;}
+.m3eQrOverlay p{max-width:360px;margin:0;color:var(--md-sys-color-on-surface);font-size:14px;line-height:1.45;}
 .m3eQrError{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:3;pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:10px;}
 @media (max-width:600px){.m3eLogin{padding-left:16px;padding-right:16px}.m3eLoginLogo{margin-top:18px}.m3eLoginActions,.m3eExternalActions,.m3eCredentialForm,.m3eSearchArea{width:100%}}
-.shell{height:100vh;background:#e7ebee}.shell header{height:58px;background:#2e66a3;color:#fff;display:flex;align-items:center;padding:8px 12px;gap:10px}.shell header img{width:38px;height:38px}.shell header span{font-size:20px;flex:1}.shell header button{background:transparent;border:1px solid #ffffff99;color:#fff;border-radius:4px;padding:6px 10px}.shell nav{display:flex;overflow:auto;background:#fff;border-bottom:1px solid #c1c7cb}.tab{border:0;background:#fff;padding:12px 14px;color:#677583;white-space:nowrap}.tab.active{color:#2e66a3;border-bottom:3px solid #2e66a3}.shell main{padding:18px}.shell h1,.shell h2{font-weight:400;color:#22303e}.loading{text-align:center;color:#868e96;padding:50px}.welcome{background:#fff;padding:22px;border-radius:5px}.cards{display:grid;gap:10px}.card{background:#fff;border:1px solid #c1c7cb;border-radius:5px;text-align:left;padding:16px;cursor:pointer}.card b,.card small{display:block}.card small{color:#868e96;margin-top:4px}
-
-.startup{height:100vh;display:flex;align-items:center;justify-content:center;background:#44505d;color:#fff;font-size:18px}
-
-
-/* Official Android Schoology loading screen recreated from the supplied source layout. */
-.androidSplash{height:100vh;width:100%;background:#22303e;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
-.androidSplashLogo{width:442px;max-width:72%;height:auto;display:block;margin:0 0 16px;}
-.androidSplashSpinner{width:72px;height:72px;display:block;}
-
-.fatal{font-family:Arial,sans-serif;padding:32px;color:#22303e;background:#f4f5f5;height:100vh}.androidSplash{position:fixed;inset:0;z-index:9999}
-/* Standalone Android-style startup page. */
-html.androidSplashPage, body.androidSplashPage{background:#22303e;overflow:hidden;}
-body.androidSplashPage{margin:0;}
-body.androidSplashPage .androidSplash{position:fixed;inset:0;z-index:9999;height:100vh;width:100vw;}
-
-#app{width:100%;height:100%;min-height:100vh;background:#22303e;}
 
 /* Android 2026-06 post-login shell: MenuActivity + HomePagerFragment */
 .shell{height:100vh;background:#fff;position:relative;overflow:hidden;color:#333}
@@ -1232,10 +1213,11 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 #composeMessageDialog .composeMessageDialog{pointer-events:auto!important}
 
 /* M3E shell integration: layout only; component visuals remain owned by @m3e/web. */
-.m3eShell{height:100vh;width:100vw;overflow:hidden;background:var(--m3e-color-surface,#fff)}
+.m3eShellTheme{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+.m3eShell{height:100vh;width:100vw;overflow:hidden;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
 .m3eAppDrawerContainer{height:100%;width:100%;--m3e-drawer-container-width:320px}
 .m3eDrawer{height:100%;overflow:auto;box-sizing:border-box;padding:12px}
 .m3eDrawerList{display:block}.m3eDrawerAction,.m3eDrawerProfile{width:100%}
 .m3eDrawerSubBar{position:sticky;top:0;z-index:2}.m3eShellMain{height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.m3eMainAppBar{flex:0 0 auto;--m3e-app-bar-container-color:#002137;--m3e-app-bar-title-text-color:#fff;--m3e-app-bar-title-text-font-size:20px;--m3e-app-bar-title-max-lines:1}.m3eMainAppBar #toolbarActionSlot{display:flex;align-items:center;gap:4px}.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:#fff}
+.m3eMainAppBar{position:relative!important;z-index:100!important;display:block!important;flex:0 0 auto;min-height:56px;--m3e-app-bar-container-color:var(--md-sys-color-surface-container);--m3e-app-bar-title-text-color:var(--md-sys-color-on-surface);--m3e-app-bar-title-text-font-size:20px;--m3e-app-bar-title-max-lines:1}.m3eMainAppBar #toolbarActionSlot{display:flex;align-items:center;gap:4px}.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:var(--md-sys-color-on-surface)}
 .m3eShellMain>#content{flex:1 1 auto;min-height:0;height:auto;overflow:hidden}.m3eDrawer .drawerSub{height:100%;display:flex;flex-direction:column;min-height:0}.m3eDrawer .courseSubList{flex:1 1 auto;min-height:0;overflow:auto}
