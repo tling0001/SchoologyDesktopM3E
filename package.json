@@ -1,6 +1,6 @@
 {
   "name": "schoology-desktop-port",
-  "version": "2026.06.0-port.108",
+  "version": "2026.06.0-port.110",
   "description": "Schoology desktop port aligned with the supplied Schoology Android 2026.06.0 source",
   "main": "src/main.js",
   "scripts": {
@@ -47,8 +47,6 @@
       "node_modules/@material/material-color-utilities/**/*",
       "node_modules/composed-offset-position/**/*",
       "node_modules/lit/**/*",
-      "node_modules/lit-html/**/*",
-      "node_modules/@lit/**/*",
       "node_modules/tslib/**/*",
       "node_modules/jsqr/**/*",
       "package.json"

@@ -1,10 +1,43 @@
-(function(){
-  const modules=[
-    '@m3e/web/theme','@m3e/web/button','@m3e/web/switch','@m3e/web/form-field','@m3e/web/search','@m3e/web/list','@m3e/web/drawer-container','@m3e/web/badge','@m3e/web/divider',
-    '@m3e/web/app-bar','@m3e/web/avatar','@m3e/web/icon','@m3e/web/icon-button','@m3e/web/heading',
-    '@m3e/icons/outlined/search','@m3e/icons/outlined/notifications','@m3e/icons/outlined/arrow_back','@m3e/icons/outlined/menu','@m3e/icons/outlined/menu_open','@m3e/icons/outlined/school',
-    '@m3e/icons/outlined/qr_code_scanner','@m3e/icons/outlined/account_circle','@m3e/icons/outlined/home','@m3e/icons/outlined/mail','@m3e/icons/outlined/request_quote','@m3e/icons/outlined/groups','@m3e/icons/outlined/book','@m3e/icons/outlined/folder','@m3e/icons/outlined/settings','@m3e/icons/outlined/logout','@m3e/icons/outlined/person','@m3e/icons/outlined/calendar_month','@m3e/icons/outlined/assignment',
-    '@m3e/icons/outlined/visibility','@m3e/icons/outlined/visibility_off','@m3e/icons/outlined/chevron_right'
-  ];
-  window.m3eReady=Promise.all(modules.map(spec=>import(spec)));
+// Load the official matraic M3E distribution bundle. The bundle contains
+// M3E itself and its Lit runtime, so Electron does not need to resolve the
+// package's internal bare Lit specifiers at runtime.
+(async function(){
+  try {
+    await import('../node_modules/@m3e/web/dist/all.js');
+
+    // @m3e/icons publishes individual icon modules. They import
+    // @m3e/web/icon, which is mapped to the official M3E bundle in app.html.
+    const icons = [
+      'outlined/search',
+      'outlined/notifications',
+      'outlined/arrow_back',
+      'outlined/menu',
+      'outlined/menu_open',
+      'outlined/school',
+      'outlined/qr_code_scanner',
+      'outlined/account_circle',
+      'outlined/home',
+      'outlined/mail',
+      'outlined/request_quote',
+      'outlined/groups',
+      'outlined/book',
+      'outlined/folder',
+      'outlined/settings',
+      'outlined/logout',
+      'outlined/person',
+      'outlined/calendar_month',
+      'outlined/assignment',
+      'outlined/visibility',
+      'outlined/visibility_off',
+      'outlined/chevron_right'
+    ];
+
+    await Promise.all(
+      icons.map(path => import(`../node_modules/@m3e/icons/dist/${path}.js`))
+    );
+
+    window.m3eReady = Promise.resolve();
+  } catch (error) {
+    window.m3eReady = Promise.reject(error);
+  }
 })();
