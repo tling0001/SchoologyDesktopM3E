@@ -1221,3 +1221,41 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .m3eDrawerSubBar{position:sticky;top:0;z-index:2}.m3eShellMain{height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .m3eMainAppBar{position:relative!important;z-index:100!important;display:block!important;flex:0 0 auto;min-height:56px;--m3e-app-bar-container-color:var(--md-sys-color-surface-container);--m3e-app-bar-title-text-color:var(--md-sys-color-on-surface);--m3e-app-bar-title-text-font-size:20px;--m3e-app-bar-title-max-lines:1}.m3eMainAppBar #toolbarActionSlot{display:flex;align-items:center;gap:4px}.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:var(--md-sys-color-on-surface)}
 .m3eShellMain>#content{flex:1 1 auto;min-height:0;height:auto;overflow:hidden}.m3eDrawer .drawerSub{height:100%;display:flex;flex-direction:column;min-height:0}.m3eDrawer .courseSubList{flex:1 1 auto;min-height:0;overflow:auto}
+
+/* M3E v112 corrections: use the official Schoology palette, default app-bar sizing,
+   over-mode drawer, scrollable settings, expressive motion, and original Schoology icons. */
+.m3eShellTheme{background:var(--md-sys-color-background);color:var(--md-sys-color-on-background)}
+.m3eShell{background:var(--md-sys-color-background);color:var(--md-sys-color-on-background)}
+.m3eAppDrawerContainer{height:100%;width:100%;--m3e-drawer-container-width:320px}
+.m3eMainAppBar{position:static!important;z-index:auto!important;display:block!important;flex:0 0 auto;min-height:0!important;height:auto!important;--m3e-app-bar-container-color:var(--md-sys-color-primary);--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary);--m3e-app-bar-title-max-lines:1}
+.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:var(--md-sys-color-on-primary)}
+.m3eMainAppBar .m3eOriginalIcon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px}
+.m3eMainAppBar .m3eOriginalIcon img{width:24px;height:24px;object-fit:contain}
+.m3eShellMain>#content{position:relative!important;inset:auto!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden!important;margin:0!important;padding:0!important}
+.settingsPage{height:100%!important;min-height:0!important;box-sizing:border-box;overflow:auto!important;-webkit-overflow-scrolling:touch}
+.settingsList m3e-list-item,.settingsList m3e-list-action{--m3e-list-item-container-color:var(--md-sys-color-surface-container);--m3e-list-item-label-text-color:var(--md-sys-color-on-surface);--m3e-list-item-supporting-text-color:var(--md-sys-color-on-surface-variant)}
+.settingsList .m3eOriginalIcon{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center}
+.settingsList .m3eOriginalIcon img{max-width:24px;max-height:24px;object-fit:contain}
+.m3eOriginalIcon{display:inline-flex;align-items:center;justify-content:center;line-height:0}
+.m3eOriginalIcon img{max-width:100%;max-height:100%;object-fit:contain}
+.m3eInlineProgress{display:inline-block;width:28px;height:28px;flex:0 0 28px}
+.loading .m3eInlineProgress,.drawerLoading .m3eInlineProgress,.resourceActionLoading .m3eInlineProgress{width:32px;height:32px}
+.upcomingDateHeader{color:var(--md-sys-color-on-surface-variant);padding:12px 12px 6px}
+.upcomingDateRule{background:var(--md-sys-color-outline-variant)!important}
+.upcomingSegmentedList{display:block;margin:0 8px 12px}
+.upcomingSegmentedList .upcomingAssignment{min-height:68px;box-sizing:border-box}
+.upcomingSegmentedList .assignmentIcon{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center}
+.upcomingSegmentedList .assignmentIcon img{max-width:40px;max-height:40px;object-fit:contain}
+.upcomingSegmentedList .assignmentInfo{min-width:0;text-align:left}
+.upcomingSegmentedList .assignmentInfo b,.upcomingSegmentedList .assignmentInfo small{display:block}
+.upcomingSegmentedList .rowChevron{font-size:22px;line-height:1}
+.upcomingList{background:transparent}
+.updateDownloadProgressWrap{display:flex;flex-direction:column;gap:12px;width:100%;padding:4px 0}
+.updateDownloadProgressWrap m3e-linear-progress-indicator{display:block;width:100%;--m3e-linear-progress-indicator-active-indicator-color:var(--md-sys-color-primary)}
+.m3eAppDialog{--m3e-dialog-container-color:var(--md-sys-color-surface-container-high);--m3e-dialog-color:var(--md-sys-color-on-surface);--m3e-dialog-content-color:var(--md-sys-color-on-surface-variant);--m3e-dialog-scrim-color:var(--md-sys-color-scrim);--m3e-dialog-scrim-opacity:32%}
+.m3eAppDialog .appDialogMessage{white-space:pre-wrap;overflow:auto;overflow-wrap:anywhere;padding-bottom:4px}
+.m3eAppDialog .appDialogActions{justify-content:flex-end}
+.m3eAppDialog m3e-button{--m3e-button-filled-container-color:var(--md-sys-color-primary);--m3e-button-filled-label-text-color:var(--md-sys-color-on-primary)}
+/* M3E's theme element supplies the expressive spring tokens to all descendants,
+   including switches/toggles; don't override them with legacy transitions. */
+.m3eShellTheme,.m3eRoot{--m3e-motion-scheme:expressive}
