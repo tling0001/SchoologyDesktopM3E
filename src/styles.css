@@ -1434,3 +1434,49 @@ body{overflow:hidden;background:#44505d}
 
 /* Remove the old custom upcoming press animation; M3E supplies the interaction motion. */
 .pressTransition{transform:none!important;transition:none!important}
+
+/* v116: M3E owns list/card geometry; preserve the official Schoology composition. */
+.m3eDrawer{padding:0!important;background:#002137!important;color:#fff!important;overflow:auto!important}
+.m3eDrawerList{padding:8px 0!important;margin:0!important}
+.m3eDrawer m3e-list-action,.m3eDrawer m3e-list-item{color:#fff!important;--m3e-list-item-label-text-color:#fff;--m3e-list-item-supporting-text-color:rgba(255,255,255,.78);--m3e-list-item-trailing-icon-color:#fff}
+.m3eDrawer .m3eOriginalIcon,.m3eDrawer .m3eOriginalIcon img{color:#fff!important;filter:none!important}
+.m3eDrawerAction [slot="trailing"],.m3eDrawerSub [slot="trailing"]{display:flex!important;align-items:center!important;justify-content:center!important;width:24px!important;height:24px!important;min-width:24px!important;visibility:visible!important;opacity:1!important}
+.m3eDrawerAction [slot="trailing"] img,.m3eDrawerSub [slot="trailing"] img{display:block!important;width:24px!important;height:24px!important;object-fit:contain!important;filter:brightness(0) invert(1)!important}
+.m3eDrawer .drawerSub{padding:0!important;background:#002137!important}
+.m3eDrawer .drawerSub .courseSubList{padding:0!important;margin:0!important}
+.m3eDrawer .drawerSub m3e-list{padding:0!important;margin:0!important}
+
+/* FABs are floating actions, not app-bar children. */
+.floatingActionSlot{position:absolute!important;right:24px!important;bottom:24px!important;z-index:500!important;display:flex!important;align-items:flex-end!important;justify-content:flex-end!important;pointer-events:none!important}
+.floatingActionSlot m3e-fab{pointer-events:auto!important;--m3e-primary-fab-container-color:#2e66a3;--m3e-primary-fab-color:#fff}
+.floatingActionSlot m3e-fab-menu{pointer-events:auto!important}
+
+/* Filled actionable dashboard cards and separate filled activity/update cards. */
+.nativeDashboardCourses{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important}
+.nativeDashboardCourse{--m3e-card-filled-container-color:#fff;--m3e-card-container-color:#fff}
+.androidActivityCard{display:block!important;width:calc(100% - 24px)!important;margin:12px!important;padding:0!important;box-sizing:border-box!important;--m3e-card-filled-container-color:#fff;--m3e-card-container-color:#fff}
+.androidActivityCard .activityHeader,.androidActivityCard .activityBody,.androidActivityCard .activityMeta,.androidActivityCard .activityActions,.androidActivityCard .updateCommentsPanel,.androidActivityCard .updatePoll{margin-left:16px;margin-right:16px}
+.androidActivityCard .activityHeader{padding-top:14px}
+.androidActivityCard .activityActions{padding-bottom:12px}
+.androidActivityCard .activityBody{padding-top:10px}
+
+/* Course apps/messages use M3E list leading slots: image/avatar at left, text beside it. */
+.courseAppRow,.messageListItem{display:flex!important;flex-direction:row!important;align-items:center!important}
+.courseAppRow .courseAppText,.messageListItem .messageListText{min-width:0!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important}
+.courseAppRow .courseAppIcon,.messageListItem .messageListAvatar{flex:0 0 48px!important;width:48px!important;height:48px!important;margin:0 12px 0 0!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.courseAppRow .courseAppIcon img,.messageListItem .messageListAvatar img{max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+.courseAppRow,.messageListItem{border-bottom:0!important;box-shadow:none!important}
+.courseAppList,.messagesList{border:0!important}
+
+/* No hand-built separators in Upcoming, messages, or the app list. */
+.upcomingSegmentedList,.upcomingSegmentedList *,.messagesList,.messagesList *,.courseAppList,.courseAppList *{border-bottom-color:transparent!important}
+.upcomingDateRule,.upcomingList .upcomingAssignment+*{border-top:0!important}
+
+/* Restore WebView's full flex height after older legacy rules. Electron webviews
+   need absolute inset geometry inside a flexing host to occupy the whole host. */
+.m3eShellMain>#content:has(.embeddedPage),.m3eShellMain>#content:has(.dashboardHybrid){position:relative!important;display:flex!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content .embeddedPage,.m3eShellMain>#content .dashboardHybrid{position:relative!important;display:flex!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content .embeddedPage webview,.m3eShellMain>#content .dashboardHybrid webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;display:block!important}
+
+/* Dialogs need enough room for the Android-style comment/submission layouts. */
+.assignmentCommentDialog,.assignmentSubmissionDialog,.androidCreatePostDialog{width:min(720px,calc(100vw - 32px))!important;max-width:min(720px,calc(100vw - 32px))!important;max-height:min(760px,calc(100vh - 32px))!important}
