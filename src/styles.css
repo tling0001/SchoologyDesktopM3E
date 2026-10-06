@@ -41,9 +41,6 @@
 .iconButton:hover{background:rgba(255,255,255,.10)}
 .shell main{height:calc(100vh - 56px);padding:0;overflow:auto;background:#fff}
 .homeTabs{height:48px;background:#002137;display:flex;align-items:stretch;overflow-x:auto;white-space:nowrap}
-.homeTab{height:48px;background:transparent;border:0;color:rgba(255,255,255,.78);padding:0 18px;font-size:14px;cursor:pointer;position:relative}
-.homeTab.active{color:#fff}
-.homeTab.active:after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;background:#fff}
 .activity{background:#fff;min-height:calc(100vh - 104px);padding:10px 10px 30px}
 .activityCard,.eventCard,.messageCard{background:#fff;border-bottom:1px solid #ddd;padding:15px 12px;min-height:64px}
 .activityTitle{font-size:16px;color:#333;line-height:1.4}.activityMeta,.eventCard small,.messageCard small{display:block;color:#888;font-size:12px;margin-top:6px}
@@ -98,8 +95,6 @@
 /* Android 2026-06 SectionProfilePagerFragment / fragment_profile_base.xml */
 .sectionProfilePage{min-height:100%;background:#fff}
 .sectionProfileTabs{height:48px;background:#002137;display:flex;overflow-x:auto;white-space:nowrap}
-.sectionProfileTab{height:48px;border:0;background:#002137;color:#fff;padding:0 16px;font-size:14px;position:relative;cursor:pointer}
-.sectionProfileTab.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#fff}
 .sectionProfileHeader{position:relative;min-height:80px;display:flex;align-items:center;background:#fff;padding:8px}
 .sectionProfileImage,.sectionProfileFallback{width:64px;height:64px;flex:0 0 64px;object-fit:cover;margin:0 8px 0 0}
 .sectionProfileFallback{display:none;align-items:center;justify-content:center;background:#2e66a3;color:#fff;font-size:28px}
@@ -143,8 +138,6 @@
 .shell .toolbar .iconButton:focus,.shell .toolbar .iconButton:active{outline:0 !important;box-shadow:none !important}
 .homeTabs{background:#002137 !important}
 .sectionProfileTabs{background:#fff;border-bottom:1px solid #ddd;display:flex;overflow-x:auto;white-space:nowrap}
-.sectionProfileTab{background:#fff;border:0;border-bottom:3px solid transparent;color:#6f7780;padding:14px 17px 11px;font-size:14px;white-space:nowrap}
-.sectionProfileTab.active{color:#002137;border-bottom-color:#002137}
 .sectionProfileHeader{height:92px;padding:14px 16px;display:flex;align-items:center;background:#fff}
 .sectionProfileImage{width:64px;height:64px;border-radius:3px;object-fit:cover;background:#e6e9ec}
 .sectionProfileFallback{display:none;width:64px;height:64px;align-items:center;justify-content:center;border-radius:3px;background:#56607d;color:#fff;font-size:25px}
@@ -181,9 +174,6 @@
 .embeddedPage webview{width:100%!important;height:100%!important;min-height:calc(100vh - 56px)!important;border:0}
 .assignmentAndroidPage{background:#fff;min-height:100%}
 .assignmentTabs,.profileTabs,.groupTabs{display:flex;background:#002137;overflow-x:auto;white-space:nowrap}
-.assignmentTab,.profileTab,.groupTab{height:48px;padding:0 16px;border:0;background:transparent;color:rgba(255,255,255,.8);position:relative;flex:0 0 auto}
-.assignmentTab.active,.profileTab.active,.groupTab.active{color:#fff}
-.assignmentTab.active:after,.profileTab.active:after,.groupTab.active:after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;background:#fff}
 .assignmentInfoHeader{padding:16px;border-bottom:1px solid #ddd;background:#fff}
 .assignmentInfoHeader h1{font-size:21px;font-weight:500;margin:0 0 6px;color:#333}
 .assignmentInfoHeader div{font-size:13px;color:#777}
@@ -209,12 +199,6 @@
 .dashboardHybrid{height:100%!important;width:100%;padding:0!important;margin:0!important;overflow:hidden;background:#fff}
 .messagesAndroidPage{background:#fff;min-height:100%;padding:0!important}
 .messageTabs{height:48px;display:flex;background:#fff;border-bottom:1px solid #d9dde0}
-.messageTab{height:48px;flex:1;border:0;background:#fff;color:#66727c;font-size:14px;position:relative}
-.messageTab.active{color:#002137;font-weight:500}
-.messageTab.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#002137}
-.messageList{background:#fff}
-.messageListItem{width:100%;min-height:78px;display:flex;align-items:center;gap:12px;border:0;border-bottom:1px solid #e1e4e6;background:#fff;text-align:left;padding:10px 14px;position:relative;color:#333;cursor:pointer}
-.messageListItem.unread{background:#f5f7f8}
 .messageListAvatar,.messageListAvatar img{width:48px;height:48px;min-width:48px;border-radius:50%;object-fit:cover}
 .messageListAvatar{display:flex;align-items:center;justify-content:center;background:#e7ebee;color:#566b7a;font-size:19px;overflow:hidden}
 .messageListText{min-width:0;display:flex;flex-direction:column;flex:1}
@@ -450,7 +434,6 @@ to{opacity:1;transform:translateY(0)}}
 .courseImage{overflow:hidden;background:#eef1f3}.courseImage img{display:block!important;width:100%;height:100%;object-fit:cover}.courseImageFallback{position:absolute}.courseImage:has(img[style*="display: block"]) .courseImageFallback{display:none}
 .notificationsAndroidPage,.peopleAndroidPage{background:#fff;min-height:100%;padding:0}.notificationList,.peopleList{background:#fff}.androidNotificationItem{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #e0e4e7;min-height:64px}.androidNotificationItem>img{width:24px;height:24px;object-fit:contain;margin-top:2px}.notificationText{flex:1;font-size:14px;line-height:1.4;color:#333}.notificationText small{display:block;color:#8a949b;font-size:12px;margin-top:6px}.peopleSectionHeader{height:28px;padding:7px 16px 4px;background:#f1f3f4;color:#6f7b84;font-size:12px;font-weight:700}.peopleListItem{width:100%;display:flex;align-items:center;text-align:left;border:0;border-bottom:1px solid #e0e4e7;background:#fff;padding:10px 12px;min-height:68px;color:#333}.peopleAvatar{width:48px;height:48px;border-radius:50%;object-fit:cover;margin:0 8px 0 0;background:#e7ebee}.peopleListItem span{display:flex;flex-direction:column}.peopleListItem b{font-size:15px;font-weight:400}.peopleListItem small{font-size:13px;color:#7c878f;margin-top:3px}.activityAvatarImage{object-fit:contain;background:#fff;padding:3px}.courseUpdatesToolbar{height:42px;display:flex;justify-content:flex-end;align-items:center;padding:0 10px;background:#fff;border-bottom:1px solid #e1e5e7}.courseUpdatesToolbar button{border:0;background:transparent;color:#2e66a3;padding:7px 10px}.sectionFullUpdate{border-bottom:1px solid #dfe3e6;background:#fff;padding:14px 14px 10px}.sectionFullUpdate .activityHeader{display:flex;align-items:center;gap:9px}.sectionFullUpdate .activityUser{font-size:15px;color:#333}.sectionFullUpdate .activityBody{font-size:15px;line-height:1.5;margin:10px 0;color:#333}.sectionFullUpdate .activityMeta{font-size:12px;color:#8a949b}.sectionFullUpdate .activityActions{border-top:1px solid #e7eaec;margin-top:10px;padding-top:8px}.shell>main#content:has(.dashboardHybrid){position:relative!important;height:calc(100vh - 56px)!important;min-height:calc(100vh - 56px)!important;max-height:calc(100vh - 56px)!important;padding:0!important;margin:0!important;overflow:hidden!important}.shell>main#content>.dashboardHybrid{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}.shell>main#content>.dashboardHybrid webview{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important}
 
-.drawer.noSlide{transition:none!important}.recentActivityScroll{overflow-y:auto!important;min-height:0!important;height:100%!important}.calendarAndroidPage{background:#fff;min-height:100%;display:flex;flex-direction:column}.calendarMonthHeader{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #dfe3e6;color:#34424c}.calendarMonthHeader button{border:0;background:none;font-size:28px;color:#5e6a72}.calendarWeekLabels{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 4px;color:#7b858c;font-size:11px;text-align:center}.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#dfe3e6;margin:0 8px}.calendarDay{min-height:64px;border:0;background:#fff;text-align:left;padding:5px;display:flex;flex-direction:column;gap:2px;overflow:hidden}.calendarDay.outside{background:#f5f6f7;color:#b2b8bc}.calendarDay.today b{background:#2e66a3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.calendarDay span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#4e5b63}.calendarUpcomingHeader{font-size:15px;font-weight:500;padding:15px 16px 8px;color:#34424c}.calendarEventList{overflow:auto}.calendarEventRow{display:flex;gap:14px;width:100%;text-align:left;border:0;border-bottom:1px solid #e0e4e7;background:#fff;padding:11px 16px}.calendarEventDate{width:88px;flex:0 0 88px;color:#7b858c;font-size:12px}.calendarEventRow span:not(.calendarEventDate){display:flex;flex-direction:column}.calendarEventRow small{margin-top:3px;color:#8a949b}
 
 #menuButton svg{width:24px;height:24px;display:block}.recentActivityScroll{overflow-y:auto!important;overflow-x:hidden!important}.homeRightPane #homeTabContent.recentActivityScroll,.homeTabViewport #homeTabContent.recentActivityScroll{flex:1 1 auto!important;min-height:0!important}.calendarAndroidPage{overflow:hidden}.calendarEventList{flex:1 1 auto;min-height:0;overflow-y:auto}
 
@@ -1002,11 +985,8 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .androidPostToField select{width:100%;border:0;background:#fff;font:inherit;color:#53606a;outline:none}
 
 /* v88 Android navigation fidelity */
-.homeTabs{justify-content:center!important}.homeTab{flex:0 0 auto!important}
 .activityAuthorLink,.activityUser.activityAuthorLink,.sectionFullUpdate .activityUser{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:0!important;color:#2e66a3!important;font-weight:400!important;text-align:left!important}
-.calendarAndroidPage{background:#fff;min-height:100%;overflow:auto}.calendarMonthHeader{height:48px!important;border:0!important;padding:0 10px!important}.calendarMonthHeader b{font-size:18px;color:#34424c}.calendarMonthHeader button{width:40px;height:40px;font-size:30px;line-height:40px;color:#778088}.calendarWeekLabels{padding:0 10px 4px!important;font-size:12px!important;color:#778088!important}.calendarGrid{margin:0 10px!important;background:#bababa!important;gap:1px!important}.calendarDay{min-height:48px!important;padding:4px!important;border:0!important;background:#fff!important}.calendarDay.outside{background:#d7d9db!important;color:#778088!important}.calendarDay b{font-size:13px;color:#778088}.calendarDay.selected b{background:#379bff!important;color:#fff!important}.calendarDay span{font-size:8px;color:#778088}.calendarUpcomingHeader{margin-top:10px!important;padding:10px 20px 7px!important;border-top:1px solid #bababa;font-size:14px!important}.calendarEventRow{padding:10px 20px!important}.calendarEventList{padding:0 0 20px}.calendarEventDate{color:#778088!important}
 /* v88 calendar: mirrors Android CalendarEventAdapter/UpcomingAdapter structure. */
-.calendarDay{position:relative;align-items:center!important;text-align:center!important;justify-content:flex-start!important}.calendarDay b{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0 auto}.calendarEventMarker{display:block;width:7px;height:7px;border-radius:50%;background:#379bff;margin:1px auto 0}.calendarEventIcon{width:34px;min-width:34px;display:flex;align-items:center;justify-content:center}.calendarEventIcon .officialEmbeddedIcon{width:24px!important;height:24px!important}.calendarEventText{display:flex;flex-direction:column;justify-content:center;text-align:left;margin-left:8px}.calendarEventText b{font-size:14px;font-weight:400;color:#778088}.calendarEventText small{font-size:14px;color:#778088;margin-top:3px}.calendarEventRow{align-items:center;min-height:48px;border:0!important}
 /* v90: Android-fidelity corrections */
 .toolbarLti{background:#074f7b!important}
 .toolbarActionSlot{display:flex!important;align-items:center!important;gap:0!important}
@@ -1035,14 +1015,11 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .calendarAndroidPage{background:#fff;min-height:100%;overflow:auto}
 .calendarMonthWrap{width:100%}
 .calendarEventList{width:100%;padding:0 0 20px!important}
-@media (min-aspect-ratio:4/3){.calendarMonthWrap{width:40%;min-width:280px;margin:0 auto}.calendarMonthHeader,.calendarWeekLabels,.calendarGrid{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important}.calendarEventList{width:100%!important}}
+.calendarEventList{width:100%!important}}
 .assignmentAttachmentsButton{display:block;width:calc(100% - 32px);margin:10px 16px;padding:11px 14px;border:1px solid #d8dde2;border-radius:2px;background:#fff;color:#2e66a3;text-align:left;font:inherit;cursor:pointer}
 
 /* v91: Android message/composer and group resource/album fidelity */
 .messageTabs{height:48px!important;background:#002137!important;border-bottom:0!important;justify-content:flex-start!important;overflow-x:auto!important}
-.messageTab{height:48px!important;flex:0 0 auto!important;min-width:88px!important;padding:0 16px!important;border:0!important;background:#002137!important;color:#fff!important;font-size:14px!important;position:relative!important}
-.messageTab.active{color:#fff!important;font-weight:500!important}
-.messageTab.active:after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:3px;background:#fff!important}
 .messageReplyButton{width:48px!important;height:48px!important;padding:8px!important;display:flex!important;align-items:center!important;justify-content:center!important}
 .messageReplyButton .officialEmbeddedIcon{width:28px!important;height:28px!important}
 .androidCommentDialogBar .androidDialogIcon{width:48px!important;height:48px!important;min-width:48px!important;padding:8px!important}
@@ -1079,20 +1056,13 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 @media (max-aspect-ratio:4/3){.groupUpcomingPane{display:none!important}.groupUpcomingTab{display:block!important}}
 /* Android course/assignment pager tabs use the blue app tab strip rather than white. */
 .sectionProfileTabs,.assignmentTabs{background:#002137!important;color:#fff!important}
-.sectionProfileTab,.assignmentTab{background:#002137!important;color:#fff!important}
-.sectionProfileTab.active,.assignmentTab.active{color:#fff!important}
-.sectionProfileTab.active:after,.assignmentTab.active:after{background:#fff!important}
 /* v92 Android fidelity: message actions and resource picker */
-.messageActionButton{width:48px!important;height:48px!important;padding:8px!important;display:flex!important;align-items:center!important;justify-content:center!important}.messageActionButton .officialEmbeddedIcon{width:28px!important;height:28px!important}.messageActionButton.spinning .officialEmbeddedIcon{animation:androidSpin .8s linear infinite}.messageTabs{background:#fff!important;color:#074f7b!important;justify-content:flex-start!important}.messageTab{min-width:92px!important;height:48px!important;border:0!important;border-bottom:3px solid transparent!important;background:#fff!important;color:#666!important;font-size:14px!important;text-align:center!important}.messageTab.active{color:#074f7b!important;border-bottom-color:#074f7b!important;font-weight:500!important}
 .discussionNativePage{background:#f4f5f5;min-height:100%;display:flex;flex-direction:column}.discussionTabs{background:#fff}.discussionInfoPage{background:#fff;padding:20px 18px;min-height:calc(100vh - 104px)}.discussionInfoPage h1{font-size:21px;font-weight:400;margin:0 0 8px;color:#333}.discussionCommentAuthor{color:#2b6ca3;font-weight:500}.upcomingEmpty{padding:28px 16px;text-align:center;color:#777}
 .schoologyResourcePickerOverlay{z-index:2147483647!important}.schoologyResourcePickerDialog{width:min(560px,calc(100vw - 28px));max-height:min(720px,calc(100vh - 40px));background:#fff;border-radius:2px;box-shadow:0 12px 40px #0005;overflow:hidden;display:flex;flex-direction:column}.schoologyResourcePickerDialog>header{height:56px;flex:0 0 56px;background:#074f7b;color:#fff;display:flex;align-items:center;padding:0 8px}.schoologyResourcePickerDialog>header b{flex:1;font-size:18px;font-weight:400;padding:0 8px}.schoologyResourcePickerDialog .iconButton{width:48px;height:48px}.resourcePickerTabs{height:48px;display:flex;background:#fff;border-bottom:1px solid #ddd}.resourcePickerTabs button{flex:1;border:0;background:#fff;color:#666;border-bottom:3px solid transparent;font-size:14px}.resourcePickerTabs button.active{color:#074f7b;border-bottom-color:#074f7b}.resourcePickerDialog{}.schoologyResourcePickerDialog #resourcePickerBody{overflow:auto;min-height:180px}.resourcePickerCollection,.resourcePickerItem{width:100%;min-height:64px;display:flex;align-items:center;gap:12px;padding:8px 16px;background:#fff;border:0;border-bottom:1px solid #e1e1e1;text-align:left}.resourcePickerCollection img,.resourcePickerItem img{width:40px;height:40px;object-fit:contain;flex:0 0 40px}.resourcePickerCollection span:nth-child(2),.resourcePickerItem span{flex:1}.resourcePickerCollection small{display:block;color:#888;margin-top:3px}.resourcePickerCollection>span:last-child{font-size:24px;color:#aaa}.resourcePickerItem.selected{background:#eaf3f8}.resourcePickerBack{width:100%;height:48px;border:0;background:#f5f6f7;text-align:left;padding:0 16px;color:#074f7b}.resourcePickerEmpty,.resourcePickerError{padding:32px 18px;text-align:center;color:#777}.resourcePickerError{color:#b3261e}
 /* v93 */
 .messageTabs{background:#002137!important;color:#fff!important}
-.messageTab.active{color:#fff!important;border-bottom-color:#fff!important}
-.messageList{min-height:0}
 .discussionNativePage{padding:0!important;background:#fff!important}
 .discussionTabs{margin:0!important;padding:0!important;border-radius:0!important}
-.discussionTabs .assignmentTab{margin:0!important}
 @media (min-aspect-ratio:4/3){
   .calendarAndroidPage{overflow:hidden!important}
   .calendarLandscapeMonth{display:grid!important;grid-template-columns:40% 60%!important;min-height:0;flex:1!important;height:100%!important}
@@ -1105,9 +1075,6 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 
 /* v94: Android message pager has one blue tab strip and one active indicator */
 .messageTabs{height:48px!important;background:#002137!important;border-bottom:0!important;box-shadow:none!important;display:flex!important;justify-content:flex-start!important;overflow-x:auto!important}
-.messageTab{height:48px!important;flex:0 0 auto!important;min-width:92px!important;padding:0 16px!important;border:0!important;background:#002137!important;color:rgba(255,255,255,.8)!important;position:relative!important}
-.messageTab.active{color:#fff!important;font-weight:500!important}
-.messageTab.active:after{content:''!important;position:absolute!important;left:10px!important;right:10px!important;bottom:0!important;height:3px!important;background:#fff!important}
 .discussionCommentComposerHost{padding:12px 16px 24px;background:#fff}.commentRow{cursor:default}.commentAuthorLink{color:#2e66a3}
 
 /* v95: native discussion/event tabs intentionally match assignment tabs exactly */
@@ -1135,14 +1102,11 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
   color:#fff!important;
   width:100%!important;
 }
-.sectionProfileTab,.assignmentTab,.profileTab,.groupTab,.messageTab,.homeTab,.resourcePickerTabs button,.discussionTabs .assignmentTab{
   background:#002137!important;
   color:rgba(255,255,255,.82)!important;
 }
-.sectionProfileTab.active,.assignmentTab.active,.profileTab.active,.groupTab.active,.messageTab.active,.homeTab.active,.resourcePickerTabs button.active,.discussionTabs .assignmentTab.active{
   color:#fff!important;
 }
-.sectionProfileTab.active:after,.assignmentTab.active:after,.profileTab.active:after,.groupTab.active:after,.messageTab.active:after,.homeTab.active:after,.resourcePickerTabs button.active,.discussionTabs .assignmentTab.active:after{
   border-bottom-color:#fff!important;
   background:#fff!important;
 }
@@ -1153,16 +1117,12 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 
 /* v99: Android uses color_primary (#002137) for pager tab strips. Hover is a subtle darker state on desktop. */
 .sectionProfileTabs,.assignmentTabs,.profileTabs,.groupTabs,.messageTabs,.homeTabs,.resourcePickerTabs,.discussionTabs{background:#002137!important}
-.sectionProfileTab,.assignmentTab,.profileTab,.groupTab,.messageTab,.homeTab,.resourcePickerTabs button,.discussionTabs .assignmentTab{background:#002137!important}
 .calendarPagerPage{height:100%;min-height:0;display:flex;flex-direction:column;background:#fff;overflow:hidden}
 .calendarPagerTabs{height:48px;min-height:48px;display:flex;flex:0 0 48px;background:#002137;overflow-x:auto}
-.calendarPagerTab{height:48px;min-width:96px;padding:0 18px;border:0;background:#002137;color:rgba(255,255,255,.82);position:relative;cursor:pointer}
-.calendarPagerTab.active{color:#fff;font-weight:500}
 .calendarPagerContent{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
 .calendarStandaloneUpcoming{height:100%;min-height:0;overflow:auto;background:#fff}
 .calendarUpcomingList{padding:0 16px 24px}
 .calendarUpcomingDate{margin:14px 0 0;padding:0 4px 6px;border-bottom:1px solid #778088;color:#778088;font-size:14px}
-.calendarUpcomingList .calendarEventRow{padding:8px 4px;min-height:48px}
 .calendarUpcomingListEmpty{padding:60px 20px;text-align:center;color:#778088}
 .calendarUpcomingListEmpty h2{margin:0 0 8px;font-size:20px;font-weight:400;color:#34424c}
 .calendarUpcomingListEmpty p{margin:0;font-size:14px}
@@ -1284,7 +1244,7 @@ body{overflow:hidden;background:#44505d}
 .settingsSection{margin-bottom:24px}
 
 /* M3E tabs using the same dark-blue Schoology navigation surface as Android. */
-.m3eSchoologyTabs{display:block!important;width:100%;--m3e-tabs-active-indicator-color:#fff;--m3e-tab-selected-color:#fff;--m3e-tab-unselected-color:rgba(255,255,255,.82);--m3e-tab-selected-container-hover-color:rgba(255,255,255,.08);--m3e-tab-unselected-container-hover-color:rgba(255,255,255,.08);--m3e-tab-selected-container-focus-color:rgba(255,255,255,.12);--m3e-tab-unselected-container-focus-color:rgba(255,255,255,.12);--m3e-tab-selected-ripple-color:rgba(255,255,255,.16);--m3e-tab-unselected-ripple-color:rgba(255,255,255,.16)}
+.m3eSchoologyTabs{width:100%;--m3e-tabs-active-indicator-color:#fff;--m3e-tab-selected-color:#fff;--m3e-tab-unselected-color:rgba(255,255,255,.82);--m3e-tab-selected-container-hover-color:rgba(255,255,255,.08);--m3e-tab-unselected-container-hover-color:rgba(255,255,255,.08);--m3e-tab-selected-container-focus-color:rgba(255,255,255,.12);--m3e-tab-unselected-container-focus-color:rgba(255,255,255,.12);--m3e-tab-selected-ripple-color:rgba(255,255,255,.16);--m3e-tab-unselected-ripple-color:rgba(255,255,255,.16)}
 .m3eSchoologyTabs::part(base){background:#002137}
 .m3eSchoologyTabs{background:#002137;color:#fff}
 .homeTabsM3e,.courseTabsM3e,.groupTabsM3e,.messageTabsM3e,.calendarTabsM3e,.profileTabsM3e,.assignmentTabsM3e{background:#002137!important}
@@ -1448,11 +1408,6 @@ body{overflow:hidden;background:#44505d}
 .androidActivityCard .activityBody{padding-top:10px}
 
 /* Course apps/messages use M3E list leading slots: image/avatar at left, text beside it. */
-.courseAppRow,.messageListItem{display:flex!important;flex-direction:row!important;align-items:center!important}
-.courseAppRow .courseAppText,.messageListItem .messageListText{min-width:0!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important}
-.courseAppRow .courseAppIcon,.messageListItem .messageListAvatar{flex:0 0 48px!important;width:48px!important;height:48px!important;margin:0 12px 0 0!important;display:flex!important;align-items:center!important;justify-content:center!important}
-.courseAppRow .courseAppIcon img,.messageListItem .messageListAvatar img{max-width:100%!important;max-height:100%!important;object-fit:contain!important}
-.courseAppRow,.messageListItem{border-bottom:0!important;box-shadow:none!important}
 .courseAppList,.messagesList{border:0!important}
 
 /* No hand-built separators in Upcoming, messages, or the app list. */
@@ -1484,7 +1439,6 @@ body{overflow:hidden;background:#44505d}
 .homeUpcomingPane{min-width:25%!important}
 /* Only Matraic tabs draw indicators; old Android tab rules are neutralized. */
 .sectionProfileTabs,.messageTabs,.homeTabs,.assignmentTabs,.profileTabs,.groupTabs{background:transparent!important;border:0!important;padding:0!important}
-.sectionProfileTab,.assignmentTab,.profileTab,.groupTab,.messageTab,.calendarPagerTab{border:0!important;border-bottom:0!important;background:transparent!important;padding:0!important}
 .m3eSchoologyTabs m3e-tab::part(indicator),.m3eSchoologyTabs m3e-tab::part(active-indicator){border:0!important}
 /* Drawer: original Schoology blue/text, with original artwork remaining visible. */
 .m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer),.m3eDrawer{background:#002137!important;color:#fff!important}
@@ -1495,7 +1449,6 @@ body{overflow:hidden;background:#44505d}
 .floatingActionSlot{position:absolute!important;right:24px!important;bottom:24px!important;z-index:1000!important;display:flex!important;align-items:flex-end!important}
 .floatingActionSlot m3e-fab{position:static!important}
 /* Remove legacy message separators/row styling when Matraic list owns the rows. */
-.messageList{background:transparent!important;padding:0!important;border:0!important}.messageListItem{border:0!important;border-bottom:0!important;background:transparent!important;margin:0!important}
 
 
 /* v118: let M3E own scrolling, card surfaces, tabs, segmented upcoming lists, and FAB menus. */
@@ -1508,7 +1461,6 @@ body{overflow:hidden;background:#44505d}
 .nativeCourseDashboard{min-height:100%!important;overflow:visible!important;padding:16px!important;box-sizing:border-box}
 .nativeDashboardCourses{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important;gap:12px!important;align-items:start!important}
 .nativeDashboardCourse{display:block!important;width:100%!important;min-width:0!important;overflow:hidden!important}
-.nativeDashboardCourse::part(base){border-radius:var(--md-sys-shape-corner-large)!important}
 .androidActivityCard{display:block!important;margin:12px!important;padding:0!important;overflow:hidden!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important}
 .androidActivityCard::part(base){border-radius:var(--md-sys-shape-corner-large)!important}
 .upcomingList{padding:0!important;margin:0!important}
@@ -1518,9 +1470,6 @@ body{overflow:hidden;background:#44505d}
 .upcomingDateRule{display:none!important}
 /* Only the Matraic tab component draws the indicator. */
 .sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.homeTabs,.calendarPagerTabs,.messageTabs{background:transparent!important;border:0!important;box-shadow:none!important;min-height:0!important;height:auto!important}
-.assignmentTabs .m3eSchoologyTabs,.homeTabs .m3eSchoologyTabs,.sectionProfileTabs .m3eSchoologyTabs{display:block!important}
-.assignmentTabs .assignmentTab,.homeTab,.courseTab,.sectionProfileTab{border:0!important;background:transparent!important}
-.assignmentTabs .assignmentTab.active,.homeTab.active,.courseTab.active,.sectionProfileTab.active{border:0!important;box-shadow:none!important}
 .m3eSubDrawerContainer{height:100%!important;width:100%!important;display:block!important}
 .m3eSubDrawer{height:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#002137!important;color:#fff!important}
 .m3eSubDrawer .courseSubList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;padding:0!important}
@@ -1538,7 +1487,6 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 .messagesAndroidPage{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;overflow:hidden!important}
 .messagesAndroidPage>.messageTabsM3e{flex:0 0 auto!important;margin:0!important;padding:0!important}
 .messagesAndroidPage>.messageList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;margin:0!important;padding:0!important}
-.messagesAndroidPage .messageTab{background:transparent!important;border:0!important;padding:0!important;margin:0!important;min-height:unset!important;height:auto!important;color:inherit!important}
 .upcomingList{display:flex!important;flex-direction:column!important;gap:16px!important;margin:0!important;padding:0!important}
 .upcomingSegmentedList{margin:0!important;padding:0!important}
 .upcomingSegmentedList .upcomingDateHeader{margin:0!important;padding:0!important;border:0!important}
@@ -1574,8 +1522,6 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 .messagesAndroidPage{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;overflow:hidden!important;padding:0 16px 16px!important;background:var(--md-sys-color-background,#f4f5f5)!important}
 .messagesAndroidPage>.messageTabsM3e{flex:0 0 auto!important;margin-inline:-16px!important;width:calc(100% + 32px)!important}
 .messagesAndroidPage>.messageList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important;margin:16px 0 0!important;padding:0!important;width:100%!important}
-.messageListItem{min-width:0!important}
-.messageListItem>span:not([slot]){min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 .messageListAvatar{display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;flex:0 0 40px!important}
 .messageListAvatar img{display:block!important;width:40px!important;height:40px!important;object-fit:cover!important;border-radius:50%!important}
 .messageUnreadDot{width:8px!important;height:8px!important;border-radius:50%!important;background:var(--md-sys-color-primary,#2e66a3)!important}
@@ -1590,7 +1536,6 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
    border, radius, background, shadow, or padding. */
 .nativeDashboardCourses{padding:16px!important;gap:16px!important}
 .nativeDashboardCourse{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
-.nativeDashboardCourse::part(base){border-radius:initial!important;box-shadow:initial!important}
 .nativeDashboardCourse .nativeDashboardCourseInfo{border:0!important;box-shadow:none!important}
 
 .courseMainPane{display:flex!important;flex-direction:column!important}
@@ -1646,8 +1591,6 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 
 /* Remove the remaining legacy active-indicator surfaces. */
 .sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.homeTabs,.calendarPagerTabs,.messageTabs{background:transparent!important;border:0!important;box-shadow:none!important}
-.sectionProfileTab,.assignmentTab,.groupTab,.profileTab,.homeTab,.courseTab,.calendarPagerTab,.messageTab{border:0!important;box-shadow:none!important;background:transparent!important}
-.sectionProfileTab.active,.assignmentTab.active,.groupTab.active,.profileTab.active,.homeTab.active,.courseTab.active,.calendarPagerTab.active,.messageTab.active{border:0!important;box-shadow:none!important}
 
 /* Force the Schoology palette through every common M3E semantic token used by
    Matraic controls, avoiding a generated purple secondary/tertiary palette. */
@@ -1712,14 +1655,10 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 
 /* Default M3E tab height/density: do not impose the old 48px tab geometry. */
 .sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.messageTabs,.calendarPagerTabs,.homeTabs{height:auto!important;min-height:0!important}
-.m3eSchoologyTabs{height:auto!important;min-height:0!important}
-.sectionProfileTab,.assignmentTab,.groupTab,.profileTab,.messageTab,.calendarPagerTab,.homeTab{height:auto!important;min-height:0!important}
 
 /* Messages: exactly one segmented list for each folder. The list component owns
    all row geometry; only the page-to-list spacing is ours. */
 .messagesAndroidPage>.messageList{margin:16px 0 0!important;padding:0!important}
-.messagesAndroidPage>.messageList .messageListItem{margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:initial!important;min-height:initial!important}
-.messagesAndroidPage>.messageList .messageListItem.unread{background:transparent!important}
 
 /* Upcoming: one segmented list per date. The date is a non-actionable list item,
    and no custom row margins/padding are applied, so date and event rows inherit
@@ -1807,12 +1746,10 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 .m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;display:block!important}
 .nativeCourseDashboard{background:var(--md-sys-color-surface)!important;border:0!important;box-shadow:none!important;padding:16px!important}
 .nativeDashboardCourses{background:transparent!important}
-.nativeDashboardCourse{--m3e-elevated-card-container-color:var(--md-sys-color-surface-container-high)!important;--m3e-elevated-card-text-color:var(--md-sys-color-on-surface)!important}
 .assignmentInfoCard,.androidCommentCard,.groupDiscussionCard{--m3e-elevated-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-elevated-card-text-color:var(--md-sys-color-on-surface)!important;margin:12px 16px!important}
 .assignmentInfoCard .assignmentInfoHeader{background:transparent!important;border:0!important}
 .calendarAndroidPage,.calendarLandscapeUpcoming,.calendarEventList{background:var(--md-sys-color-surface)!important}
 .calendarEventList{padding:0!important}
-.calendarEventRow{background:transparent!important;border:0!important}
 .messagesAndroidPage>.messageList{margin:16px!important;overflow:auto!important;flex:1 1 0!important;min-height:0!important}
 .messageListAvatar{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;flex:0 0 40px!important;overflow:hidden!important;border-radius:50%!important}
 .messageListAvatar img{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:cover!important;border-radius:50%!important;display:block!important}
@@ -1824,7 +1761,6 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 .courseMainPane,.courseAppsSidePane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{min-height:0!important}
 .courseMainPane .sectionProfileContent,.groupMainPane #groupTabContent,.courseAppsSideContent,.courseUpcomingContent,#groupUpcomingContent,.gradesAndroidPage,.gradesContent{min-height:0!important;overflow:auto!important}
 .gradesAndroidPage,.gradesContent{height:100%!important;overflow:auto!important}
-.m3eSchoologyTabs,.m3eSchoologyTabs m3e-tab{min-height:48px!important}
 /* M3E owns hover/pressed state layers; do not add application-level darkening. */
 *:is(button,m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-nav-menu-item):hover,*:is(button,m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-nav-menu-item):active{filter:none!important}
 .androidCreatePostDialog,.composeMessageDialog,.assignmentCommentDialog,.assignmentSubmissionDialog,.schoologyResourcePickerDialog,.courseUpdateDialog{--m3e-dialog-max-width:min(760px,calc(100vw - 32px))!important;--m3e-dialog-min-width:min(640px,calc(100vw - 32px))!important}
@@ -1888,7 +1824,6 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 .nativeDashboardCourses{background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;padding:0!important}
 .nativeDashboardCourse{border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;margin:0!important}
 .nativeDashboardCourse .nativeDashboardCourseInfo{border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important}
-.nativeDashboardCourse{--m3e-elevated-card-container-color:var(--md-sys-color-surface-container-high)!important;--m3e-card-container-color:var(--md-sys-color-surface-container-high)!important;--m3e-elevated-card-container-elevation:2!important}
 /* Native split panes own their geometry. */
 .courseLandscapePage,.coursePortraitLayout{height:100%!important;min-height:0!important;overflow:hidden!important}
 .courseOuterSplit,.courseInnerSplit,.calendarMainSplit{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;background:transparent!important}
@@ -1908,7 +1843,6 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 .calendarLandscapeUpcoming .calendarEventList{overflow:auto!important;padding:0 16px 16px!important}
 .calendarSelectedDayList{margin:16px!important;overflow:auto!important}
 /* M3E default tabs own their dimensions. */
-.m3eSchoologyTabs,.m3eSchoologyTabs m3e-tab{height:auto!important;min-height:unset!important}
 /* Shared webviews: the host is the remaining viewport and the WebView fills it. */
 .m3eShellMain{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
 .m3eShellMain>#content{position:relative!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;overflow:hidden!important;display:block!important}
@@ -1929,3 +1863,99 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 }
 .m3eShell{height:100%!important;min-height:0!important;overflow:hidden!important}
 .m3eAppDrawerContainer{height:100%!important;min-height:0!important}
+
+/* v124: final M3E structural cleanup. Component internals own geometry/state. */
+
+/* M3E tabs: component owns its native display and 48px secondary-tab geometry. */
+.m3eSchoologyTabs{width:100%!important}
+
+/* Segmented lists: let Matraic M3E create the segments; only map the surface roles. */
+.messageList,.calendarEventList,.groupSegmentedList,.materialList{
+  --m3e-segmented-list-item-container-color:var(--md-sys-color-surface-container)!important;
+  --m3e-segmented-list-container-color:var(--md-sys-color-surface-container-low)!important;
+  --m3e-segmented-list-segment-gap:8px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.messageList m3e-list-item,.messageList m3e-list-action,
+.calendarEventList m3e-list-item,.calendarEventList m3e-list-action,
+.groupSegmentedList m3e-list-item,.groupSegmentedList m3e-list-action,
+.materialList m3e-list-item,.materialList m3e-list-action{
+  --m3e-list-item-container-color:var(--md-sys-color-surface-container)!important;
+}
+
+/* Remove the old fake dashboard/card boundary; only m3e-card is a card. */
+.nativeCourseDashboard,.nativeDashboardCourses,.nativeDashboardCourse,.nativeDashboardCourseInfo{
+  border:0!important;outline:0!important;box-shadow:none!important;
+}
+.nativeCourseDashboard{background:var(--md-sys-color-surface)!important}
+.nativeDashboardCourses{background:transparent!important}
+.nativeDashboardCourse{background:transparent!important;padding:0!important;margin:0!important}
+.nativeDashboardCourse .nativeDashboardCourseInfo{background:transparent!important}
+
+/* The course inner pane is itself the start pane of the outer M3E split. */
+.courseOuterSplit>.courseInnerSplit[slot="start"]{flex:1 1 0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;display:block!important}
+.courseOuterSplit>[slot="end"]{flex:1 1 0!important;min-width:0!important;min-height:0!important}
+.courseInnerSplit>.courseMainPane[slot="end"]{flex:1 1 0!important;min-width:0!important;min-height:0!important;width:auto!important}
+.courseInnerSplit>.courseAppsSidePane[slot="start"]{flex:1 1 0!important;min-width:0!important;min-height:0!important;width:auto!important}
+.courseMainPane,.courseAppsSidePane,.courseUpcomingPane{box-sizing:border-box!important}
+.courseLandscapePage{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+.coursePortraitLayout{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+
+/* Course/content panes must own scrolling rather than leaving a clipped child. */
+.courseMainPane,.courseAppsSidePane,.courseUpcomingPane{overflow:hidden!important}
+.courseMainPane .sectionProfileContent,.courseAppsSideContent,.courseUpcomingContent,.gradesAndroidPage,.gradesContent{overflow:auto!important;min-height:0!important}
+
+/* Correct portrait layout: no split-pane/resizer survives below 4:3. */
+@media (max-aspect-ratio: 4/3){
+  .courseOuterSplit,.courseInnerSplit{display:none!important}
+  .coursePortraitLayout{display:flex!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important}
+  .coursePortraitLayout>.courseMainPane{height:auto!important;min-height:0!important;flex:1 1 auto!important}
+  .coursePortraitLayout>.courseAppsSidePane,.coursePortraitLayout>.courseUpcomingPane{height:auto!important;min-height:0!important;flex:0 0 auto!important}
+}
+@media (min-aspect-ratio: 4/3){
+  .coursePortraitLayout{display:none!important}
+  .courseOuterSplit{display:block!important}
+}
+
+/* Shared WebViews: the drawer container and shell establish the viewport; the
+   embedded page and WebView fill it edge-to-edge below the M3E app bar. */
+html,body,#app{width:100%!important;height:100%!important;min-height:100%!important;margin:0!important}
+.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer{width:100%!important;height:100%!important;min-height:0!important}
+.m3eShell{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eAppDrawerContainer{display:block!important;position:relative!important;overflow:clip!important}
+.m3eShellMain{display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content{position:relative!important;flex:1 1 0!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
+.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
+.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;display:block!important}
+
+/* Drawer uses only native M3E nav-menu nesting. Schoology supplies the artwork. */
+.m3eDrawer,.m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer){background:var(--md-sys-color-surface-container)!important;color:var(--md-sys-color-on-surface)!important}
+.m3eDrawerNav,.m3eDrawerSubNav{display:block!important;width:100%!important;max-height:100%!important;overflow:auto!important;background:transparent!important}
+.m3eDrawerNav m3e-nav-menu-item,.m3eDrawerSubNav m3e-nav-menu-item{--m3e-nav-menu-item-label-color:var(--md-sys-color-on-surface)!important;--m3e-nav-menu-item-icon-color:var(--md-sys-color-on-surface-variant)!important;--m3e-nav-menu-item-selected-label-color:var(--md-sys-color-on-primary-container)!important;--m3e-nav-menu-item-selected-icon-color:var(--md-sys-color-primary)!important;--m3e-nav-menu-item-selected-container-color:var(--md-sys-color-primary-container)!important}
+.m3eDrawerSubNav>m3e-nav-menu-item>m3e-nav-menu-item{--m3e-nav-menu-item-label-color:var(--md-sys-color-on-surface)!important}
+.m3eDrawerNav m3e-divider,.m3eDrawerSubNav m3e-divider{--m3e-divider-color:var(--md-sys-color-outline-variant)!important}
+.drawerProfileImage{display:block!important;width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;min-height:32px!important;max-height:32px!important;object-fit:cover!important;border-radius:50%!important}
+.m3eDrawer .m3eOriginalIcon img{display:block!important;width:24px!important;height:24px!important;max-width:24px!important;max-height:24px!important;object-fit:contain!important;filter:brightness(0) saturate(100%) invert(19%) sepia(28%) saturate(1137%) hue-rotate(164deg) brightness(91%) contrast(94%)!important}
+
+/* Message detail avatars must not flex-stretch. */
+.messageThreadAvatar{display:block!important;width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;min-height:40px!important;max-height:40px!important;flex:0 0 40px!important;border-radius:50%!important;object-fit:cover!important;overflow:hidden!important}
+.messageThreadAvatarFallback{display:flex!important;width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;min-height:40px!important;max-height:40px!important;flex:0 0 40px!important;border-radius:50%!important}
+
+/* Large native M3E send action. */
+#sendMessage{min-width:112px!important}
+
+/* M3E owns interaction state; remove application-level filter darkening. */
+*:is(m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-list-item,m3e-list-action,m3e-nav-menu-item):hover,
+*:is(m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-list-item,m3e-list-action,m3e-nav-menu-item):active{filter:none!important}
+
+/* Home/calendar use Matraic split-pane's native auto orientation rather than an
+   application-defined aspect-ratio breakpoint. */
+
+/* v124: all application tabs are actual Matraic M3E secondary tabs. */
+.sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.messageTabs,.calendarPagerTabs,.homeTabs{width:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important}
+.m3eSchoologyTabs{width:100%!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary-container)!important;--m3e-tab-unselected-color:var(--md-sys-color-on-surface-variant)!important}
+.m3eSchoologyTabs m3e-tab{color:var(--md-sys-color-on-surface-variant)!important}
+.m3eSchoologyTabs m3e-tab[selected]{color:var(--md-sys-color-on-primary-container)!important}
