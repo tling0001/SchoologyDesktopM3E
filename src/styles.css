@@ -2126,3 +2126,141 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 
 /* Assignment information follows the filled M3E surface treatment. */
 .assignmentInfoCard{--m3e-card-container-color:var(--md-sys-color-surface-container)!important;box-shadow:none!important}
+
+/* v129: final structural cleanup. Let Matraic M3E own component geometry. */
+/* Native split-pane resizers use the same primary-container blue as the app bar/tabs. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e{
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-primary-container)!important;
+}
+
+/* Five-pixel visible spacing: use M3E's segmented-list token, not an extra row margin. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList{
+  --m3e-segmented-list-segment-gap:5px!important;
+}
+.messageList m3e-list-action,.materialList m3e-list-action,.groupSegmentedList m3e-list-action,.calendarEventList m3e-list-action,.upcomingSegmentedList m3e-list-action,.settingsList m3e-list-action,.courseAppList m3e-list-action,.notificationList m3e-list-action{margin:0!important}
+.messageList m3e-list-action:last-child,.materialList m3e-list-action:last-child,.groupSegmentedList m3e-list-action:last-child,.calendarEventList m3e-list-action:last-child,.upcomingSegmentedList m3e-list-action:last-child,.settingsList m3e-list-action:last-child,.courseAppList m3e-list-action:last-child,.notificationList m3e-list-action:last-child{margin-bottom:0!important}
+
+/* Native page viewports must consume the space below the app bar and own scrolling. */
+.m3eShellMain>#content:not(:has(.embeddedPage)):not(:has(.dashboardHybrid)){
+  position:absolute!important;left:0!important;right:0!important;top:64px!important;bottom:0!important;
+  width:auto!important;height:auto!important;min-height:0!important;overflow:hidden!important;display:block!important;
+}
+.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage,.nativeCourseDashboard{
+  width:100%!important;min-width:0!important;box-sizing:border-box!important;
+}
+.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage{
+  height:100%!important;min-height:0!important;overflow:auto!important;
+}
+
+/* Courses: use the actual M3E split-pane host as the layout engine. Do not override
+   its internal flex/shadow layout with display:block/absolute pane positioning. */
+.courseLandscapePage{
+  position:relative!important;display:flex!important;flex-direction:column!important;
+  width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;
+}
+.courseOuterSplit{
+  flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+  position:relative!important;overflow:hidden!important;
+}
+.courseInnerSplit{
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+  position:relative!important;overflow:hidden!important;
+}
+.courseOuterSplit>[slot="start"],.courseOuterSplit>[slot="end"],.courseInnerSplit>[slot="start"],.courseInnerSplit>[slot="end"]{
+  min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+.courseAppsSidePane,.courseMainPane,.courseUpcomingPane{min-width:0!important;min-height:0!important;box-sizing:border-box!important}
+.courseAppsSideContent,.courseUpcomingContent,.courseMainPane .sectionProfileContent{min-width:0!important;min-height:0!important;overflow:auto!important}
+.courseMainPane{display:flex!important;flex-direction:column!important;height:100%!important;overflow:hidden!important}
+.courseMainPane .sectionProfileContent{height:0!important;flex:1 1 0!important}
+.courseAppsSidePane,.courseUpcomingPane{display:flex!important;flex-direction:column!important;height:100%!important}
+.courseAppsSideContent,.courseUpcomingContent{height:0!important;flex:1 1 0!important}
+
+@media (max-aspect-ratio:4/3){
+  .courseLandscapePage{display:block!important;height:auto!important;min-height:100%!important;overflow:visible!important}
+  .courseOuterSplit{display:none!important}
+  .coursePortraitLayout{
+    position:relative!important;display:flex!important;flex-direction:column!important;
+    width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important;
+  }
+  .coursePortraitLayout>.courseAppsSidePane{display:none!important}
+  .coursePortraitLayout>.courseMainPane{display:flex!important;width:100%!important;height:auto!important;min-height:0!important;flex:0 0 auto!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;flex:none!important;overflow:visible!important}
+  .coursePortraitLayout>.courseUpcomingPane{display:block!important;width:100%!important;height:auto!important;min-height:220px!important;overflow:visible!important;flex:0 0 auto!important}
+  .coursePortraitLayout>.courseUpcomingPane .courseUpcomingContent{height:auto!important;min-height:0!important;overflow:visible!important}
+}
+
+/* Course Apps is a true M3E segmented action list in both landscape and the portrait tab. */
+.courseAppList{display:flex!important;flex-direction:column!important;width:100%!important;min-height:0!important;overflow:auto!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.courseAppRow{min-width:0!important;cursor:pointer!important}
+
+/* Messages/groups/etc. have real scroll viewports rather than content clipped by #content. */
+.messagesAndroidPage{display:flex!important;flex-direction:column!important;padding:0 16px 16px!important;overflow:hidden!important}
+.messagesAndroidPage>.messageTabsM3e{flex:0 0 auto!important}
+.messagesAndroidPage>.messageList{flex:1 1 0!important;height:0!important;min-height:0!important;overflow:auto!important;width:100%!important}
+.notificationsAndroidPage{padding:16px!important;overflow:auto!important}
+.notificationList{display:flex!important;flex-direction:column!important;width:100%!important;overflow:visible!important}
+.groupProfilePage{height:100%!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+.groupMainPane #groupTabContent,.groupMainPane{min-height:0!important;overflow:auto!important}
+
+/* Settings: one scroll viewport, full height, with M3E segmented lists owning item spacing. */
+.settingsPage{height:100%!important;min-height:0!important;overflow:auto!important;box-sizing:border-box!important;padding-bottom:24px!important}
+.settingsList{display:flex!important;flex-direction:column!important;width:100%!important;overflow:visible!important;gap:0!important}
+
+/* Grades: no wrapper padding/margins between native M3E expansion panels. */
+.gradesNativePage{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.gradesNativePage>.gradesContent{height:0!important;flex:1 1 0!important;min-height:0!important;overflow:auto!important}
+.gradesAndroid{padding:0!important;margin:0!important}
+.gradesAccordion{display:block!important;padding:0!important;margin:0!important;overflow:visible!important}
+.gradeCategory{padding:0!important;margin:0!important}
+
+/* Comments use filled cards and keep the author line beside the avatar. */
+.androidCommentCard{--m3e-filled-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important;box-shadow:none!important}
+.androidCommentCard .androidCommentContent{display:flex!important;flex-direction:column!important;min-width:0!important;padding:0!important}
+.androidCommentCard .commentUserName{align-self:flex-start!important;margin:0!important;line-height:48px!important;min-height:48px!important}
+.androidCommentCard .androidCommentAvatar{float:none!important;position:absolute!important;left:0!important;top:0!important}
+.androidCommentCard{position:relative!important;padding-left:64px!important}
+
+/* Keep the native M3E nav-menu appearance for course/group/grade descendants. */
+.m3eDrawerNav .drawerSubImage{display:flex!important;align-items:center!important;justify-content:center!important;width:24px!important;height:24px!important;overflow:hidden!important}
+.m3eDrawerNav .drawerSubImage img{width:24px!important;height:24px!important;object-fit:cover!important;border-radius:50%!important}
+.m3eDrawerNav .drawerSubImage>span{font-size:16px!important}
+.m3eDrawerNav m3e-nav-menu-item[data-course-sub],.m3eDrawerNav m3e-nav-menu-item[data-group-sub]{margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important;color:inherit!important}
+.m3eDrawerNav .drawerSubLoading,.m3eDrawerNav .drawerErrorItem{margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* Upcoming: date is a disabled M3E action in the same segmented action-list. */
+.upcomingDateGroup{margin:0 0 12px!important;padding:0!important}
+.upcomingSegmentedList{width:100%!important;margin:0!important;padding:0!important}
+.upcomingDateHeader{cursor:default!important;font-weight:500!important}
+.upcomingDateHeader .upcomingDateDivider{display:block!important;width:calc(100% + 24px)!important;margin:8px -12px -4px!important;--m3e-divider-color:var(--md-sys-color-outline-variant)!important}
+
+/* Assignment info remains filled, and the native split pane gets both-direction resizing. */
+.assignmentLandscapePage{position:relative!important;display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.assignmentLandscapeSplit{flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;position:relative!important}
+.assignmentLandscapeSplit>[slot="start"],.assignmentLandscapeSplit>[slot="end"]{min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important}
+.assignmentInfoCard{--m3e-filled-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important;box-shadow:none!important}
+
+/* v129: group split/page scroll viewport. */
+.groupProfilePage{position:relative!important;display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.groupOuterSplit{flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;position:relative!important;overflow:hidden!important}
+.groupOuterSplit>[slot="start"],.groupOuterSplit>[slot="end"]{height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.groupMainPane{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.groupMainPane #groupTabContent{height:0!important;flex:1 1 0!important;min-height:0!important;overflow:auto!important;padding:16px!important;box-sizing:border-box!important}
+.groupUpcomingPane{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.groupUpcomingPane #groupUpcomingContent{height:0!important;flex:1 1 0!important;min-height:0!important;overflow:auto!important}
+
+/* Remove the old manual seven-pixel row margins so the M3E five-pixel token is the only gap. */
+.messageList m3e-list-action,.materialList m3e-list-action,.groupSegmentedList m3e-list-action,.calendarEventList m3e-list-action,.upcomingSegmentedList m3e-list-action,.settingsList m3e-list-action,.courseAppList m3e-list-action,.notificationList m3e-list-action{margin:0!important}
+
+/* Native action-list hover/focus/pressed states are owned by M3E; do not neutralize them. */
+.messageList m3e-list-action:hover,.materialList m3e-list-action:hover,.groupSegmentedList m3e-list-action:hover,.calendarEventList m3e-list-action:hover,.upcomingSegmentedList m3e-list-action:hover,.settingsList m3e-list-action:hover,.courseAppList m3e-list-action:hover,.notificationList m3e-list-action:hover{filter:initial!important}
+
+/* Filled comments: avatar and author occupy the same top row. */
+.androidCommentCard{display:block!important;position:relative!important;padding:12px 16px 12px 76px!important;box-sizing:border-box!important}
+.androidCommentCard .androidCommentAvatar{position:absolute!important;left:16px!important;top:12px!important;width:48px!important;height:48px!important;margin:0!important}
+.androidCommentCard .androidCommentContent{display:block!important;padding:0!important}
+.androidCommentCard .commentUserName{display:block!important;line-height:20px!important;min-height:20px!important;margin:0 0 4px!important}
+.androidCommentCard .commentBodyHtml{margin-top:0!important}
