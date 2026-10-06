@@ -96,7 +96,7 @@ function qr(){return m3eTheme(`<main class="m3eQrScreen loginAnimated"><m3e-app-
 function drawerItemMarkup(id,label,icon){
  const iconMap={messages:'mail',notifications:'notifications',requests:'request_quote',home:'home',courses:'book',groups:'groups',resources:'folder',grades:'assignment',calendar:'calendar_month',settings:'settings',logout:'logout'};
  const name=iconMap[id]||'menu';
- return `<m3e-nav-menu-item data-drawer="${id}"><span slot="icon" class="m3eOriginalIcon">${originalM3Icon(name)}</span><span slot="label">${label}</span></m3e-nav-menu-item>`;
+ return `<m3e-nav-menu-item data-drawer="${id}"><span slot="icon" class="drawerSchoologyIcon">${originalM3Icon(name)}</span><span slot="label">${label}</span></m3e-nav-menu-item>`;
 }
 function shell(){
  const drawerItems=[
@@ -104,7 +104,7 @@ function shell(){
   ['home','Home'],['courses','Courses'],['groups','Groups'],['resources','Resources'],['grades','Grades'],['calendar','Calendar'],
   ['settings','Settings'],['logout','Logout']
  ];
- const nested=(id,label,icon)=>{const open=state.drawerPage===id;return `<m3e-nav-menu-item id="drawer-${id}" data-drawer="${id}" ${open?'open':''}><img slot="icon" class="drawerSchoologyIcon" src="../assets/icons/${originalM3IconMap[icon]}" alt=""><span slot="label">${label}</span>${open?`<m3e-nav-menu-item id="courseSubList"><span slot="label">Loading…</span></m3e-nav-menu-item>`:''}</m3e-nav-menu-item>`};
+ const nested=(id,label,icon)=>{const open=state.drawerPage===id;return `<m3e-nav-menu-item id="drawer-${id}" data-drawer="${id}" ${open?'open':''}><span slot="icon" class="drawerSchoologyIcon">${originalM3Icon(icon)}</span><span slot="label">${label}</span>${open?`<m3e-nav-menu-item id="courseSubList" class="drawerNestedContainer"><span slot="label">Loading…</span></m3e-nav-menu-item>`:''}</m3e-nav-menu-item>`};
  const drawerList=drawerItems.map(([id,label],i)=>`${i===3?'<m3e-divider></m3e-divider>':''}${i===9?'<m3e-divider></m3e-divider>':''}${drawerItemMarkup(id,label)}`).join('');
  const leading=state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu"><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">${originalM3Icon("menu")}</span></m3e-icon-button>`;
  return `<m3e-theme class="m3eRoot m3eShellTheme" color="#2e66a3" variant="fidelity" scheme="light" contrast="standard" motion="expressive" strong-focus><div class="shell m3eShell"><m3e-drawer-container id="appDrawerContainer" start-mode="over" class="m3eAppDrawerContainer m3eSchoologyDrawer"><nav slot="start" id="startDrawer" aria-label="Navigation" class="m3eDrawer"><m3e-nav-menu class="m3eDrawerNav"><m3e-nav-menu-item id="drawerProfile" data-drawer="profile"><img slot="icon" class="drawerProfileImage" data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt="><span slot="label">${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</span></m3e-nav-menu-item><m3e-divider></m3e-divider>${drawerItems.map(([id,label])=>id==='courses'?nested('courses','Courses','book'):id==='groups'?nested('groups','Groups','groups'):id==='grades'?nested('grades','Grades','assignment'):drawerItemMarkup(id,label)).join('')}</m3e-nav-menu></nav><main class="m3eShellMain"><m3e-app-bar id="mainAppBar" class="m3eMainAppBar">${leading}<span slot="title" class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span></m3e-app-bar><main id="content"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></main><div id="floatingActionSlot" class="floatingActionSlot"></div></main></m3e-drawer-container></div></m3e-theme>`;
@@ -361,6 +361,7 @@ async function canJoinByAccessCode(path){
 }
 async function loadCourseSubmenu(){
  const c=document.getElementById('courseSubList');if(!c)return;
+ document.getElementById(`drawer-${state.drawerPage}`)?.setAttribute('open','');
  const replaceSubItems=html=>{c.querySelectorAll(':scope > m3e-nav-menu-item').forEach(el=>el.remove());c.insertAdjacentHTML('beforeend',html);};
  try{
    const page=state.drawerPage;
@@ -380,7 +381,7 @@ async function loadCourseSubmenu(){
    if(page==='courses'&&joinCourseButton){joinCourseButton.style.display=await canJoinByAccessCode('sections/accesscode')?'':'none';joinCourseButton.onclick=showJoinCourseDialog;}
    document.querySelectorAll('[data-course-sub]').forEach(b=>b.onclick=()=>{const course=window.__schoologyCourses[+b.dataset.courseSub];closeDrawerThen(()=>{state.drawerPage=null;state.tab=page==='grades'?'grades':'courses';state.courseView='course';state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);state.screen='app';render();showCourse(course,page==='grades'?'grades':'materials')});});
    await hydrateCourseImages(c);
- }catch(e){c.innerHTML=`<div class="drawerError">${esc(e.message)}</div>`}
+ }catch(e){replaceSubItems(`<m3e-nav-menu-item class="drawerErrorItem"><span slot="label">Unable to load ${page==='groups'?'groups':'courses'}.</span><span slot="supporting-text">${esc(e.message||String(e))}</span></m3e-nav-menu-item>`);document.getElementById(`drawer-${page}`)?.setAttribute('open','')}
 }
 function showGradeSection(course){
  state.selectedCourse=course;
@@ -448,15 +449,15 @@ function syncToolbar(){
   }
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
-  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
-  if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
+  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"><m3e-icon name="add"></m3e-icon></m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
+  if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event"><m3e-icon name="add"></m3e-icon></m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
   if(state.eventView){
-    slot.innerHTML=`<m3e-fab id="eventCommentPlus" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="eventCommentPlus" variant="primary-container" aria-label="Post comment"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
     document.getElementById('eventCommentPlus')?.addEventListener('click',()=>openNativeCommentComposer('event',state.eventView));return;
   }
   if(state.discussionView){
     if(state.discussionView.tab==='comments'){
-      slot.innerHTML=`<m3e-fab id="discussionCommentPlus" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
+      slot.innerHTML=`<m3e-fab id="discussionCommentPlus" variant="primary-container" aria-label="Post comment"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
       document.getElementById('discussionCommentPlus')?.addEventListener('click',()=>openNativeCommentComposer('discussion',state.discussionView));
     }
     return;
@@ -464,11 +465,11 @@ function syncToolbar(){
   if(state.albumView){ return; }
   if(state.assignmentView&&state.assignmentLandscape&&!state.assignmentSubpage&&(state.assignmentTab==='info'||state.assignmentTab==='comments')){
     if(state.assignmentAllowComments||state.assignmentCanSubmit){
-      slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Assignment actions" title="Assignment actions">${originalM3Icon("add")}</m3e-fab>`;
+      slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Assignment actions" title="Assignment actions"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
       document.getElementById('assignmentPlus')?.addEventListener('click',showAssignmentActionMenu);
     }
   }else if(state.assignmentView&&state.assignmentTab==='comments'&&!state.assignmentSubpage){
-    slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Post comment" title="Post comment">${originalM3Icon("add")}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Post comment" title="Post comment"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
     document.getElementById('assignmentPlus')?.addEventListener('click',()=>openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0'));
   }else if(state.assignmentView&&state.assignmentCanSubmit&&state.assignmentTab==='submit'&&!state.assignmentIsTeacher&&!state.assignmentSubpage){
     slot.innerHTML='<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Submit assignment" title="Submit assignment">'+originalM3Icon('add')+'</m3e-fab>';
@@ -477,11 +478,11 @@ function syncToolbar(){
     slot.innerHTML=`<m3e-icon-button id="assignmentSaveGrade" aria-label="Save grade"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','Save')}</span></m3e-icon-button>`;
     document.getElementById('assignmentSaveGrade')?.addEventListener('click',()=>document.getElementById('saveTeacherGrade')?.click());
   }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='updates'){
-    slot.innerHTML=`<m3e-fab id="courseUpdatePlus" variant="primary-container" aria-label="Post update">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="courseUpdatePlus" variant="primary-container" aria-label="Post update"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
     document.getElementById('courseUpdatePlus')?.addEventListener('click',()=>state.selectedCourse&&openCourseUpdateComposer(state.selectedCourse));
   }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='materials'){
   }else if(state.tab==='messages'&&!state.courseView&&!state.embeddedTitle&&!state.message){
-    slot.innerHTML=`<m3e-fab id="composeMessage" variant="primary-container" aria-label="Compose message">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="composeMessage" variant="primary-container" aria-label="Compose message"><m3e-icon name="add"></m3e-icon></m3e-fab>`;
     document.getElementById('composeMessage')?.addEventListener('click',()=>showComposeMessage());document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
   }
 }
@@ -638,7 +639,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  });
  loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
  loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
- loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
+ if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
  installCourseLayoutWatcher();
 }
 function collectAssignmentAttachments(a){
@@ -706,7 +707,7 @@ async function showAssignment(sectionId,assignmentId){
     state.assignmentCanSubmit=canSubmit; state.assignmentIsTeacher=isTeacher; state.assignmentAllowComments=allowComments; state.assignmentData={...at,__gradeItemId:resolvedGradeItemId}; state.assignmentEnrollmentId=myEnrollment.id||null;
     const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs assignmentTabsM3e"><m3e-tab class="assignmentTab" data-assignment-tab="info" selected>Info</m3e-tab>${allowComments?`<m3e-tab class="assignmentTab" data-assignment-tab="comments">Comments</m3e-tab>`:''}${!state.assignmentLandscape&&canSubmit?`<m3e-tab class="assignmentTab" data-assignment-tab="submit">${isTeacher?'Grade Submissions':'Submissions'}</m3e-tab>`:''}</m3e-tabs>`;
     if(state.assignmentLandscape&&canSubmit){
-      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><div class="assignmentLandscapeSplit"><section class="assignmentInfoPane"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></div></section>`;
+      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></m3e-split-pane></section>`;
     }else{
       c.innerHTML=`<section class="assignmentAndroidPage"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section>`;
     }
@@ -1028,7 +1029,7 @@ async function loadFolder(course,folderId,push=true,title='Materials'){
     const icon=materialIconForType(f);
     return `<button class="materialRow" data-material-index="${i}"><span class="materialIcon officialMaterialIcon"><img src="../assets/icons/${icon}" alt=""></span><span><b>${esc(f.title||'Untitled')}</b></span><span>›</span></button>`;
   }).join('');
-  el.innerHTML=`${parent}${items.length?`<m3e-action-list variant="segmented" class="materialList">${items.map((f,i)=>{const icon=materialIconForType(f);return `<m3e-list-item data-material-index="${i}" tabindex="0"><span slot="leading" class="m3eOriginalIcon officialMaterialIcon"><img src="../assets/icons/${icon}" alt=""></span><span>${esc(f.title||'Untitled')}</span><span slot="trailing" class="m3eOriginalIcon">${originalM3Icon('chevron_right')}</span></m3e-list-item>`}).join('')}</m3e-action-list>`:'<div class="empty"><h2>This folder is empty</h2></div>'}`;
+  el.innerHTML=`${parent}${items.length?`<m3e-action-list variant="segmented" class="materialList">${items.map((f,i)=>{const icon=materialIconForType(f);return `<m3e-list-action data-material-index="${i}" tabindex="0"><span slot="leading" class="m3eOriginalIcon officialMaterialIcon"><img src="../assets/icons/${icon}" alt=""></span><span>${esc(f.title||'Untitled')}</span><span slot="trailing" class="m3eOriginalIcon">${originalM3Icon('chevron_right')}</span></m3e-list-action>`}).join('')}</m3e-action-list>`:'<div class="empty"><h2>This folder is empty</h2></div>'}`;
   window.__schoologyFolderItems=items;
   document.getElementById('materialBack')?.addEventListener('click',()=>navigateBack());
   document.querySelectorAll('[data-material-index]').forEach(b=>b.onclick=async()=>{
@@ -1361,11 +1362,12 @@ function renderUpcoming(events){
  }
  const html=groups.map(g=>{
   const dateLabel=Number.isNaN(g.date.getTime())?'':g.date.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'});
-  const rows=g.items.map(e=>`<m3e-list-item class="upcomingRow upcomingAssignment" data-course-upcoming-id="${esc(e.id||'')}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(upcomingIcon(e),'')}</span><span>${esc(e.title||e.name||'Upcoming')}</span><span slot="supporting-text">${esc(upcomingSupportingText(e))}</span></m3e-list-item>`).join('');
-  return `<m3e-action-list variant="segmented" class="upcomingSegmentedList"><m3e-list-item class="upcomingDateHeader"><span>${esc(dateLabel)}</span></m3e-list-item><m3e-divider></m3e-divider>${rows}</m3e-action-list>`;
+  const rows=g.items.map(e=>`<m3e-list-action class="upcomingRow upcomingAssignment" data-course-upcoming-id="${esc(e.id||'')}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(upcomingIcon(e),'')}</span><span>${esc(e.title||e.name||'Upcoming')}</span><span slot="supporting-text">${esc(upcomingSupportingText(e))}</span></m3e-list-action>`).join('');
+  return `<div class="upcomingDateGroup"><m3e-list-item class="upcomingDateHeader"><span>${esc(dateLabel)}</span></m3e-list-item><m3e-divider></m3e-divider><m3e-action-list variant="segmented" class="upcomingSegmentedList">${rows}</m3e-action-list></div>`;
  }).join('');
  return `<div class="upcomingList">${html}</div>`;
 }
+
 function upcomingIcon(e){const t=String(e?.type||'').toLowerCase();if(t==='assignment')return 'ic_assignment.png';if(['assessment','assessment_v2','managed_assessment','quiz'].includes(t))return 'ic_test_quiz.png';if(t==='discussion')return 'ic_discussion.png';if(t==='external_tool')return 'ic_external_tool.png';return 'home_dash_upcoming.png';}
 function upcomingSupportingText(e){const start=e?.start||e?.due||e?.due_date||e?.dueDate||'';if(!start)return '';try{return formatSchoologyDate(start)}catch{return String(start)}}
 
@@ -1411,21 +1413,22 @@ function renderGradePeriods(rows,periods,categories){
   (periodGroups[pid]??={}).__title=pmap[pid]||'Grading Period';
   (periodGroups[pid][cid]??=[]).push(a);
  });
- const pids=Object.keys(periodGroups);
- if(!pids.length)return '<div class="empty"><h2>No grades</h2></div>';
- return `<m3e-accordion class="gradesAccordion" multi>${pids.map((pid)=>{
-  const pg=periodGroups[pid], title=pg.__title||'Grading Period';
-  const catIds=Object.keys(pg).filter(k=>k!=='__title');
-  return `<m3e-expansion-panel open><span slot="header">${esc(title)}</span><div class="gradePeriodBody"><m3e-accordion class="gradeCategoriesAccordion" multi>${catIds.map((cid)=>{
+ const panels=[];
+ Object.keys(periodGroups).forEach(pid=>{
+  const pg=periodGroups[pid], periodTitle=pg.__title||'Grading Period';
+  Object.keys(pg).filter(k=>k!=='__title').forEach(cid=>{
    const meta=catMap[cid]||{title:cid==='0'?'Ungraded':'Category',weight:null};const list=pg[cid];
-   return `<m3e-expansion-panel class="gradeCategory" open><span slot="header">${esc(meta.title)}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="standard">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{
+   panels.push(`<m3e-expansion-panel class="gradeCategory" open><span slot="header">${esc(periodTitle)} — ${esc(meta.title)}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="standard">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{
     const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;
     const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');
     return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span>${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`;
-   }).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`;
-  }).join('')}</m3e-accordion></div></m3e-expansion-panel>`;
- }).join('')}</m3e-accordion>`;
+   }).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
+  });
+ });
+ if(!panels.length)return '<div class="empty"><h2>No grades</h2></div>';
+ return `<m3e-accordion class="gradesAccordion" multi>${panels.join('')}</m3e-accordion>`;
 }
+
 function renderGrades(rows){return renderGradePeriods(rows,{grading_period:[]},{grading_category:[]});}
 
 function openNativeCommentComposer(kind,view){
@@ -1529,9 +1532,9 @@ async function showGroup(group,activeTab='updates'){
         await hydrateMediaImages(gc);document.querySelectorAll('[data-author-id]').forEach(b=>b.onclick=()=>{const id=b.dataset.authorId;if(id)openProfileById(id,b.textContent||'Profile')});
       }
       else if(tab==='upcoming'){const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));gc.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';}
-      else if(tab==='discussions'){const x=await A.api({path:`groups/${gid}/discussions`,params:{limit:50}});const a=x.discussion||x.discussions||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map(d=>{const creator=d.creater_id??d.creator_id??d.created_by??d.user_id??d.uid??d.author_id??'';return `<m3e-list-item tabindex="0" data-group-discussion-id="${esc(d.id||d.discussion_id||'')}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon('ic_discussion.png','')}</span><span>${esc(d.title||'Discussion')}</span><span slot="supporting-text">Created by ${esc(creator)}</span></m3e-list-item>`}).join('')}</m3e-action-list>`:'<div class="empty">No discussions.</div>';gc.querySelectorAll('[data-group-discussion-id]').forEach(b=>b.onclick=async()=>{const d=a.find(v=>String(v.id||v.discussion_id||'')===String(b.dataset.groupDiscussionId));if(!d)return;try{await showDiscussionNative('groups',gid,d.id||d.discussion_id,d.title||'Discussion')}catch(e){alert('Unable to open discussion: '+e.message)}});}
-      else if(tab==='albums'){const x=await A.api({path:`groups/${gid}/albums`,params:{limit:50}});const a=x.album||x.albums||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-item tabindex="0" data-group-album-index="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon('ic_albums.png','')}</span><span>${esc(d.title||d.name||'Album')}</span><span slot="supporting-text">${esc([d.photo_count||d.photoCount,d.audio_count||d.audioCount,d.video_count||d.videoCount].filter(Boolean).join(', '))}</span></m3e-list-item>`).join('')}</m3e-action-list>`:'<div class="empty">No albums.</div>';window.__groupAlbums=a;gc.querySelectorAll('[data-group-album-index]').forEach(b=>b.onclick=()=>{const d=window.__groupAlbums[+b.dataset.groupAlbumIndex];showGroupAlbumNative(gid,d.id||d.album_id,d.title||d.name||'Album')});}
-      else {const x=await A.api({path:`groups/${gid}/resources`,params:{limit:50,with_attachments:'TRUE'}});const a=x.resource||x.resources||x.collection||x.items||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-item tabindex="0" data-group-resource-index="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(materialIconForType(d),'')}</span><span>${esc(d.title||d.template_title||d.name||'Resource')}</span></m3e-list-item>`).join('')}</m3e-action-list>`:'<div class="empty">No resources.</div>';window.__groupResources=a;gc.querySelectorAll('[data-group-resource-index]').forEach(b=>b.onclick=async()=>{const d=window.__groupResources[+b.dataset.groupResourceIndex];try{await openGroupResourceItem(d,b,gid)}catch(e){alert('Unable to open resource: '+e.message)}}); }
+      else if(tab==='discussions'){const x=await A.api({path:`groups/${gid}/discussions`,params:{limit:50}});const a=x.discussion||x.discussions||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map(d=>{const creator=d.creater_id??d.creator_id??d.created_by??d.user_id??d.uid??d.author_id??'';return `<m3e-list-action tabindex="0" data-group-discussion-id="${esc(d.id||d.discussion_id||'')}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon('ic_discussion.png','')}</span><span>${esc(d.title||'Discussion')}</span><span slot="supporting-text">Created by ${esc(creator)}</span></m3e-list-action>`}).join('')}</m3e-action-list>`:'<div class="empty">No discussions.</div>';gc.querySelectorAll('[data-group-discussion-id]').forEach(b=>b.onclick=async()=>{const d=a.find(v=>String(v.id||v.discussion_id||'')===String(b.dataset.groupDiscussionId));if(!d)return;try{await showDiscussionNative('groups',gid,d.id||d.discussion_id,d.title||'Discussion')}catch(e){alert('Unable to open discussion: '+e.message)}});}
+      else if(tab==='albums'){const x=await A.api({path:`groups/${gid}/albums`,params:{limit:50}});const a=x.album||x.albums||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-action tabindex="0" data-group-album-index="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon('ic_albums.png','')}</span><span>${esc(d.title||d.name||'Album')}</span><span slot="supporting-text">${esc([d.photo_count||d.photoCount,d.audio_count||d.audioCount,d.video_count||d.videoCount].filter(Boolean).join(', '))}</span></m3e-list-action>`).join('')}</m3e-action-list>`:'<div class="empty">No albums.</div>';window.__groupAlbums=a;gc.querySelectorAll('[data-group-album-index]').forEach(b=>b.onclick=()=>{const d=window.__groupAlbums[+b.dataset.groupAlbumIndex];showGroupAlbumNative(gid,d.id||d.album_id,d.title||d.name||'Album')});}
+      else {const x=await A.api({path:`groups/${gid}/resources`,params:{limit:50,with_attachments:'TRUE'}});const a=x.resource||x.resources||x.collection||x.items||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-action tabindex="0" data-group-resource-index="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(materialIconForType(d),'')}</span><span>${esc(d.title||d.template_title||d.name||'Resource')}</span></m3e-list-action>`).join('')}</m3e-action-list>`:'<div class="empty">No resources.</div>';window.__groupResources=a;gc.querySelectorAll('[data-group-resource-index]').forEach(b=>b.onclick=async()=>{const d=window.__groupResources[+b.dataset.groupResourceIndex];try{await openGroupResourceItem(d,b,gid)}catch(e){alert('Unable to open resource: '+e.message)}}); }
     }catch(e){gc.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`}
   };
   document.querySelectorAll('[data-group-tab]').forEach(b=>b.onclick=()=>load(b.dataset.groupTab));
@@ -1542,7 +1545,7 @@ async function showGroupResourceFolder(gid,folderId,title,collectionId){
   gc.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
   try{
     const cid=Number(collectionId||state.resourceCollection?.collection_id||state.resourceCollection?.id||0);const x=cid?await A.api({path:`collections/${cid}/resources`,params:{f:folderId,limit:50,with_attachments:'TRUE'}}):await A.api({path:`groups/${gid}/resources`,params:{f:folderId,limit:50,with_attachments:'TRUE'}});const a=x.resource||x.resources||x.collection||x.items||[];
-    gc.innerHTML=`<m3e-button id="groupFolderBack" variant="text">‹&nbsp; ${esc(title||'Back')}</m3e-button>`+(a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-item data-group-folder-resource="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(materialIconForType(d),'')}</span><span>${esc(d.title||d.template_title||d.name||'Resource')}</span></m3e-list-item>`).join('')}</m3e-action-list>`:'<div class="empty">No resources.</div>');
+    gc.innerHTML=`<m3e-button id="groupFolderBack" variant="text">‹&nbsp; ${esc(title||'Back')}</m3e-button>`+(a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map((d,i)=>`<m3e-list-action data-group-folder-resource="${i}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(materialIconForType(d),'')}</span><span>${esc(d.title||d.template_title||d.name||'Resource')}</span></m3e-list-action>`).join('')}</m3e-action-list>`:'<div class="empty">No resources.</div>');
     document.getElementById('groupFolderBack')?.addEventListener('click',()=>showGroup(state.currentGroup,'resources'));
     window.__groupFolderResources=a;
     gc.querySelectorAll('[data-group-folder-resource]').forEach(b=>b.onclick=async()=>{const d=window.__groupFolderResources[+b.dataset.groupFolderResource];try{await openGroupResourceItem(d,b,gid)}catch(e){alert('Unable to open resource: '+e.message)}});
@@ -1727,7 +1730,7 @@ async function loadMessagesPage(c, force=false){
 }
 function renderMessageFolderInto(c,folder){
  const cache=state.messageCache?.[folder]||{arr:[],users:{}};const arr=cache.arr,users=cache.users;window.__schoologyMessages=arr;window.__schoologyMessageUsers=users;
- const listHtml=arr.map((m,i)=>{const uid=Number(folder==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId));const u=users[uid]||{};const me=Number(state.auth?.userId||state.auth?.user?.id||0)===uid;const name=me?'You':(u.name_display||u.nameDisplay||u.display_name||u.name||'Schoology');const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');const ts=m.last_updated||m.lastUpdated||m.created||m.timestamp;const date=ts?(typeof ts==='number'||/^\d+$/.test(String(ts))?new Date(Number(ts)*1000).toLocaleString():String(ts)):'';return `<m3e-list-item data-message="${i}" tabindex="0"><span slot="leading" class="messageListAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`${esc(String(name).charAt(0))}`}</span><span>${esc(name)}</span><span slot="supporting-text">${esc(m.subject||'Message')}${date?` · ${esc(date)}`:''}</span>${m.message_status==='unread'?'<span slot="trailing" class="messageUnreadDot"></span>':''}</m3e-list-item>`}).join('')||'<div class="empty">No messages.</div>';
+ const listHtml=arr.map((m,i)=>{const uid=Number(folder==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId));const u=users[uid]||{};const me=Number(state.auth?.userId||state.auth?.user?.id||0)===uid;const name=me?'You':(u.name_display||u.nameDisplay||u.display_name||u.name||'Schoology');const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');const ts=m.last_updated||m.lastUpdated||m.created||m.timestamp;const date=ts?(typeof ts==='number'||/^\d+$/.test(String(ts))?new Date(Number(ts)*1000).toLocaleString():String(ts)):'';return `<m3e-list-action data-message="${i}" tabindex="0"><span slot="leading" class="messageListAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`${esc(String(name).charAt(0))}`}</span><span>${esc(name)}</span><span slot="supporting-text">${esc(m.subject||'Message')}${date?` · ${esc(date)}`:''}</span>${m.message_status==='unread'?'<span slot="trailing" class="messageUnreadDot"></span>':''}</m3e-list-action>`}).join('')||'<div class="empty">No messages.</div>';
  let page=c.querySelector('.messagesAndroidPage');
  if(!page){c.innerHTML=`<section class="messagesAndroidPage"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e"><m3e-tab class="messageTab" data-message-tab="inbox" ${folder==='inbox'?'selected':''}>Inbox</m3e-tab><m3e-tab class="messageTab" data-message-tab="sent" ${folder==='sent'?'selected':''}>Sent</m3e-tab></m3e-tabs><m3e-action-list variant="segmented" class="messageList"></m3e-action-list></section>`;page=c.querySelector('.messagesAndroidPage');}
  const list=page.querySelector('.messageList');if(list)list.innerHTML=listHtml;page.querySelectorAll('[data-message-tab]').forEach(b=>{syncM3eTabSelection(page,'messageTab',folder);b.onclick=async()=>{const next=b.dataset.messageTab;if(state.messageTab===next)return;state.messageTab=next;if(!state.messageCache?.[next]){list.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';const uid=state.auth?.userId||state.auth?.user?.id;const endpoint=next==='sent'?'messages/sent':'messages/inbox';try{const x=await A.api({path:endpoint,params:{limit:50}});const a=x.message||x.messages||[];const ids=[...new Set(a.map(m=>Number(next==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId))).filter(Boolean))];const users2={};await Promise.all(ids.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});users2[id]=u?.user||u}catch{}}));state.messageCache=state.messageCache||{};state.messageCache[next]={arr:a,users:users2};}catch(e){list.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`;return}}renderMessageFolderInto(c,next);};});
@@ -1829,7 +1832,7 @@ async function loadTab(){
     state.calendarCanCreate=!!(perm?.permission?.post??perm?.permissions?.post??perm?.permission_map?.post??perm?.canPOST??perm?.can_post);
     c.innerHTML=`<section class="calendarPagerPage"><div class="calendarPagerTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs calendarTabsM3e"><m3e-tab class="calendarPagerTab" data-calendar-tab="calendar" ${state.calendarTab==='calendar'?'selected':''}>Calendar</m3e-tab><m3e-tab class="calendarPagerTab" data-calendar-tab="upcoming" ${state.calendarTab==='upcoming'?'selected':''}>Upcoming</m3e-tab></m3e-tabs></div><div id="calendarPagerContent" class="calendarPagerContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></section>`;
     const pager=document.getElementById('calendarPagerContent');
-    const renderCalendarRows=events=>events.map(e=>{const type=String(e.type||'').toLowerCase();const icon=type==='assignment'?'ic_assignment.png':type==='assessment'?'ic_test_quiz.png':['assessment_v2','managed_assessment','quiz'].includes(type)?'ic_assessment_48dp.png':type==='discussion'?'ic_discussion.png':type==='external_tool'?'ic_external_tool.png':'home_dash_upcoming.png';const allDay=String(e.all_day??e.allDay??'')==='1'||e.allDay===1;const start=e.start||e.start_date||e.startDate||'';let time='';if(!allDay&&start){const dt=new Date(String(start).replace(' ','T'));if(!Number.isNaN(dt.getTime()))time=dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}return `<m3e-list-item data-calendar-event="${esc(e.id||'')}"><span slot="leading" class="m3eOriginalIcon calendarEventIcon">${officialOrAssetIcon(icon,'')}</span><span>${esc(e.title||'Event')}</span>${time?`<span slot="supporting-text">${esc(time)}</span>`:''}</m3e-list-item>`}).join('');
+    const renderCalendarRows=events=>events.map(e=>{const type=String(e.type||'').toLowerCase();const icon=type==='assignment'?'ic_assignment.png':type==='assessment'?'ic_test_quiz.png':['assessment_v2','managed_assessment','quiz'].includes(type)?'ic_assessment_48dp.png':type==='discussion'?'ic_discussion.png':type==='external_tool'?'ic_external_tool.png':'home_dash_upcoming.png';const allDay=String(e.all_day??e.allDay??'')==='1'||e.allDay===1;const start=e.start||e.start_date||e.startDate||'';let time='';if(!allDay&&start){const dt=new Date(String(start).replace(' ','T'));if(!Number.isNaN(dt.getTime()))time=dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}return `<m3e-list-action data-calendar-event="${esc(e.id||'')}"><span slot="leading" class="m3eOriginalIcon calendarEventIcon">${officialOrAssetIcon(icon,'')}</span><span>${esc(e.title||'Event')}</span>${time?`<span slot="supporting-text">${esc(time)}</span>`:''}</m3e-list-action>`}).join('');
     const bindEventRows=(events)=>document.querySelectorAll('[data-calendar-event]').forEach(btn=>{if(btn.dataset.boundCalendar)return;btn.dataset.boundCalendar='1';btn.addEventListener('click',()=>{const e=events.find(v=>String(v.id||'')===String(btn.dataset.calendarEvent));if(!e)return;const type=String(e.type||'').toLowerCase();const aid=e.assignment_id??e.assignmentId??e.assignment?.id;const sid=e.section_id??e.sectionId;if(type==='assignment'&&aid){showAssignment(sid,aid);return}if(['assessment','assessment_v2','managed_assessment','quiz'].includes(type)){const id=aid??e.id;if(id){A.prepareWebSession().then(()=>showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,e.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true}));return}}if(type==='discussion'&&e.id){showDiscussionNative(sid?'sections':'users',sid||state.auth?.userId,e.discussion_id??e.id,e.title||'Discussion');return}if(type==='event'&&e.id){showEventNative(sid?'sections':'users',sid||state.auth?.userId,e.id,e.title||'Event');return}if(e.web_url||e.webUrl){showEmbeddedWeb(e.web_url||e.webUrl,e.title||'Upcoming');return}})});
     const loadCalendarUpcomingData=async()=>{
       if(!Array.isArray(state.calendarUpcomingEvents)){const x=await A.api({path:`users/${uid}/events`,params:{start_date:formatApiDate(new Date()),limit:100}});state.calendarUpcomingEvents=x.event||x.events||[];}
@@ -1846,9 +1849,9 @@ async function loadTab(){
       const selectedKey=formatApiDate(selected),days=monthStart.getDay(),rows=Math.ceil((days+monthEnd.getDate())/7),cells=[];
       for(let i=0;i<rows*7;i++){const n=i-days+1,inMonth=n>=1&&n<=monthEnd.getDate(),d=inMonth?new Date(month.getFullYear(),month.getMonth(),n):null,key=d?formatApiDate(d):'',evs=key?(byDay[key]||[]):[];cells.push(`<button class="calendarDay ${key===selectedKey?'selected':''} ${inMonth?'':'outside'}" data-calendar-day="${key}"><b>${inMonth?n:''}</b>${evs.length?'<i class="calendarEventMarker" aria-hidden="true"></i>':''}</button>`)}
       const calLandscape=currentWindowLayout()==='landscape';
-      pager.innerHTML=`<section class="calendarAndroidPage"><m3e-split-pane orientation="auto" class="calendarMainSplit" value="${calLandscape?'72':'64'}" min="35" max="85" step="1" label="Resize calendar and upcoming"><section slot="start" class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></section><section slot="end" class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-action-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-action-list></section></m3e-split-pane><m3e-action-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-action-list></section>`;
+      pager.innerHTML=`<section class="calendarAndroidPage"><m3e-split-pane orientation="auto" class="calendarMainSplit" value="${calLandscape?'72':'64'}" min="35" max="85" step="1" label="Resize calendar and upcoming"><section slot="start" class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></section><section slot="end" class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-action-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section></m3e-split-pane><m3e-action-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section>`;
       const m3cal=document.getElementById('m3eSchoologyCalendar');
-      m3cal?.addEventListener('change',()=>{const d=m3cal.date;if(!(d instanceof Date)||Number.isNaN(d.getTime()))return;state.calendarSelectedDate=d;const key=formatApiDate(d);const list=document.getElementById('calendarEventList');if(list)list.innerHTML=renderCalendarRows(byDay[key]||[])||'<m3e-list-item>No upcoming events</m3e-list-item>';bindEventRows(arr)});
+      m3cal?.addEventListener('change',()=>{const d=m3cal.date;if(!(d instanceof Date)||Number.isNaN(d.getTime()))return;state.calendarSelectedDate=d;const key=formatApiDate(d);const list=document.getElementById('calendarEventList');if(list)list.innerHTML=renderCalendarRows(byDay[key]||[])||'<m3e-list-action disabled>No upcoming events</m3e-list-action>';bindEventRows(arr)});
       bindEventRows([...upcomingNow(),...arr]);
     };
     const loadCalendarUpcoming=async()=>{
@@ -1938,7 +1941,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.119</div></section>`;
+      <div class="settingsVersion">Version: 2026.06.0-port.126</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});

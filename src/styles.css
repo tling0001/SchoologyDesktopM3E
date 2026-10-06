@@ -653,16 +653,6 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 html[data-electron-platform="linux"][data-window-controls-overlay="true"] .toolbarActionSlot .iconButton{position:relative!important;z-index:2!important}
 
 /* v79: landscape assignment page mirrors the homepage split proportions (17/24 + 7/24). */
-@media (min-aspect-ratio:4/3){
-  .assignmentLandscapePage{height:100%!important;min-height:0!important;overflow:hidden!important;padding:0!important}
-  .assignmentLandscapeSplit{height:100%!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,17fr) minmax(0,7fr)!important;overflow:hidden!important}
-  .assignmentInfoPane,.assignmentSubmissionsPane{min-width:0!important;min-height:0!important;overflow:hidden!important;background:#fff}
-  .assignmentInfoPane{display:flex!important;flex-direction:column!important;border-right:1px solid #dfe3e6}
-  .assignmentInfoPane .assignmentTabs{flex:0 0 48px!important;height:48px!important}
-  .assignmentInfoPane #assignmentTabContent{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:auto!important}
-  .assignmentSubmissionsPane{display:flex!important;flex-direction:column!important}
-  .assignmentPaneHeader{height:48px;min-height:48px;flex:0 0 48px;background:#002137;color:#fff;display:flex;align-items:center;padding:0 16px;font-size:14px}
-  .assignmentSubmissionsContent{flex:1 1 auto;min-height:0;overflow:auto;background:#fff}
 }
 
 /* v79: Android-style NewPostActivity comment dialog. */
@@ -2033,3 +2023,56 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 
 /* Keep the Schoology drawer artwork at full fidelity rather than recoloring it as an M3 icon. */
 .m3eDrawer .drawerSchoologyIcon{filter:none!important}
+
+
+/* v126: native M3E assignment split. */
+@media (min-aspect-ratio:4/3){
+  .assignmentLandscapePage{height:100%!important;min-height:0!important;overflow:hidden!important;padding:0!important;display:flex!important}
+  .assignmentLandscapeSplit{display:block!important;flex:1 1 0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important}
+  .assignmentLandscapeSplit>[slot="start"],.assignmentLandscapeSplit>[slot="end"]{min-width:0!important;min-height:0!important;overflow:hidden!important;background:var(--md-sys-color-surface)!important}
+  .assignmentInfoPane{display:flex!important;flex-direction:column!important}
+  .assignmentInfoPane .assignmentTabs{flex:0 0 48px!important;height:48px!important}
+  .assignmentInfoPane #assignmentTabContent{flex:1 1 0!important;min-height:0!important;height:0!important;overflow:auto!important}
+  .assignmentSubmissionsPane{display:flex!important;flex-direction:column!important}
+  .assignmentPaneHeader{height:48px!important;min-height:48px!important;flex:0 0 48px!important}
+  .assignmentSubmissionsContent{flex:1 1 0!important;min-height:0!important;height:0!important;overflow:auto!important;background:var(--md-sys-color-surface)!important}
+}
+
+/* v126: make the M3E shell establish a definite viewport for Electron's replaced WebView. */
+.m3eShellMain{position:relative!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>.m3eMainAppBar{position:relative!important;z-index:2!important;width:100%!important;height:64px!important;min-height:64px!important;max-height:64px!important}
+.m3eShellMain>#content{position:absolute!important;left:0!important;right:0!important;top:64px!important;bottom:0!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
+.m3eShellMain>#content:has(.embeddedPage),.m3eShellMain>#content:has(.dashboardHybrid){display:block!important}
+.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
+.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important}
+
+/* v126: M3E action-list must contain m3e-list-action to expose its built-in state layer. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList{--m3e-segmented-list-segment-gap:7px!important;gap:7px!important}
+.messageList m3e-list-action,.materialList m3e-list-action,.groupSegmentedList m3e-list-action,.calendarEventList m3e-list-action,.upcomingSegmentedList m3e-list-action{display:block!important;cursor:pointer!important;margin:0!important}
+.messageList m3e-list-action:hover,.materialList m3e-list-action:hover,.groupSegmentedList m3e-list-action:hover,.calendarEventList m3e-list-action:hover,.upcomingSegmentedList m3e-list-action:hover{filter:none!important}
+.materialList,.groupSegmentedList{margin:16px!important;width:calc(100% - 32px)!important}
+.messageList{margin:16px 0 0!important}
+.calendarLandscapeUpcoming .calendarEventList{margin:0 16px 16px!important;width:calc(100% - 32px)!important}
+.calendarSelectedDayList{margin:16px!important}
+.upcomingDateGroup{margin:0 0 7px!important}
+.upcomingDateGroup>m3e-list-item.upcomingDateHeader{margin:0!important}
+.upcomingDateGroup>m3e-divider{display:block!important;margin:4px 12px!important}
+.upcomingDateGroup>.upcomingSegmentedList{margin:0!important;width:100%!important}
+.upcomingList{gap:0!important;padding:16px!important}
+
+/* v126: explicit Schoology artwork for every drawer icon, never M3E symbol substitution. */
+.m3eDrawer .drawerSchoologyIcon{display:flex!important;align-items:center!important;justify-content:center!important;width:32px!important;height:32px!important;max-width:32px!important;max-height:32px!important;overflow:visible!important;filter:none!important;opacity:1!important}
+.m3eDrawer .drawerSchoologyIcon img{display:block!important;width:auto!important;height:auto!important;max-width:30px!important;max-height:32px!important;object-fit:contain!important;filter:none!important;opacity:1!important}
+.m3eDrawer .drawerSchoologyIcon .m3eOriginalIcon{display:block!important}
+.m3eDrawer .drawerSchoologyIcon .m3eOriginalIcon img{display:block!important;width:auto!important;height:auto!important;max-width:30px!important;max-height:32px!important;filter:none!important}
+.m3eDrawer .drawerNestedContainer{margin-inline-start:24px!important}
+
+/* v126: portrait Course Apps is the Course App tab, not a second always-visible pane. */
+@media (max-aspect-ratio:4/3){
+  .coursePortraitLayout>.courseAppsSidePane{display:none!important}
+  .coursePortraitLayout>.courseMainPane{width:100%!important;max-width:none!important;min-width:0!important}
+}
+
+/* M3E FABs use the dark on-primary-container icon role against the light FAB container. */
+#floatingActionSlot m3e-fab m3e-icon{color:var(--md-sys-color-on-primary-container)!important;width:24px!important;height:24px!important}
+#floatingActionSlot m3e-fab{--m3e-fab-icon-color:var(--md-sys-color-on-primary-container)!important}

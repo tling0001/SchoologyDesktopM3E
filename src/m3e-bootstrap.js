@@ -4,6 +4,7 @@
 (async function(){
   try {
     await import('../node_modules/@m3e/web/dist/all.js');
+    await import('../node_modules/@m3e/icons/outlined/add.js');
 
     window.m3eReady = Promise.resolve();
   } catch (error) {
