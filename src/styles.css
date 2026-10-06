@@ -153,7 +153,6 @@
 .sectionProfileContent{background:#fff;min-height:300px}
 .materialList,.courseAppList,.gradesNativeList{background:#fff}
 .materialRow,.courseAppRow,.gradeAssignmentRow{width:100%;min-height:62px;background:#fff;border:0;border-bottom:1px solid #e2e2e2;display:flex;align-items:center;text-align:left;padding:10px 16px;color:#333;cursor:pointer}
-.materialRow:hover,.courseAppRow:hover,.gradeAssignmentRow:hover{background:#f6f7f8}
 .materialIcon{width:38px;font-size:22px}.materialRow>b,.materialRow span:nth-child(2),.courseAppRow span:nth-child(2){flex:1}.materialRow small,.courseAppRow small,.gradeAssignmentName small{display:block;color:#888;font-size:12px;margin-top:3px}
 .courseAppIcon{width:42px;height:42px;border-radius:4px;background:#e7ebee;display:flex;align-items:center;justify-content:center;color:#56607d;font-weight:600;margin-right:14px}
 .assignmentPage{background:#fff;min-height:100%;padding-bottom:40px}.assignmentHeader{padding:22px 20px 16px}.assignmentHeader h1{font-size:23px;font-weight:400;color:#333;margin:0 0 9px}.assignmentDue{font-size:13px;color:#777}.assignmentRule{height:1px;background:#ddd}.assignmentBody{padding:20px;font-size:15px;line-height:1.55;color:#333}.assignmentBody img{max-width:100%;height:auto}.assignmentAttachments{padding:0 20px 18px}.assignmentAttachments img{display:block;max-width:100%;max-height:360px;margin:8px 0;border-radius:3px}.assignmentAttachments a{display:block;padding:8px 0;color:#2e66a3;word-break:break-all}.assignmentMeta{display:flex;justify-content:space-between;padding:15px 20px;border-top:1px solid #eee;color:#777;font-size:13px}.assignmentActions{padding:0 20px}.androidSecondary{background:#fff;border:1px solid #bbb;border-radius:3px;padding:9px 18px;color:#333}
@@ -243,14 +242,13 @@
 .drawer{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease}
 .drawerShade{transition:opacity .28s ease}
 .drawerItem,.profileRow,.courseSubItem{transition:background-color .12s ease,transform .12s ease}
-
+.drawerItem:active,.profileRow:active,.courseSubItem:active{transform:scale(.99)}
 .webContentHost{position:absolute!important;left:0!important;right:0!important;top:56px!important;bottom:0!important;width:auto!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;background:#fff!important;z-index:5}
 .webContentHost .embeddedPage,.webContentHost .dashboardHybrid{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
 .webContentHost webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;display:block!important;border:0!important;margin:0!important;padding:0!important}
 .toolbarPlus{font-size:34px!important;font-weight:300!important}
 .composeMessagePage{background:#fff;min-height:100%;padding:18px}
 .composeField{margin-bottom:18px}.composeField label{display:block;font-size:13px;color:#777;margin-bottom:7px}.composeField input,.composeField textarea{width:100%;border:0;border-bottom:1px solid #c9ced2;outline:0;padding:10px 4px;font-size:16px;background:#fff;color:#333}.composeBody textarea{min-height:230px;resize:vertical;border:1px solid #c9ced2;padding:12px}.composeActions{display:flex;justify-content:flex-end}.composeActions .androidPrimary{min-width:100px}.composeMessagePage #composeStatus{margin-top:12px;color:#666}
-.messageTabs{position:sticky;top:0;z-index:2}.messageListItem{transition:background-color .12s ease}
 
 .recipientSuggestions{position:relative;background:#fff;border:1px solid #d8dde1;z-index:4}.recipientSuggestion{display:block;width:100%;padding:11px 10px;border:0;border-bottom:1px solid #e4e7e9;background:#fff;text-align:left;color:#333}.recipientNone{padding:10px;color:#777;font-size:13px}.recipientChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.recipientChip{background:#e8eef3;color:#233a4a;border-radius:16px;padding:6px 9px;font-size:13px}.recipientChip button{border:0;background:transparent;color:#667781;padding:0 0 0 5px;cursor:pointer}
 
@@ -452,7 +450,7 @@ to{opacity:1;transform:translateY(0)}}
 .courseImage{overflow:hidden;background:#eef1f3}.courseImage img{display:block!important;width:100%;height:100%;object-fit:cover}.courseImageFallback{position:absolute}.courseImage:has(img[style*="display: block"]) .courseImageFallback{display:none}
 .notificationsAndroidPage,.peopleAndroidPage{background:#fff;min-height:100%;padding:0}.notificationList,.peopleList{background:#fff}.androidNotificationItem{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #e0e4e7;min-height:64px}.androidNotificationItem>img{width:24px;height:24px;object-fit:contain;margin-top:2px}.notificationText{flex:1;font-size:14px;line-height:1.4;color:#333}.notificationText small{display:block;color:#8a949b;font-size:12px;margin-top:6px}.peopleSectionHeader{height:28px;padding:7px 16px 4px;background:#f1f3f4;color:#6f7b84;font-size:12px;font-weight:700}.peopleListItem{width:100%;display:flex;align-items:center;text-align:left;border:0;border-bottom:1px solid #e0e4e7;background:#fff;padding:10px 12px;min-height:68px;color:#333}.peopleAvatar{width:48px;height:48px;border-radius:50%;object-fit:cover;margin:0 8px 0 0;background:#e7ebee}.peopleListItem span{display:flex;flex-direction:column}.peopleListItem b{font-size:15px;font-weight:400}.peopleListItem small{font-size:13px;color:#7c878f;margin-top:3px}.activityAvatarImage{object-fit:contain;background:#fff;padding:3px}.courseUpdatesToolbar{height:42px;display:flex;justify-content:flex-end;align-items:center;padding:0 10px;background:#fff;border-bottom:1px solid #e1e5e7}.courseUpdatesToolbar button{border:0;background:transparent;color:#2e66a3;padding:7px 10px}.sectionFullUpdate{border-bottom:1px solid #dfe3e6;background:#fff;padding:14px 14px 10px}.sectionFullUpdate .activityHeader{display:flex;align-items:center;gap:9px}.sectionFullUpdate .activityUser{font-size:15px;color:#333}.sectionFullUpdate .activityBody{font-size:15px;line-height:1.5;margin:10px 0;color:#333}.sectionFullUpdate .activityMeta{font-size:12px;color:#8a949b}.sectionFullUpdate .activityActions{border-top:1px solid #e7eaec;margin-top:10px;padding-top:8px}.shell>main#content:has(.dashboardHybrid){position:relative!important;height:calc(100vh - 56px)!important;min-height:calc(100vh - 56px)!important;max-height:calc(100vh - 56px)!important;padding:0!important;margin:0!important;overflow:hidden!important}.shell>main#content>.dashboardHybrid{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}.shell>main#content>.dashboardHybrid webview{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important}
 
-.drawer.noSlide{transition:none!important}.recentActivityScroll{overflow-y:auto!important;min-height:0!important;height:100%!important}.calendarAndroidPage{background:#fff;min-height:100%;display:flex;flex-direction:column}.calendarMonthHeader{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #dfe3e6;color:#34424c}.calendarMonthHeader button{border:0;background:none;font-size:28px;color:#5e6a72}.calendarWeekLabels{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 4px;color:#7b858c;font-size:11px;text-align:center}.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#dfe3e6;margin:0 8px}.calendarDay{min-height:64px;border:0;background:#fff;text-align:left;padding:5px;display:flex;flex-direction:column;gap:2px;overflow:hidden}.calendarDay.outside{background:#f5f6f7;color:#b2b8bc}.calendarDay.today b{background:#2e66a3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.calendarDay span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#4e5b63}.calendarUpcomingHeader{font-size:15px;font-weight:500;padding:15px 16px 8px;color:#34424c}.calendarEventList{overflow:auto}.calendarEventDate{width:88px;flex:0 0 88px;color:#7b858c;font-size:12px}.calendarEventRow span:not(.calendarEventDate){display:flex;flex-direction:column}.calendarEventRow small{margin-top:3px;color:#8a949b}
+.drawer.noSlide{transition:none!important}.recentActivityScroll{overflow-y:auto!important;min-height:0!important;height:100%!important}.calendarAndroidPage{background:#fff;min-height:100%;display:flex;flex-direction:column}.calendarMonthHeader{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #dfe3e6;color:#34424c}.calendarMonthHeader button{border:0;background:none;font-size:28px;color:#5e6a72}.calendarWeekLabels{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 4px;color:#7b858c;font-size:11px;text-align:center}.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#dfe3e6;margin:0 8px}.calendarDay{min-height:64px;border:0;background:#fff;text-align:left;padding:5px;display:flex;flex-direction:column;gap:2px;overflow:hidden}.calendarDay.outside{background:#f5f6f7;color:#b2b8bc}.calendarDay.today b{background:#2e66a3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.calendarDay span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#4e5b63}.calendarUpcomingHeader{font-size:15px;font-weight:500;padding:15px 16px 8px;color:#34424c}.calendarEventList{overflow:auto}.calendarEventRow{display:flex;gap:14px;width:100%;text-align:left;border:0;border-bottom:1px solid #e0e4e7;background:#fff;padding:11px 16px}.calendarEventDate{width:88px;flex:0 0 88px;color:#7b858c;font-size:12px}.calendarEventRow span:not(.calendarEventDate){display:flex;flex-direction:column}.calendarEventRow small{margin-top:3px;color:#8a949b}
 
 #menuButton svg{width:24px;height:24px;display:block}.recentActivityScroll{overflow-y:auto!important;overflow-x:hidden!important}.homeRightPane #homeTabContent.recentActivityScroll,.homeTabViewport #homeTabContent.recentActivityScroll{flex:1 1 auto!important;min-height:0!important}.calendarAndroidPage{overflow:hidden}.calendarEventList{flex:1 1 auto;min-height:0;overflow-y:auto}
 
@@ -534,8 +532,6 @@ to{opacity:1;transform:translateY(0)}}
 .dashboardContentActive .dashboardHybrid{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;display:block!important}
 .dashboardContentActive .dashboardHybrid webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important}
 .materialRow .materialIcon{flex:0 0 38px}.materialRow>span:nth-child(2){min-width:0}
-
-.messageListItem:focus .messageListText b,.messageListItem:active .messageListText b,.messageListItem:focus .messageListText strong,.messageListItem:active .messageListText strong{color:#333!important}
 .groupHeader{gap:12px}.groupHeader .groupHero{flex:0 0 64px;position:relative;overflow:hidden;margin:8px}.groupHeader .groupHero img{display:block;width:100%;height:100%;object-fit:cover}.groupHeader>div:last-child{flex:1 1 auto;min-width:0}
 @media (max-aspect-ratio:4/3){.profileHeader{position:relative!important;display:flex!important;flex-wrap:nowrap!important;min-height:82px!important}.profileHeader>div{min-width:0!important;flex:1 1 auto!important}.profileTabs{clear:both!important;position:relative!important;margin-top:0!important;overflow-x:auto!important}.profileAndroidPage{overflow-x:hidden!important}.profileAndroidPage:before,.profileAndroidPage:after{display:none!important}}
 
@@ -1008,9 +1004,10 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 /* v88 Android navigation fidelity */
 .homeTabs{justify-content:center!important}.homeTab{flex:0 0 auto!important}
 .activityAuthorLink,.activityUser.activityAuthorLink,.sectionFullUpdate .activityUser{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:0!important;color:#2e66a3!important;font-weight:400!important;text-align:left!important}
-.calendarAndroidPage{background:#fff;min-height:100%;overflow:auto}.calendarMonthHeader{height:48px!important;border:0!important;padding:0 10px!important}.calendarMonthHeader b{font-size:18px;color:#34424c}.calendarMonthHeader button{width:40px;height:40px;font-size:30px;line-height:40px;color:#778088}.calendarWeekLabels{padding:0 10px 4px!important;font-size:12px!important;color:#778088!important}.calendarGrid{margin:0 10px!important;background:#bababa!important;gap:1px!important}.calendarDay{min-height:48px!important;padding:4px!important;border:0!important;background:#fff!important}.calendarDay.outside{background:#d7d9db!important;color:#778088!important}.calendarDay b{font-size:13px;color:#778088}.calendarDay.selected b{background:#379bff!important;color:#fff!important}.calendarDay span{font-size:8px;color:#778088}.calendarUpcomingHeader{margin-top:10px!important;padding:10px 20px 7px!important;border-top:1px solid #bababa;font-size:14px!important}.calendarEventList{padding:0 0 20px}.calendarEventDate{color:#778088!important}
+.calendarAndroidPage{background:#fff;min-height:100%;overflow:auto}.calendarMonthHeader{height:48px!important;border:0!important;padding:0 10px!important}.calendarMonthHeader b{font-size:18px;color:#34424c}.calendarMonthHeader button{width:40px;height:40px;font-size:30px;line-height:40px;color:#778088}.calendarWeekLabels{padding:0 10px 4px!important;font-size:12px!important;color:#778088!important}.calendarGrid{margin:0 10px!important;background:#bababa!important;gap:1px!important}.calendarDay{min-height:48px!important;padding:4px!important;border:0!important;background:#fff!important}.calendarDay.outside{background:#d7d9db!important;color:#778088!important}.calendarDay b{font-size:13px;color:#778088}.calendarDay.selected b{background:#379bff!important;color:#fff!important}.calendarDay span{font-size:8px;color:#778088}.calendarUpcomingHeader{margin-top:10px!important;padding:10px 20px 7px!important;border-top:1px solid #bababa;font-size:14px!important}.calendarEventRow{padding:10px 20px!important}.calendarEventList{padding:0 0 20px}.calendarEventDate{color:#778088!important}
 /* v88 calendar: mirrors Android CalendarEventAdapter/UpcomingAdapter structure. */
-.calendarDay{position:relative;align-items:center!important;text-align:center!important;justify-content:flex-start!important}.calendarDay b{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0 auto}.calendarEventMarker{display:block;width:7px;height:7px;border-radius:50%;background:#379bff;margin:1px auto 0}.calendarEventIcon{width:34px;min-width:34px;display:flex;align-items:center;justify-content:center}.calendarEventIcon .officialEmbeddedIcon{width:24px!important;height:24px!important}.calendarEventText{display:flex;flex-direction:column;justify-content:center;text-align:left;margin-left:8px}.calendarEventText b{font-size:14px;font-weight:400;color:#778088}.calendarEventText small{font-size:14px;color:#778088;margin-top:3px}/* v90: Android-fidelity corrections */
+.calendarDay{position:relative;align-items:center!important;text-align:center!important;justify-content:flex-start!important}.calendarDay b{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0 auto}.calendarEventMarker{display:block;width:7px;height:7px;border-radius:50%;background:#379bff;margin:1px auto 0}.calendarEventIcon{width:34px;min-width:34px;display:flex;align-items:center;justify-content:center}.calendarEventIcon .officialEmbeddedIcon{width:24px!important;height:24px!important}.calendarEventText{display:flex;flex-direction:column;justify-content:center;text-align:left;margin-left:8px}.calendarEventText b{font-size:14px;font-weight:400;color:#778088}.calendarEventText small{font-size:14px;color:#778088;margin-top:3px}.calendarEventRow{align-items:center;min-height:48px;border:0!important}
+/* v90: Android-fidelity corrections */
 .toolbarLti{background:#074f7b!important}
 .toolbarActionSlot{display:flex!important;align-items:center!important;gap:0!important}
 .toolbarActionSlot .toolbarImageButton{width:48px!important;height:56px!important;display:flex!important;align-items:center!important;justify-content:center!important}
@@ -1054,7 +1051,7 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .messageAttachmentChoices button{flex:1;min-height:48px;border:0;border-right:1px solid #fff;background:#fff;color:#2e66a3;font-size:13px}
 .messageAttachmentChoices button:last-child{border-right:0}
 .messageAttachedItem{margin:4px 16px;padding:8px 10px;border-bottom:1px solid #ddd;color:#333}
-
+.messageAttachmentChoices button:active{background:#eef3f7}
 .albumListRow{width:100%;min-height:96px;display:flex;align-items:center;text-align:left;border:0;border-bottom:1px solid #ddd;background:#fff;padding:8px 16px}
 .albumListRow>img{width:80px;height:80px;object-fit:contain;flex:0 0 80px;margin-right:16px}
 .albumListRow>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
@@ -1091,7 +1088,6 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .schoologyResourcePickerOverlay{z-index:2147483647!important}.schoologyResourcePickerDialog{width:min(560px,calc(100vw - 28px));max-height:min(720px,calc(100vh - 40px));background:#fff;border-radius:2px;box-shadow:0 12px 40px #0005;overflow:hidden;display:flex;flex-direction:column}.schoologyResourcePickerDialog>header{height:56px;flex:0 0 56px;background:#074f7b;color:#fff;display:flex;align-items:center;padding:0 8px}.schoologyResourcePickerDialog>header b{flex:1;font-size:18px;font-weight:400;padding:0 8px}.schoologyResourcePickerDialog .iconButton{width:48px;height:48px}.resourcePickerTabs{height:48px;display:flex;background:#fff;border-bottom:1px solid #ddd}.resourcePickerTabs button{flex:1;border:0;background:#fff;color:#666;border-bottom:3px solid transparent;font-size:14px}.resourcePickerTabs button.active{color:#074f7b;border-bottom-color:#074f7b}.resourcePickerDialog{}.schoologyResourcePickerDialog #resourcePickerBody{overflow:auto;min-height:180px}.resourcePickerCollection,.resourcePickerItem{width:100%;min-height:64px;display:flex;align-items:center;gap:12px;padding:8px 16px;background:#fff;border:0;border-bottom:1px solid #e1e1e1;text-align:left}.resourcePickerCollection img,.resourcePickerItem img{width:40px;height:40px;object-fit:contain;flex:0 0 40px}.resourcePickerCollection span:nth-child(2),.resourcePickerItem span{flex:1}.resourcePickerCollection small{display:block;color:#888;margin-top:3px}.resourcePickerCollection>span:last-child{font-size:24px;color:#aaa}.resourcePickerItem.selected{background:#eaf3f8}.resourcePickerBack{width:100%;height:48px;border:0;background:#f5f6f7;text-align:left;padding:0 16px;color:#074f7b}.resourcePickerEmpty,.resourcePickerError{padding:32px 18px;text-align:center;color:#777}.resourcePickerError{color:#b3261e}
 /* v93 */
 .messageTabs{background:#002137!important;color:#fff!important}
-.messageTab,.messageTab:hover{background:#002137!important;color:#fff!important}
 .messageTab.active{color:#fff!important;border-bottom-color:#fff!important}
 .messageList{min-height:0}
 .discussionNativePage{padding:0!important;background:#fff!important}
@@ -1158,18 +1154,16 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 /* v99: Android uses color_primary (#002137) for pager tab strips. Hover is a subtle darker state on desktop. */
 .sectionProfileTabs,.assignmentTabs,.profileTabs,.groupTabs,.messageTabs,.homeTabs,.resourcePickerTabs,.discussionTabs{background:#002137!important}
 .sectionProfileTab,.assignmentTab,.profileTab,.groupTab,.messageTab,.homeTab,.resourcePickerTabs button,.discussionTabs .assignmentTab{background:#002137!important}
-.sectionProfileTab:hover,.assignmentTab:hover,.profileTab:hover,.groupTab:hover,.messageTab:hover,.homeTab:hover,.resourcePickerTabs button:hover,.discussionTabs .assignmentTab:hover{background:#001a2c!important;color:#fff!important}
 .calendarPagerPage{height:100%;min-height:0;display:flex;flex-direction:column;background:#fff;overflow:hidden}
 .calendarPagerTabs{height:48px;min-height:48px;display:flex;flex:0 0 48px;background:#002137;overflow-x:auto}
 .calendarPagerTab{height:48px;min-width:96px;padding:0 18px;border:0;background:#002137;color:rgba(255,255,255,.82);position:relative;cursor:pointer}
-.calendarPagerTab:hover{background:#001a2c;color:#fff}
 .calendarPagerTab.active{color:#fff;font-weight:500}
-.calendarPagerTab.active:after{content:'';position:absolute;left:10px;right:10px;bottom:0;height:3px;background:#fff}
 .calendarPagerContent{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
 .calendarStandaloneUpcoming{height:100%;min-height:0;overflow:auto;background:#fff}
 .calendarUpcomingList{padding:0 16px 24px}
 .calendarUpcomingDate{margin:14px 0 0;padding:0 4px 6px;border-bottom:1px solid #778088;color:#778088;font-size:14px}
-.calendarUpcomingList .calendarUpcomingListEmpty{padding:60px 20px;text-align:center;color:#778088}
+.calendarUpcomingList .calendarEventRow{padding:8px 4px;min-height:48px}
+.calendarUpcomingListEmpty{padding:60px 20px;text-align:center;color:#778088}
 .calendarUpcomingListEmpty h2{margin:0 0 8px;font-size:20px;font-weight:400;color:#34424c}
 .calendarUpcomingListEmpty p{margin:0;font-size:14px}
 .composeMessageDialog{position:relative;z-index:12001}
@@ -1180,14 +1174,12 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 /* v99: any remaining Schoology pager-style .tab controls use the same Android primary blue. */
 .schoologyPagerTabs,.pagerTabs{background:#002137!important}
 .schoologyPagerTabs .tab,.pagerTabs .tab{background:#002137!important;color:rgba(255,255,255,.82)!important}
-.schoologyPagerTabs .tab:hover,.pagerTabs .tab:hover{background:#001a2c!important;color:#fff!important}
 
 /* v100: Android drawer profile and modal/resource fidelity. */
 .profileRow img{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;padding:0!important;background:transparent!important;margin-right:20px!important}
 .profileRow>span:last-child{margin-left:0!important}
 .resourcePickerTabs{background:#002137!important;border-bottom:0!important}
 .resourcePickerTabs button,.resourcePickerTabs button.active{background:#002137!important;color:rgba(255,255,255,.82)!important;border-bottom:3px solid transparent!important}
-.resourcePickerTabs button:hover{background:#001a2c!important;color:#fff!important}
 .resourcePickerTabs button.active{color:#fff!important;border-bottom-color:#fff!important}
 .assignmentSubmissionDialogOverlay{position:fixed;inset:0;z-index:2147483647!important;display:flex;align-items:center;justify-content:center;background:rgba(0,33,55,.38);padding:18px}
 .assignmentSubmissionDialog{width:min(620px,calc(100vw - 32px));max-height:calc(100vh - 36px);background:#f0f0f0;box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden}
@@ -1197,11 +1189,9 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .assignmentSubmissionBody{background:#fff;padding:16px;max-height:calc(100vh - 102px);overflow:auto}
 .assignmentSubmissionChoices{display:flex;gap:1px;padding:8px 0 0}
 .assignmentSubmissionChoices button{flex:1;min-height:72px;border:0;background:#f7f7f7;color:#2e66a3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
-.assignmentSubmissionChoices button:hover{background:#e8eef2}
 .assignmentSubmissionChoices img{width:24px!important;height:24px!important;object-fit:contain}
 .submissionAttachmentStatus{min-height:24px;margin-top:14px;color:#666;font-size:13px}
 .groupUpcomingPane .upcomingEmpty{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.commentAttachmentActions button:hover,.messageAttachmentChoices button:hover{background:#e8edf1!important;color:#002137!important}
 .messageAttachmentChoices button{display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
 .messageAttachmentChoices button img{width:24px;height:24px;object-fit:contain;flex:0 0 24px}
 .groupSchoolLink,.courseSchoolLink{display:block;border:0;background:none;padding:2px 0;margin:2px 0 0;color:#3183c8;font-size:13px;text-align:left;cursor:pointer}
@@ -1358,7 +1348,6 @@ body{overflow:hidden;background:#44505d}
 .m3eDrawer{background:#002137!important;color:#fff!important}
 .m3eDrawer m3e-list{background:#002137!important;color:#fff!important}
 .m3eDrawer m3e-list-action,.m3eDrawer m3e-list-item{--m3e-list-item-container-color:#002137;color:#fff!important}
-
 .m3eDrawerSubBar{--m3e-app-bar-container-color:#002137!important;--m3e-app-bar-title-text-color:#fff!important}
 .m3eMainAppBar{--m3e-app-bar-container-color:#002137!important;--m3e-app-bar-title-text-color:#fff!important;--m3e-app-bar-leading-space:0px;--m3e-app-bar-trailing-space:0px}
 .m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:#fff!important}
@@ -1372,10 +1361,10 @@ body{overflow:hidden;background:#44505d}
 .sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.homeTabs,.calendarPagerTabs,.messageTabs{background:transparent!important;border:0!important;box-shadow:none!important}
 
 /* Login follows the official Android 2026.06.0 graphite screen. */
-.m3eLogin,
-
-
-
+.m3eLogin,.m3eQrScreen{background:#44505d!important;color:#fff!important}
+.m3eLoginAppBar,.m3eQrAppBar{--m3e-app-bar-container-color:#44505d!important;--m3e-app-bar-title-text-color:#fff!important}
+.m3eLogin m3e-button{--m3e-button-filled-container-color:#002137;--m3e-button-filled-label-text-color:#fff}
+.m3eLogin m3e-button[variant="outlined"]{--m3e-button-outlined-outline-color:#fff;--m3e-button-outlined-label-text-color:#fff}
 .m3eLogin .m3eSearchStatus,.m3eLogin .m3eCredentialSchool{color:#fff!important}
 
 /* Actual M3E split pane owns the home split and exposes 50–75% start-pane sizing. */
@@ -1564,7 +1553,7 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 .homeTabViewport>.homeTabs{flex:0 0 auto!important}
 .homeTabViewport>#homeTabContent{height:0!important;flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
 /* The shared M3E drawer container is the subdrawer container; its start slot stays a normal drawer pane. */
-
+.m3eDrawerSub{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#002137!important;color:#fff!important}
 .m3eDrawerSub .m3eDrawerSubBar{flex:0 0 auto!important}
 .m3eDrawerSub .courseSubList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
 /* Embedded pages: app bar is outside the content flex viewport, WebView fills every remaining pixel. */
@@ -1606,7 +1595,7 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 
 /* Course/group M3E split panes replace the old CSS grid split. */
 .courseLandscapePage,.groupProfilePage{height:100%!important;min-height:0!important;overflow:hidden!important}
-.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{width:100%!important;height:100%!important;min-height:0!important;--m3e-split-pane-drag-handle-container-width:24px}
+.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{display:block!important;width:100%!important;height:100%!important;min-height:0!important;--m3e-split-pane-drag-handle-container-width:24px}
 .courseInnerSplit,.courseOuterSplit,.groupOuterSplit{background:var(--md-sys-color-background,#f4f5f5)!important}
 .courseAppsSidePane,.courseMainPane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{min-width:0!important;min-height:0!important;overflow:hidden!important}
 .courseAppsSidePane,.courseUpcomingPane,.groupUpcomingPane{background:var(--md-sys-color-surface,#fff)!important}
@@ -1724,9 +1713,9 @@ m3e-fab-menu-item .m3eOriginalIcon img,.m3e-fab-menu-item .officialEmbeddedIcon{
 }
 body:not(.splashVisible){background:var(--md-sys-color-background)!important;color:var(--md-sys-color-on-background)!important}
 .m3eShell,.m3eShellMain,.m3eAppDrawerContainer{background:var(--md-sys-color-background)!important}
-
+.m3eMainAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary)!important}
 .m3eSchoologyTabs,.m3eSchoologyTabs::part(base){background:var(--md-sys-color-primary)!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary)!important;--m3e-tab-unselected-color:rgba(255,255,255,.82)!important}
-
+.m3eDrawer,.m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer){background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important}
 
 /* Default M3E tab height/density: do not impose the old 48px tab geometry. */
 .sectionProfileTabs,.assignmentTabs,.groupTabs,.profileTabs,.messageTabs,.calendarPagerTabs,.homeTabs{height:auto!important;min-height:0!important}
@@ -1736,6 +1725,9 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 /* Messages: exactly one segmented list for each folder. The list component owns
    all row geometry; only the page-to-list spacing is ours. */
 .messagesAndroidPage>.messageList{margin:16px 0 0!important;padding:0!important}
+.messagesAndroidPage>.messageList .messageListItem{margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:initial!important;min-height:initial!important}
+.messagesAndroidPage>.messageList .messageListItem.unread{background:transparent!important}
+
 /* Upcoming: one segmented list per date. The date is a non-actionable list item,
    and no custom row margins/padding are applied, so date and event rows inherit
    identical M3E list geometry. */
@@ -1771,176 +1763,92 @@ body:not(.splashVisible){background:var(--md-sys-color-background)!important;col
 .composeDialogActions{display:flex!important;align-items:center!important;gap:4px!important}
 
 
-/* v122: use M3E semantic roles and component-owned interaction/geometry. */
+/* v122: native M3E component mapping and layout cleanup. */
 .m3eRoot,.m3eShellTheme{
- --md-sys-color-primary:#2e66a3;
- --md-sys-color-on-primary:#ffffff;
- --md-sys-color-primary-container:#d9e9f5;
- --md-sys-color-on-primary-container:#002137;
- --md-sys-color-secondary:#53657c;
- --md-sys-color-on-secondary:#ffffff;
- --md-sys-color-secondary-container:#dbe5f2;
- --md-sys-color-on-secondary-container:#0b1d2e;
- --md-sys-color-tertiary:#35677e;
- --md-sys-color-on-tertiary:#ffffff;
- --md-sys-color-tertiary-container:#d2e7ef;
- --md-sys-color-on-tertiary-container:#0b202a;
- --md-sys-color-error:#ba1a1a;
- --md-sys-color-on-error:#ffffff;
- --md-sys-color-error-container:#ffdad6;
- --md-sys-color-on-error-container:#410002;
- --md-sys-color-background:#f9f9ff;
- --md-sys-color-on-background:#1a1b20;
- --md-sys-color-surface:#f9f9ff;
- --md-sys-color-on-surface:#1a1b20;
- --md-sys-color-surface-variant:#e0e2e9;
- --md-sys-color-on-surface-variant:#44474e;
- --md-sys-color-surface-container-lowest:#ffffff;
- --md-sys-color-surface-container-low:#f3f3fa;
- --md-sys-color-surface-container:#ededf4;
- --md-sys-color-surface-container-high:#e7e7ee;
- --md-sys-color-surface-container-highest:#e1e2e8;
- --md-sys-color-outline:#74777f;
- --md-sys-color-outline-variant:#c4c6cf;
- --md-sys-color-inverse-surface:#2f3035;
- --md-sys-color-inverse-on-surface:#f1f0f7;
- --md-sys-color-inverse-primary:#a9c7ff;
- --md-sys-color-scrim:#000000;
- --md-sys-color-shadow:#000000;
+ --md-sys-color-primary:#5b8fbd!important;
+ --md-sys-color-on-primary:#ffffff!important;
+ --md-sys-color-primary-container:#cfe4f7!important;
+ --md-sys-color-on-primary-container:#0a2b43!important;
+ --md-sys-color-secondary:#52738f!important;
+ --md-sys-color-on-secondary:#ffffff!important;
+ --md-sys-color-secondary-container:#d4e5f2!important;
+ --md-sys-color-on-secondary-container:#102b3d!important;
+ --md-sys-color-tertiary:#4b7188!important;
+ --md-sys-color-on-tertiary:#ffffff!important;
+ --md-sys-color-tertiary-container:#d1e5ef!important;
+ --md-sys-color-on-tertiary-container:#102c3a!important;
+ --md-sys-color-background:#f8fbfe!important;
+ --md-sys-color-on-background:#172027!important;
+ --md-sys-color-surface:#f8fbfe!important;
+ --md-sys-color-on-surface:#172027!important;
+ --md-sys-color-surface-container-lowest:#ffffff!important;
+ --md-sys-color-surface-container-low:#f1f7fb!important;
+ --md-sys-color-surface-container:#eaf2f7!important;
+ --md-sys-color-surface-container-high:#e2edf4!important;
+ --md-sys-color-surface-container-highest:#dce8f0!important;
+ --md-sys-color-surface-variant:#dbe6ed!important;
+ --md-sys-color-on-surface-variant:#43515b!important;
+ --md-sys-color-outline:#72818c!important;
+ --md-sys-color-outline-variant:#c2cfd7!important;
+ --md-sys-color-error:#ba1a1a!important;
+ --md-sys-color-on-error:#ffffff!important;
+ --md-sys-color-error-container:#ffdad6!important;
+ --md-sys-color-on-error-container:#410002!important;
+ --md-sys-color-inverse-surface:#2e3438!important;
+ --md-sys-color-inverse-on-surface:#eef1f4!important;
+ --md-sys-color-inverse-primary:#a8cbe9!important;
 }
+.m3eMainAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary-container)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary-container)!important}
+#menuButton{--m3e-icon-button-icon-color:var(--md-sys-color-on-primary-container)!important}
+#menuButton .m3eOriginalIcon img{filter:none!important}
+.m3eSchoologyTabs,.m3eSchoologyTabs::part(base){background:var(--md-sys-color-primary-container)!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary-container)!important;--m3e-tab-unselected-color:var(--md-sys-color-on-surface-variant)!important}
+.m3eDrawer,.m3eSchoologyDrawer,.m3eDrawerSub{background:var(--md-sys-color-surface-container)!important;color:var(--md-sys-color-on-surface)!important}
+.m3eDrawerNav,.m3eDrawerSub m3e-nav-menu{display:block!important;overflow:auto!important;max-height:100%!important;background:transparent!important;color:inherit!important}
+.m3eDrawerNav m3e-nav-menu-item,.m3eDrawerSub m3e-nav-menu-item{--m3e-nav-menu-item-label-color:var(--md-sys-color-on-surface)!important;--m3e-nav-menu-item-selected-label-color:var(--md-sys-color-on-primary-container)!important;--m3e-nav-menu-item-selected-container-color:var(--md-sys-color-primary-container)!important;--m3e-nav-menu-item-selected-container-hover-color:var(--md-sys-color-primary-container)!important;--m3e-nav-menu-item-selected-container-pressed-color:var(--md-sys-color-primary-container)!important}
+.m3eDrawerSub{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eDrawerSub #courseSubList{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.floatingActionSlot m3e-fab{--m3e-primary-container-fab-container-color:var(--md-sys-color-primary-container)!important;--m3e-primary-container-fab-icon-color:var(--md-sys-color-on-primary-container)!important;--m3e-fab-container-color:var(--md-sys-color-primary-container)!important;--m3e-fab-icon-color:var(--md-sys-color-on-primary-container)!important}
+.m3eShellMain,.m3eAppDrawerContainer,.m3eShell{height:100%!important;min-height:0!important}
+.m3eShellMain>#content{height:auto!important;min-height:0!important;flex:1 1 0!important;position:relative!important;overflow:hidden!important}
+.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;overflow:hidden!important}
+.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;display:block!important}
+.nativeCourseDashboard{background:var(--md-sys-color-surface)!important;border:0!important;box-shadow:none!important;padding:16px!important}
+.nativeDashboardCourses{background:transparent!important}
+.nativeDashboardCourse{--m3e-elevated-card-container-color:var(--md-sys-color-surface-container-high)!important;--m3e-elevated-card-text-color:var(--md-sys-color-on-surface)!important}
+.assignmentInfoCard,.androidCommentCard,.groupDiscussionCard{--m3e-elevated-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-elevated-card-text-color:var(--md-sys-color-on-surface)!important;margin:12px 16px!important}
+.assignmentInfoCard .assignmentInfoHeader{background:transparent!important;border:0!important}
+.calendarAndroidPage,.calendarLandscapeUpcoming,.calendarEventList{background:var(--md-sys-color-surface)!important}
+.calendarEventList{padding:0!important}
+.calendarEventRow{background:transparent!important;border:0!important}
+.messagesAndroidPage>.messageList{margin:16px!important;overflow:auto!important;flex:1 1 0!important;min-height:0!important}
+.messageListAvatar{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;flex:0 0 40px!important;overflow:hidden!important;border-radius:50%!important}
+.messageListAvatar img{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:cover!important;border-radius:50%!important;display:block!important}
+.androidCommentCard{margin-left:calc(16px + var(--comment-depth,0)*12px)!important;margin-right:16px!important}
+.androidCommentCard .androidCommentContent{min-width:0!important}
+.androidCommentActions button,.gradeCategory button{background:transparent!important;filter:none!important}
+.courseLandscapePage,.groupProfilePage{min-height:0!important;height:100%!important;overflow:hidden!important}
+.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{height:100%!important;min-height:0!important;display:block!important;background:transparent!important}
+.courseMainPane,.courseAppsSidePane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{min-height:0!important}
+.courseMainPane .sectionProfileContent,.groupMainPane #groupTabContent,.courseAppsSideContent,.courseUpcomingContent,#groupUpcomingContent,.gradesAndroidPage,.gradesContent{min-height:0!important;overflow:auto!important}
+@media (max-width: 700px){
+ .courseOuterSplit,.courseInnerSplit,.groupOuterSplit{display:block!important;overflow:auto!important}
+ .courseOuterSplit::part(divider),.courseInnerSplit::part(divider),.groupOuterSplit::part(divider),.courseOuterSplit::part(drag-handle),.courseInnerSplit::part(drag-handle),.groupOuterSplit::part(drag-handle){display:none!important}
+ .courseOuterSplit [slot="end"],.courseOuterSplit [slot="start"],.courseInnerSplit [slot="end"],.courseInnerSplit [slot="start"]{width:100%!important;max-width:none!important}
+}
+.gradesAndroidPage,.gradesContent{height:100%!important;overflow:auto!important}
+.m3eSchoologyTabs,.m3eSchoologyTabs m3e-tab{min-height:48px!important}
+.m3eSchoologyTabs m3e-tab{height:48px!important}
+/* M3E owns hover/pressed state layers; do not add application-level darkening. */
+*:is(button,m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-nav-menu-item):hover,*:is(button,m3e-button,m3e-icon-button,m3e-fab,m3e-card,m3e-nav-menu-item):active{filter:none!important}
+.androidCreatePostDialog,.composeMessageDialog,.assignmentCommentDialog,.assignmentSubmissionDialog,.schoologyResourcePickerDialog,.courseUpdateDialog{--m3e-dialog-max-width:min(760px,calc(100vw - 32px))!important;--m3e-dialog-min-width:min(640px,calc(100vw - 32px))!important}
 
-/* M3E app chrome uses the lighter primary-container role. */
-.m3eMainAppBar,.m3eLoginAppBar,.m3eQrAppBar{
- --m3e-app-bar-container-color:var(--md-sys-color-primary-container)!important;
- --m3e-app-bar-title-text-color:var(--md-sys-color-on-primary-container)!important;
-}
-.m3eMainAppBar m3e-icon-button,.m3eLoginAppBar m3e-icon-button,.m3eQrAppBar m3e-icon-button{
- --m3e-icon-button-icon-color:var(--md-sys-color-on-primary-container)!important;
-}
-.m3eMainAppBar .m3eOriginalIcon img,.m3eLoginAppBar .m3eOriginalIcon img,.m3eQrAppBar .m3eOriginalIcon img{
- filter:none!important;
-}
-
-/* Tabs are part of the same primary-container app-bar region. */
-.m3eSchoologyTabs,.m3eSchoologyTabs::part(base){
- background:var(--md-sys-color-primary-container)!important;
- --m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary-container)!important;
- --m3e-tab-selected-color:var(--md-sys-color-on-primary-container)!important;
- --m3e-tab-unselected-color:color-mix(in srgb,var(--md-sys-color-on-primary-container) 72%,transparent)!important;
-}
-
-/* Drawer/navigation follows M3 surface hierarchy. The nav-menu owns selection,
-   focus, hover, press and nested navigation behavior. */
-.m3eSchoologyDrawer,.m3eSchoologyDrawer::part(drawer){
- background:var(--md-sys-color-surface-container)!important;
- color:var(--md-sys-color-on-surface)!important;
- --m3e-drawer-container-color:var(--md-sys-color-surface-container)!important;
-}
-.m3eSchoologyNavMenu{
- --m3e-nav-menu-item-label-color:var(--md-sys-color-on-surface)!important;
- --m3e-nav-menu-item-selected-label-color:var(--md-sys-color-on-primary-container)!important;
- --m3e-nav-menu-item-selected-container-color:var(--md-sys-color-primary-container)!important;
- --m3e-nav-menu-item-selected-container-focus-color:var(--md-sys-color-primary-container)!important;
- --m3e-nav-menu-item-selected-container-hover-color:var(--md-sys-color-primary-container)!important;
- --m3e-nav-menu-item-selected-container-pressed-color:var(--md-sys-color-primary-container)!important;
- --m3e-nav-menu-item-open-container-color:var(--md-sys-color-surface-container-high)!important;
- --m3e-nav-menu-item-open-container-focus-color:var(--md-sys-color-surface-container-high)!important;
- --m3e-nav-menu-item-open-container-hover-color:var(--md-sys-color-surface-container-high)!important;
- --m3e-nav-menu-item-open-container-pressed-color:var(--md-sys-color-surface-container-high)!important;
-}
-.m3eDrawerNavItem,.m3eDrawerNavProfile,.courseSubItem{color:var(--md-sys-color-on-surface)!important}
-
-/* FABs use the M3 primary-container role and default/medium component size.
-   No custom pressed/hover geometry is supplied. */
-.floatingActionSlot m3e-fab{
- --m3e-fab-container-color:var(--md-sys-color-primary-container)!important;
- --m3e-fab-icon-color:var(--md-sys-color-on-primary-container)!important;
-}
-.floatingActionSlot m3e-fab .m3eOriginalIcon img{filter:none!important}
-
-/* Login uses the same M3 surface hierarchy and native button variants. */
-.m3eLoginScreen,.m3eSearchScreen,.m3eCredentialsScreen,.m3eExternalScreen{
- background:var(--md-sys-color-surface)!important;
- color:var(--md-sys-color-on-surface)!important;
-}
-.m3eLogin m3e-button{--m3e-button-filled-container-color:var(--md-sys-color-primary)!important;--m3e-button-filled-label-text-color:var(--md-sys-color-on-primary)!important}
-.m3eLogin m3e-button[variant="tonal"]{--m3e-button-tonal-container-color:var(--md-sys-color-secondary-container)!important;--m3e-button-tonal-label-text-color:var(--md-sys-color-on-secondary-container)!important}
-.m3eLogin m3e-button[variant="outlined"]{--m3e-button-outlined-outline-color:var(--md-sys-color-outline)!important;--m3e-button-outlined-label-text-color:var(--md-sys-color-on-surface)!important}
-.m3eLoginAppBar,.m3eQrAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary-container)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary-container)!important}
-.m3eQrScreen{background:var(--md-sys-color-surface)!important;color:var(--md-sys-color-on-surface)!important}
-
-/* Let the M3E drawer container and its main slot establish the complete viewport. */
-.m3eShell,.m3eAppDrawerContainer,.m3eShellMain{
- width:100%!important;height:100%!important;min-height:0!important;
-}
-.m3eAppDrawerContainer{min-width:0!important}
-.m3eShellMain{display:flex!important;flex-direction:column!important;overflow:hidden!important}
-.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
-.m3eShellMain>#content{
- flex:1 1 auto!important;min-width:0!important;min-height:0!important;
- width:100%!important;height:auto!important;overflow:hidden!important;
- position:relative!important;display:flex!important;flex-direction:column!important;
-}
-.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{
- position:relative!important;inset:auto!important;flex:1 1 auto!important;
- width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
- overflow:hidden!important;display:flex!important;flex-direction:column!important;
-}
-.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{
- position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
- min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
- display:block!important;margin:0!important;padding:0!important;border:0!important;
-}
-
-/* Course dashboard: one page surface and M3E cards only. */
-.nativeCourseDashboard{padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:var(--md-sys-color-surface)!important}
-.nativeDashboardCourses{
- padding:16px!important;gap:16px!important;background:transparent!important;border:0!important;box-shadow:none!important;
-}
-.nativeDashboardCourse{
- border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin:0!important;
-}
-.nativeDashboardCourseInfo{border:0!important;box-shadow:none!important;background:transparent!important}
-
-/* Actual split-pane component owns its own layout. */
-.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{
- width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
- background:transparent!important;
-}
-.courseAppsSidePane,.courseMainPane,.courseUpcomingPane,.groupMainPane,.groupUpcomingPane{
- min-width:0!important;min-height:0!important;
-}
-.courseMainPane{display:flex!important;flex-direction:column!important;overflow:hidden!important}
-.courseMainPane .sectionProfileContent,.groupMainPane #groupTabContent{
- flex:1 1 auto!important;min-height:0!important;overflow:auto!important;
-}
-.courseAppsSideContent,.courseUpcomingContent,#groupUpcomingContent{
- min-width:0!important;min-height:0!important;overflow:auto!important;
-}
-
-/* Portrait course layout contains no split-pane component, so no drag handle exists. */
-.coursePortraitPage{width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
-.coursePortraitMain{width:100%!important;height:100%!important;min-height:0!important}
-
-/* Grades has its own scrolling viewport. */
-.gradesNativePage{height:100%!important;min-height:0!important;overflow:auto!important;background:var(--md-sys-color-surface)!important;color:var(--md-sys-color-on-surface)!important}
-.gradesContent{min-height:0!important;padding:0 16px 24px!important;background:transparent!important}
-.gradesAccordion{padding:16px 0!important}
-
-/* Calendar upcoming is only the M3E segmented list; no legacy row skin. */
-.calendarUpcomingList,.calendarEventList,.calendarSelectedDayList{
- background:transparent!important;border:0!important;box-shadow:none!important;
-}
-.calendarUpcomingList m3e-list-action,.calendarEventList m3e-list-action{
- background:transparent!important;border:0!important;box-shadow:none!important;
-}
-
-/* Native M3E dialogs get usable desktop width without recreating their container. */
-m3e-dialog.composeMessageDialog,
-m3e-dialog.assignmentCommentDialog,
-m3e-dialog.androidSimpleDialog,
-m3e-dialog.createEventDialog,
-m3e-dialog.createDiscussionDialog{
- --m3e-dialog-min-width:min(560px,calc(100vw - 32px))!important;
- --m3e-dialog-max-width:min(720px,calc(100vw - 32px))!important;
+/* v122 responsive split panes: M3E owns the layout; portrait removes the resize affordance. */
+.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{display:block!important;background:transparent!important}
+@media (max-width:700px){
+ .courseOuterSplit,.courseInnerSplit,.groupOuterSplit{
+   --m3e-split-pane-drag-handle-container-width:0px!important;
+   --m3e-split-pane-drag-handle-width:0px!important;
+   --m3e-split-pane-drag-handle-height:0px!important;
+   --m3e-split-pane-drag-handle-container-height:0px!important;
+ }
 }
