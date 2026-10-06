@@ -104,9 +104,9 @@ function shell(){
   ['home','Home'],['courses','Courses'],['groups','Groups'],['resources','Resources'],['grades','Grades'],['calendar','Calendar'],
   ['settings','Settings'],['logout','Logout']
  ];
- const drawerPage=state.drawerPage==='courses'||state.drawerPage==='groups'||state.drawerPage==='grades'?`<m3e-drawer-container start-mode="over" class="m3eSubDrawerContainer"><nav slot="start" class="m3eDrawerSub"><m3e-nav-menu id="subNavMenu"><m3e-nav-menu-item id="drawerBack" data-drawer-back="1"><span slot="icon" class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span><span slot="label">Back</span></m3e-nav-menu-item><m3e-divider></m3e-divider><m3e-nav-menu-item open><span slot="label">${state.drawerPage==='grades'?'Grades':state.drawerPage==='groups'?'Groups':'Courses'}</span><div id="courseSubList"><m3e-nav-menu-item><span slot="label">Loading…</span></m3e-nav-menu-item></div></m3e-nav-menu-item></m3e-nav-menu></nav></m3e-drawer-container>`:'';
+ const drawerPage=state.drawerPage==='courses'||state.drawerPage==='groups'||state.drawerPage==='grades'?`<m3e-drawer-container start-mode="over" class="m3eSubDrawerContainer"><nav slot="start" class="m3eDrawerSub"><m3e-nav-menu id="subNavMenu"><m3e-nav-menu-item id="drawerBack" data-drawer-back="1"><span slot="icon" class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span><span slot="label">Back</span></m3e-nav-menu-item><m3e-divider></m3e-divider><m3e-nav-menu-item open id="courseSubList"><span slot="label">${state.drawerPage==='grades'?'Grades':state.drawerPage==='groups'?'Groups':'Courses'}</span><m3e-nav-menu-item><span slot="label">Loading…</span></m3e-nav-menu-item></m3e-nav-menu-item></m3e-nav-menu></nav></m3e-drawer-container>`:'';
  const drawerList=drawerItems.map(([id,label],i)=>`${i===3?'<m3e-divider></m3e-divider>':''}${i===9?'<m3e-divider></m3e-divider>':''}${drawerItemMarkup(id,label)}`).join('');
- const leading=state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu" toggle><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">${originalM3Icon("menu")}</span><span class="m3eOriginalIcon" slot="selected">${originalM3Icon("menu_open")}</span></m3e-icon-button>`;
+ const leading=state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu"><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">${originalM3Icon("menu")}</span></m3e-icon-button>`;
  return `<m3e-theme class="m3eRoot m3eShellTheme" color="#2e66a3" variant="fidelity" scheme="light" contrast="standard" motion="expressive" strong-focus><div class="shell m3eShell"><m3e-drawer-container id="appDrawerContainer" start-mode="over" class="m3eAppDrawerContainer m3eSchoologyDrawer"><nav slot="start" id="startDrawer" aria-label="Navigation" class="m3eDrawer">${drawerPage||`<m3e-nav-menu class="m3eDrawerNav"><m3e-nav-menu-item id="drawerProfile" data-drawer="profile"><span slot="icon"><m3e-avatar size="small"><img data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt=""></m3e-avatar></span><span slot="label">${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</span></m3e-nav-menu-item><m3e-divider></m3e-divider>${drawerItems.map(([id,label])=>drawerItemMarkup(id,label)).join('')}</m3e-nav-menu>`}</nav><main class="m3eShellMain"><m3e-app-bar id="mainAppBar" class="m3eMainAppBar">${leading}<span slot="title" class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span></m3e-app-bar><main id="content"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></main><div id="floatingActionSlot" class="floatingActionSlot"></div></main></m3e-drawer-container></div></m3e-theme>`;
 }
 function setDownloadButtonState(button,active,label='Downloading…'){
@@ -365,12 +365,13 @@ async function canJoinByAccessCode(path){
 }
 async function loadCourseSubmenu(){
  const c=document.getElementById('courseSubList');if(!c)return;
+ const replaceSubItems=html=>{c.querySelectorAll(':scope > m3e-nav-menu-item').forEach(el=>el.remove());c.insertAdjacentHTML('beforeend',html)};
  try{
    const page=state.drawerPage;
    const uid=state.auth?.userId||state.auth?.user?.id;if(!uid)throw new Error('No logged-in user ID.');
    if(page==='groups'){
      const x=await A.api({path:`users/${uid}/groups`,params:{limit:100}});const arr=x.group||x.groups||[];window.__schoologyGroups=arr;
-     c.innerHTML=arr.length?arr.map((g,i)=>{const gi=normalizeImageUrl(g.picture_url||g.pictureUrl||g.picture||g.image||'');return `<m3e-nav-menu-item class="courseSubItem" data-group-sub="${i}"><span slot="icon" class="courseThumb groupThumb">${gi?`<img data-course-image-url="${esc(gi)}" alt="" style="display:none">`:''}<span class="courseImageFallback">${esc(String(g.name||g.title||'G').charAt(0))}</span></span><span slot="label" class="courseText"><b>${esc(g.name||g.title||'Group')}</b><small>${esc(g.description||g.group_description||'')}</small></span>${g.admin?'<span class="courseAdmin">★</span>':''}</m3e-nav-menu-item>`}).join(''):'<m3e-nav-menu-item><span slot="label">No groups found.</span></m3e-nav-menu-item>';
+     replaceSubItems(arr.length?arr.map((g,i)=>{const gi=normalizeImageUrl(g.picture_url||g.pictureUrl||g.picture||g.image||'');return `<m3e-nav-menu-item class="courseSubItem" data-group-sub="${i}"><span slot="icon" class="courseThumb groupThumb">${gi?`<img data-course-image-url="${esc(gi)}" alt="" style="display:none">`:''}<span class="courseImageFallback">${esc(String(g.name||g.title||'G').charAt(0))}</span></span><span slot="label" class="courseText"><b>${esc(g.name||g.title||'Group')}</b><small>${esc(g.description||g.group_description||'')}</small></span>${g.admin?'<span class="courseAdmin">★</span>':''}</m3e-nav-menu-item>`}).join(''):'<m3e-nav-menu-item><span slot="label">No groups found.</span></m3e-nav-menu-item>');
      await hydrateCourseImages(c);
      document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
      const jb=document.getElementById('joinGroup');if(jb)jb.style.display=await canJoinByAccessCode('groups/accesscode')?'':'none';
@@ -378,7 +379,7 @@ async function loadCourseSubmenu(){
      return;
    }
    const x=await A.api({path:`users/${uid}/sections`,params:{limit:100}});const arr=x.section||x.sections||[];window.__schoologyCourses=arr;
-   c.innerHTML=arr.length?arr.map((s,i)=>{const courseTitle=s.course_title||s.courseTitle||s.title||s.section_title||'Course';const sectionTitle=s.section_title||s.sectionTitle||'';const image=normalizeImageUrl(s.profile_url||s.profileUrl||s.course_profile_url||s.courseProfileUrl||s.course_theme||s.courseTheme||s.image||s.course_image||'');return `<m3e-nav-menu-item class="courseSubItem" data-course-sub="${i}"><span slot="icon" class="courseThumb">${image?`<img data-course-image-url="${esc(image)}" alt="" style="display:none">`:''}<span class="courseImageFallback">${esc(courseTitle.charAt(0))}</span></span><span slot="label" class="courseText"><b>${esc(courseTitle)}</b><small>${esc(sectionTitle)}</small></span></m3e-nav-menu-item>`}).join(''):'<m3e-nav-menu-item><span slot="label">No courses found.</span></m3e-nav-menu-item>';
+   replaceSubItems(arr.length?arr.map((s,i)=>{const courseTitle=s.course_title||s.courseTitle||s.title||s.section_title||'Course';const sectionTitle=s.section_title||s.sectionTitle||'';const image=normalizeImageUrl(s.profile_url||s.profileUrl||s.course_profile_url||s.courseProfileUrl||s.course_theme||s.courseTheme||s.image||s.course_image||'');return `<m3e-nav-menu-item class="courseSubItem" data-course-sub="${i}"><span slot="icon" class="courseThumb">${image?`<img data-course-image-url="${esc(image)}" alt="" style="display:none">`:''}<span class="courseImageFallback">${esc(courseTitle.charAt(0))}</span></span><span slot="label" class="courseText"><b>${esc(courseTitle)}</b><small>${esc(sectionTitle)}</small></span></m3e-nav-menu-item>`}).join(''):'<m3e-nav-menu-item><span slot="label">No courses found.</span></m3e-nav-menu-item>');
    const joinCourseButton=document.getElementById('joinCourse');
    if(page==='courses'&&joinCourseButton){joinCourseButton.style.display=await canJoinByAccessCode('sections/accesscode')?'':'none';joinCourseButton.onclick=showJoinCourseDialog;}
    document.querySelectorAll('[data-course-sub]').forEach(b=>b.onclick=()=>{const course=window.__schoologyCourses[+b.dataset.courseSub];closeDrawerThen(()=>{state.drawerPage=null;state.tab=page==='grades'?'grades':'courses';state.courseView='course';state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);state.screen='app';render();showCourse(course,page==='grades'?'grades':'materials')});});
@@ -451,15 +452,15 @@ function syncToolbar(){
   }
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
-  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" size="medium" variant="primary-container" aria-label="Create">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
-  if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" size="medium" variant="primary-container" aria-label="Create event">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
+  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
+  if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event">${originalM3Icon('add')}</m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
   if(state.eventView){
-    slot.innerHTML=`<m3e-fab id="eventCommentPlus" size="medium" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="eventCommentPlus" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
     document.getElementById('eventCommentPlus')?.addEventListener('click',()=>openNativeCommentComposer('event',state.eventView));return;
   }
   if(state.discussionView){
     if(state.discussionView.tab==='comments'){
-      slot.innerHTML=`<m3e-fab id="discussionCommentPlus" size="medium" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
+      slot.innerHTML=`<m3e-fab id="discussionCommentPlus" variant="primary-container" aria-label="Post comment">${originalM3Icon('add')}</m3e-fab>`;
       document.getElementById('discussionCommentPlus')?.addEventListener('click',()=>openNativeCommentComposer('discussion',state.discussionView));
     }
     return;
@@ -467,24 +468,24 @@ function syncToolbar(){
   if(state.albumView){ return; }
   if(state.assignmentView&&state.assignmentLandscape&&!state.assignmentSubpage&&(state.assignmentTab==='info'||state.assignmentTab==='comments')){
     if(state.assignmentAllowComments||state.assignmentCanSubmit){
-      slot.innerHTML=`<m3e-fab id="assignmentPlus" size="medium" variant="primary-container" aria-label="Assignment actions" title="Assignment actions">${originalM3Icon("add")}</m3e-fab>`;
+      slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Assignment actions" title="Assignment actions">${originalM3Icon("add")}</m3e-fab>`;
       document.getElementById('assignmentPlus')?.addEventListener('click',showAssignmentActionMenu);
     }
   }else if(state.assignmentView&&state.assignmentTab==='comments'&&!state.assignmentSubpage){
-    slot.innerHTML=`<m3e-fab id="assignmentPlus" size="medium" variant="primary-container" aria-label="Post comment" title="Post comment">${originalM3Icon("add")}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Post comment" title="Post comment">${originalM3Icon("add")}</m3e-fab>`;
     document.getElementById('assignmentPlus')?.addEventListener('click',()=>openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0'));
   }else if(state.assignmentView&&state.assignmentCanSubmit&&state.assignmentTab==='submit'&&!state.assignmentIsTeacher&&!state.assignmentSubpage){
-    slot.innerHTML='<m3e-fab id="assignmentPlus" size="medium" variant="primary-container" aria-label="Submit assignment" title="Submit assignment">'+originalM3Icon('add')+'</m3e-fab>';
+    slot.innerHTML='<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Submit assignment" title="Submit assignment">'+originalM3Icon('add')+'</m3e-fab>';
     document.getElementById('assignmentPlus')?.addEventListener('click',()=>showSubmissionMenu());
   }else if(state.assignmentView&&state.assignmentIsTeacher&&state.assignmentSubpage==='teacherSubmission'){
     slot.innerHTML=`<m3e-icon-button id="assignmentSaveGrade" aria-label="Save grade"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','Save')}</span></m3e-icon-button>`;
     document.getElementById('assignmentSaveGrade')?.addEventListener('click',()=>document.getElementById('saveTeacherGrade')?.click());
   }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='updates'){
-    slot.innerHTML=`<m3e-fab id="courseUpdatePlus" size="medium" variant="primary-container" aria-label="Post update">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="courseUpdatePlus" variant="primary-container" aria-label="Post update">${originalM3Icon('add')}</m3e-fab>`;
     document.getElementById('courseUpdatePlus')?.addEventListener('click',()=>state.selectedCourse&&openCourseUpdateComposer(state.selectedCourse));
   }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='materials'){
   }else if(state.tab==='messages'&&!state.courseView&&!state.embeddedTitle&&!state.message){
-    slot.innerHTML=`<m3e-fab id="composeMessage" size="medium" variant="primary-container" aria-label="Compose message">${originalM3Icon('add')}</m3e-fab>`;
+    slot.innerHTML=`<m3e-fab id="composeMessage" variant="primary-container" aria-label="Compose message">${originalM3Icon('add')}</m3e-fab>`;
     document.getElementById('composeMessage')?.addEventListener('click',()=>showComposeMessage());document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
   }
 }
@@ -606,9 +607,8 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
- c.innerHTML=`<section class="sectionProfilePage courseLandscapePage">
-   <m3e-split-pane orientation="auto" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="auto" class="courseInnerSplit" value="75" min="55" max="85" step="1" label="Resize course apps and content">
+ const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="75" min="55" max="85" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
@@ -618,8 +618,18 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
      </section>
     </m3e-split-pane>
     <aside slot="end" id="courseUpcomingPane" class="courseUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="courseUpcomingContent" class="courseUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
-   </m3e-split-pane>
- </section>`;
+   </m3e-split-pane>`;
+ const coursePortraitMarkup=`<div class="coursePortraitLayout">
+   <aside class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
+   <section class="courseMainPane">
+    <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
+    <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div>${school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:''}</div></div>
+    <div class="sectionProfileRule"></div>
+    <div id="sectionProfileContent" class="sectionProfileContent tabSlidePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div>
+   </section>
+   <aside id="courseUpcomingPane" class="courseUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="courseUpcomingContent" class="courseUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
+  </div>`;
+ c.innerHTML=`<section class="sectionProfilePage courseLandscapePage">${landscape?courseLandscapeMarkup:coursePortraitMarkup}</section>`;
  document.querySelector('[data-course-school-id]')?.addEventListener('click',b=>{const id=Number(b.dataset.courseSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});
  hydrateCourseImages(c);
  document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
@@ -1022,7 +1032,7 @@ async function loadFolder(course,folderId,push=true,title='Materials'){
     const icon=materialIconForType(f);
     return `<button class="materialRow" data-material-index="${i}"><span class="materialIcon officialMaterialIcon"><img src="../assets/icons/${icon}" alt=""></span><span><b>${esc(f.title||'Untitled')}</b></span><span>›</span></button>`;
   }).join('');
-  el.innerHTML=parent+(items.length?`<div class="materialList">${rows}</div>`:'<div class="empty"><h2>This folder is empty</h2></div>');
+  el.innerHTML=`${parent}${items.length?`<m3e-list variant="segmented" class="materialList">${items.map((f,i)=>{const icon=materialIconForType(f);return `<m3e-list-item data-material-index="${i}" tabindex="0"><span slot="leading" class="m3eOriginalIcon officialMaterialIcon"><img src="../assets/icons/${icon}" alt=""></span><span>${esc(f.title||'Untitled')}</span><span slot="trailing" class="m3eOriginalIcon">${originalM3Icon('chevron_right')}</span></m3e-list-item>`}).join('')}</m3e-list>`:'<div class="empty"><h2>This folder is empty</h2></div>'}`;
   window.__schoologyFolderItems=items;
   document.getElementById('materialBack')?.addEventListener('click',()=>navigateBack());
   document.querySelectorAll('[data-material-index]').forEach(b=>b.onclick=async()=>{
@@ -1844,7 +1854,8 @@ async function loadTab(){
       const arr=Array.isArray(state.calendarEvents)?state.calendarEvents:[];const byDay={};for(const e of arr){const raw=e.start||e.start_date||e.date||e.startDate||'';const key=String(raw).slice(0,10);if(key)(byDay[key]||(byDay[key]=[])).push(e)}
       const selectedKey=formatApiDate(selected),days=monthStart.getDay(),rows=Math.ceil((days+monthEnd.getDate())/7),cells=[];
       for(let i=0;i<rows*7;i++){const n=i-days+1,inMonth=n>=1&&n<=monthEnd.getDate(),d=inMonth?new Date(month.getFullYear(),month.getMonth(),n):null,key=d?formatApiDate(d):'',evs=key?(byDay[key]||[]):[];cells.push(`<button class="calendarDay ${key===selectedKey?'selected':''} ${inMonth?'':'outside'}" data-calendar-day="${key}"><b>${inMonth?n:''}</b>${evs.length?'<i class="calendarEventMarker" aria-hidden="true"></i>':''}</button>`)}
-      pager.innerHTML=`<section class="calendarAndroidPage"><div class="calendarLandscapeMonth"><div class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></div><div class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-list></div></div><m3e-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-list></section>`;
+      const calLandscape=currentWindowLayout()==='landscape';
+      pager.innerHTML=`<section class="calendarAndroidPage"><m3e-split-pane orientation="${calLandscape?'horizontal':'vertical'}" class="calendarMainSplit" value="${calLandscape?'72':'64'}" min="35" max="85" step="1" label="Resize calendar and upcoming"><section slot="start" class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></section><section slot="end" class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-list></section></m3e-split-pane><m3e-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-item>No upcoming events</m3e-list-item>'}</m3e-list></section>`;
       const m3cal=document.getElementById('m3eSchoologyCalendar');
       m3cal?.addEventListener('change',()=>{const d=m3cal.date;if(!(d instanceof Date)||Number.isNaN(d.getTime()))return;state.calendarSelectedDate=d;const key=formatApiDate(d);const list=document.getElementById('calendarEventList');if(list)list.innerHTML=renderCalendarRows(byDay[key]||[])||'<m3e-list-item>No upcoming events</m3e-list-item>';bindEventRows(arr)});
       bindEventRows([...upcomingNow(),...arr]);
