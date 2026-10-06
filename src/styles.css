@@ -1959,3 +1959,77 @@ html,body,#app{width:100%!important;height:100%!important;min-height:100%!import
 .m3eSchoologyTabs{width:100%!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary-container)!important;--m3e-tab-unselected-color:var(--md-sys-color-on-surface-variant)!important}
 .m3eSchoologyTabs m3e-tab{color:var(--md-sys-color-on-surface-variant)!important}
 .m3eSchoologyTabs m3e-tab[selected]{color:var(--md-sys-color-on-primary-container)!important}
+
+/* v125: final structural fixes against M3E 2.9.1. */
+/* The desktop shell and content viewport must own an actual finite height. */
+html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShellMain{width:100%!important;height:100%!important;min-height:0!important}
+.m3eShellMain{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.m3eShellMain>#content{position:relative!important;display:flex!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
+
+/* Shared WebViews: never let an ancestor's intrinsic height determine the webview. */
+.m3eShellMain>#content:has(.embeddedPage){display:flex!important;flex:1 1 0!important;height:0!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{position:relative!important;display:flex!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{position:relative!important;display:block!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;border:0!important;margin:0!important;padding:0!important}
+
+/* Course landscape: the two nested native M3E split panes must themselves be flex-sized. */
+.courseLandscapePage{display:flex!important;flex:1 1 0!important;width:100%!important;height:100%!important;min-height:0!important;min-width:0!important;overflow:hidden!important}
+.courseOuterSplit{display:block!important;flex:1 1 0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseOuterSplit>.courseInnerSplit[slot="start"],.courseOuterSplit>.courseUpcomingPane[slot="end"]{height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseOuterSplit>.courseInnerSplit[slot="start"]{flex:0 1 73%!important;width:auto!important}
+.courseOuterSplit>.courseUpcomingPane[slot="end"]{flex:1 1 27%!important;width:auto!important}
+.courseInnerSplit{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseInnerSplit>.courseAppsSidePane[slot="start"],.courseInnerSplit>.courseMainPane[slot="end"]{height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseInnerSplit>.courseAppsSidePane[slot="start"]{flex:0 1 25%!important;width:auto!important}
+.courseInnerSplit>.courseMainPane[slot="end"]{flex:1 1 75%!important;width:auto!important}
+.courseAppsSidePane,.courseMainPane,.courseUpcomingPane{box-sizing:border-box!important}
+.courseAppsSideContent,.courseUpcomingContent,.courseMainPane>.sectionProfileContent{min-height:0!important;overflow:auto!important}
+@media (max-aspect-ratio: 4/3){.courseLandscapePage{display:block!important;height:auto!important;overflow:visible!important}.courseOuterSplit,.courseInnerSplit{display:none!important}}
+
+/* M3E navigation: use the actual original Schoology artwork directly in the icon slot. */
+.m3eDrawer .drawerSchoologyIcon{display:block!important;width:auto!important;height:auto!important;max-width:30px!important;max-height:32px!important;object-fit:contain!important;filter:none!important;opacity:1!important}
+.m3eDrawer m3e-nav-menu-item>.icon{overflow:visible!important}
+.m3eDrawer .m3eOriginalIcon img{filter:none!important;opacity:1!important}
+.m3eDrawerNav m3e-nav-menu-item[data-drawer="courses"] .drawerSchoologyIcon,
+.m3eDrawerNav m3e-nav-menu-item[data-drawer="groups"] .drawerSchoologyIcon,
+.m3eDrawerNav m3e-nav-menu-item[data-drawer="grades"] .drawerSchoologyIcon{max-width:30px!important;max-height:32px!important}
+.m3eDrawerNav m3e-nav-menu-item[id="courseSubList"]{--m3e-nav-menu-item-inset:24px}
+
+/* Actual M3E action lists provide the hover/pressed/focus state layer. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList{--m3e-segmented-list-segment-gap:3px!important}
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.messageList m3e-list-item,.materialList m3e-list-item,.groupSegmentedList m3e-list-item,.calendarEventList m3e-list-item,.upcomingSegmentedList m3e-list-item{cursor:pointer!important}
+.messageList m3e-list-item:hover,.materialList m3e-list-item:hover,.groupSegmentedList m3e-list-item:hover,.calendarEventList m3e-list-item:hover,.upcomingSegmentedList m3e-list-item:hover{filter:none!important}
+
+/* List page insets: match the 16px card/upcoming margins. */
+.materialList,.groupSegmentedList{margin:16px!important;width:calc(100% - 32px)!important}
+.messageList{margin:16px 0 0!important}
+.calendarLandscapeUpcoming .calendarEventList{margin:0 16px 16px!important;width:calc(100% - 32px)!important}
+.calendarSelectedDayList{margin:16px!important}
+
+/* Upcoming: small, consistent 3px list segmentation and a compact gap between date groups. */
+.upcomingList{gap:5px!important;padding:16px!important}
+.upcomingSegmentedList{margin:0!important;width:100%!important}
+.upcomingDateHeader{margin:0!important;padding:0!important;min-height:48px!important}
+.upcomingSegmentedList>m3e-divider{margin:0 12px!important}
+
+/* The four Upcoming/Course Apps headers share the same M3E primary-container role as the app bar/tabs. */
+.homeUpcomingHeader,.courseLandscapePage .homePaneHeader,.groupUpcomingPane .homePaneHeader,.groupAppsPane .homePaneHeader{background:var(--md-sys-color-primary-container)!important;color:var(--md-sys-color-on-primary-container)!important}
+
+/* Dashboard: remove the old native wrapper border/shadow rules entirely; the M3E card is the only surface. */
+.nativeCourseDashboard,.nativeDashboardCourses{border:0!important;outline:0!important;box-shadow:none!important}
+.nativeDashboardCourse,.nativeDashboardCourseInfo,.nativeDashboardCourseImage{border:0!important;outline:0!important;box-shadow:none!important}
+.nativeDashboardCourse::part(base){border:0!important;outline:0!important;box-shadow:var(--m3e-card-elevated-container-elevation,none)!important}
+
+/* FABs use a light primary-container, so the original plus artwork must be dark. */
+.floatingActionSlot m3e-fab .m3eOriginalIcon img{filter:brightness(0) saturate(100%) invert(19%) sepia(28%) saturate(1137%) hue-rotate(164deg) brightness(91%) contrast(94%)!important}
+
+/* Compose message actions: large send icon; quiet, large trash/cancel icon on the left. */
+.composeDialogActions{position:relative!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;min-height:56px!important}
+.composeDialogActions #composeMessageCancel{position:absolute!important;left:0!important;width:48px!important;height:48px!important;color:var(--md-sys-color-on-surface-variant)!important}
+.composeDialogActions #composeMessageCancel .m3eOriginalIcon img{width:28px!important;height:28px!important;filter:brightness(0) saturate(100%) invert(38%) sepia(8%) saturate(516%) hue-rotate(164deg) brightness(90%) contrast(86%)!important}
+.composeDialogActions #sendMessage{min-width:112px!important;min-height:56px!important}
+.composeDialogActions #sendMessage .m3eOriginalIcon{width:24px!important;height:24px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.composeDialogActions #sendMessage .m3eOriginalIcon img{width:24px!important;height:24px!important;max-width:24px!important;max-height:24px!important;object-fit:contain!important}
+
+/* Keep the Schoology drawer artwork at full fidelity rather than recoloring it as an M3 icon. */
+.m3eDrawer .drawerSchoologyIcon{filter:none!important}
