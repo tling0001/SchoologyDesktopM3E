@@ -2710,3 +2710,69 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
   padding:0!important;
   border:0!important;
 }
+
+
+/* v136: use the actual M3E split-pane drag surface. The 24px area is only the
+   touch target; the visible thumb stays the small centered M3E pill. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-container-width:24px!important;
+  --m3e-split-pane-drag-handle-width:4px!important;
+  --m3e-split-pane-drag-handle-height:48px!important;
+  --m3e-split-pane-drag-handle-pressed-width:12px!important;
+  --m3e-split-pane-drag-handle-pressed-height:52px!important;
+}
+.calendarMainSplit{
+  --m3e-split-pane-drag-handle-container-width:24px!important;
+  --m3e-split-pane-drag-handle-width:4px!important;
+  --m3e-split-pane-drag-handle-height:48px!important;
+  --m3e-split-pane-drag-handle-pressed-width:12px!important;
+  --m3e-split-pane-drag-handle-pressed-height:52px!important;
+}
+
+/* v136: Settings is the reference segmented-list geometry. Every segmented
+   list uses the same native 5px M3E segment token, with no extra host gap. */
+.m3eRoot m3e-list[variant="segmented"],
+.m3eRoot m3e-action-list[variant="segmented"]{
+  --m3e-segmented-list-segment-gap:5px!important;
+  gap:initial!important;
+  row-gap:5px!important;
+  column-gap:initial!important;
+}
+.settingsList{display:block!important;width:100%!important;gap:initial!important;row-gap:5px!important}
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.calendarUpcomingList,.upcomingSegmentedList,.courseAppList,.notificationList,.gradeItemList{
+  display:block!important;width:100%!important;gap:initial!important;row-gap:5px!important;column-gap:initial!important;
+}
+
+/* v136: inner grade categories are standalone expansion panels. Every grade
+   level starts open; only grading periods are coordinated by the accordion. */
+.gradesAccordion>m3e-expansion-panel.gradePeriodOuter{display:block!important}
+.gradePeriodOuter m3e-expansion-panel.gradeCategoryInner{display:block!important}
+.gradePeriodInnerPanels{gap:8px!important;padding:8px 0 0!important}
+.gradeCategoryInner{
+  --m3e-expansion-panel-container-color:var(--md-sys-color-surface-container)!important;
+  --m3e-expansion-panel-elevation:none!important;
+  --m3e-expansion-panel-open-elevation:none!important;
+}
+
+/* v136: keep the shared webview in the exact flex space below the M3E app bar. */
+.m3eShellMain{position:relative!important;display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content:has(.embeddedPage){
+  position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0%!important;flex-direction:column!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{
+  position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0%!important;flex-direction:column!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{
+  position:relative!important;inset:auto!important;display:block!important;flex:1 1 0%!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important
+}
+
+/* v136: Recent Activity keeps the split host itself interactive; its content
+   must not create a second overlay above the M3E drag handle. */
+.homeLandscapeSplitM3e{position:relative!important;isolation:auto!important;overflow:hidden!important}
+.homeLandscapeSplitM3e>.homeRightPane,.homeLandscapeSplitM3e>#homeUpcomingPane{min-width:0!important;min-height:0!important;overflow:hidden!important}
+.homeLandscapeSplitM3e #homeTabContent.recentActivityScroll{min-width:0!important;min-height:0!important;overflow:auto!important}

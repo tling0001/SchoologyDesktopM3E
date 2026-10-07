@@ -347,13 +347,20 @@ function bind(){
   document.querySelectorAll('[data-drawer]').forEach(b=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      b.addEventListener('opening',()=>{
-        state.drawerPage=id;
-        loadCourseSubmenu();
-      });
-      b.addEventListener('closing',()=>{
-        if(state.drawerPage===id)state.drawerPage=null;
-        b.querySelectorAll(':scope > .drawerSubLoading,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
+      // M3E nav-menu-item owns the actual toggle. Its opening/closing events are
+      // emitted by the internal collapsible, so listening for them on the host
+      // is unreliable. Observe the completed click instead, after M3E toggles.
+      b.addEventListener('click',e=>{
+        if(e.target!==b)return;
+        setTimeout(()=>{
+          if(b.open){
+            state.drawerPage=id;
+            loadCourseSubmenu();
+          }else{
+            if(state.drawerPage===id)state.drawerPage=null;
+            b.querySelectorAll(':scope > .drawerSubLoading,:scope > .courseSubItem,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
+          }
+        },0);
       });
       return;
     }
@@ -1181,7 +1188,7 @@ async function routeSchoologyLink(rawUrl){
  if(/^\/home$/i.test(path)){state.homeUpcomingReturn=false;state.tab='home';state.courseView=null;state.currentGroup=null;state.assignmentView=null;state.embeddedTitle=null;state.toolbarTitle='Home';render();loadTab();return true}
  const mResources=path.match(/^\/resources(?:\/.*)?$/i);if(mResources){state.homeUpcomingReturn=false;state.courseView=null;state.currentGroup=null;state.assignmentView=null;state.embeddedTitle=null;state.tab='resources';state.toolbarTitle='Resources';render();loadTab();return true}
  const mGroup=path.match(/^\/groups?\/(\d+)(?:\/.*)?$/i);if(mGroup){const gid=Number(mGroup[1]);let group={id:gid,name:'Group'};try{const gx=await A.api({path:`groups/${gid}`,params:{}});group=gx?.group||gx||group;}catch{}state.tab='groups';state.currentGroup=group;state.toolbarTitle=group.name||group.title||'Group';render();await showGroup(group,'updates');return true}
- if(mCourse||mSection){const sid=Number((mCourse||mSection)[1]);const gp=(mCourse&&mCourse[2])?Number(mCourse[2]):0;try{const x=await A.api({path:`sections/${sid}`,params:{}});const course=x?.section||x;state.embeddedTitle=null;await showCourse(course,'materials');if(gp)await loadFolder(course,gp,true,'Folder');return true}catch(e){showSchoologyRequestError(e);return true}}
+ if(mCourse||mSection){const sid=Number((mCourse||mSection)[1]);const gp=(mCourse&&mCourse[2])?Number(mCourse[2]):0;const placeholder={id:sid,section_id:sid,course_title:'Course',section_title:'Loading…'};state.embeddedTitle=null;showCourse(placeholder,'materials');try{const x=await A.api({path:`sections/${sid}`,params:{}});const course=x?.section||x;if(state.selectedCourse?.id===sid&&state.courseView==='course'){await showCourse(course,'materials',true);if(gp)await loadFolder(course,gp,true,'Folder')}return true}catch(e){const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`;return true}}
  if(mCourseAssignment){const sid=Number(mCourseAssignment[1]),aid=Number(mCourseAssignment[2]);showAssignment(sid,aid);return true}
  if(mAssignment){const aid=Number(mAssignment[1]);const sid=await resolveAssignmentSection(aid);if(sid){showAssignment(sid,aid);return true}await A.prepareWebSession();showEmbeddedWeb(rawUrl,'Assignment');return true}
  const mQuiz=path.match(/^\/(?:quiz|quizzes|assessment|assessments|assessment_v2|managed_assessment)(?:\/view)?\/(\d+)$/i);if(mQuiz){await A.prepareWebSession();showEmbeddedWeb(scheme?`https://app.schoology.com/${path.replace(/^\//,'')}`:rawUrl,'Quiz',{allowBrowser:false});return true}
@@ -1459,23 +1466,38 @@ async function loadSectionGrades(course){
  el.innerHTML=`<div class="gradesAndroid">${renderOverallGrade(current)}${renderGradePeriods(rows,periods,categories)}</div>`;
  el.querySelectorAll('[data-grade-assignment]').forEach(b=>b.onclick=async()=>{const type=String(b.dataset.gradeType||'assignment').toLowerCase(),id=Number(b.dataset.gradeAssignment);if(!id)return;if(['assessment','assessment_v2','managed_assessment','quiz'].includes(type)){await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,b.textContent?.trim()||'Quiz',{allowBrowser:false,quiz:true,assessment:true});}else if(type==='discussion'){await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/section/${sid}/discussion/view/${id}`,b.textContent?.trim()||'Discussion');}else showAssignment(sid,id)});
 }
+function getFinalGradeObject(sec){
+ const raw=sec?.final_grade??sec?.finalGrade??sec?.final_grades??sec?.finalGrades??sec?.final??null;
+ if(Array.isArray(raw)){
+   return raw.find(x=>String(x?.period_id??x?.periodId??'').toLowerCase()===String('final'))||raw.find(x=>x&&((x.override_str??x.overrideStringGrade??x.grade_override??x.gradeOverride)!=null||(x.grade??x.calculated_grade??x.calculatedGrade)!=null))||raw[0]||{};
+ }
+ return raw&&typeof raw==='object'?raw:{};
+}
 function renderOverallGrade(sec){
- const final=(sec.final_grade||sec.finalGrade||[])[0]||{};
- const override=final.grade_override??final.gradeOverride??'';
- const numeric=final.grade??final.calculated_grade??final.calculatedGrade??null;
+ const final=getFinalGradeObject(sec);
+ // The Android model uses override_str/override_numeric. An override is the
+ // displayed final grade and must replace the calculated percentage entirely.
+ const override=final.override_str??final.overrideStringGrade??final.override_numeric??final.overrideNumericGrade??final.grade_override??final.gradeOverride??'';
+ const rawGrade=final.grade??final.calculated_grade??final.calculatedGrade??final.score??null;
  let val='—';
- if(String(override).trim()) val=String(override).trim();
- else if(numeric!==null&&numeric!==undefined&&String(numeric).trim()!==''){
-   let n=Number(String(numeric).replace(/%/g,''));
+ if(String(override).trim()) {
+   val=String(override).trim();
+ } else if(rawGrade!==null&&rawGrade!==undefined&&String(rawGrade).trim()!==''){
+   const rawText=String(rawGrade).trim();
+   const n=Number(rawText.replace(/%/g,''));
    if(Number.isFinite(n)){
-     if(n>=0&&n<=1)n*=100;
-     const pct=`${Number.isInteger(n)?n:n.toFixed(1).replace(/\.0$/,'')}%`;
-     const letter=n>=90?'A':n>=80?'B':n>=70?'C':n>=60?'D':'F';
+     const pctValue=(n>=0&&n<=1)?n*100:n;
+     const pct=`${Number.isInteger(pctValue)?pctValue:pctValue.toFixed(1).replace(/\.0$/,'')}%`;
+     const letter=pctValue>=90?'A':pctValue>=80?'B':pctValue>=70?'C':pctValue>=60?'D':'F';
      val=`${pct} (${letter})`;
-   }else val=String(numeric);
+   }else{
+     // Some courses use a non-numeric grading scale. Preserve the letter/text
+     // supplied by Schoology instead of inventing a percentage.
+     val=rawText;
+   }
  }
  const comment=typeof final.comment==='string'?final.comment:(final.comment?.comment||final.comment?.body||'');
- return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${comment}</div></div>`:''}</div>`;
+ return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${esc(comment)}</div></div>`:''}</div>`;
 }
 function renderGradePeriods(rows,periods,categories){
  const ps=periods?.grading_period||periods?.period||[];const cs=categories?.grading_category||categories?.category||[];
@@ -1494,12 +1516,12 @@ function renderGradePeriods(rows,periods,categories){
   const inner=[];
   Object.keys(pg).filter(k=>k!=='__title').forEach(cid=>{
    const list=pg[cid],meta=categories?.grading_category?.find?.(x=>String(x.id)===cid)||{};
-   inner.push(`<m3e-expansion-panel class="gradeCategoryInner"><span slot="header">${esc(meta.title||meta.name||cmap[cid]||'Category')}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span class="gradeAssignmentTitle">${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`}).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
+   inner.push(`<m3e-expansion-panel class="gradeCategoryInner" open><span slot="header">${esc(meta.title||meta.name||cmap[cid]||'Category')}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span class="gradeAssignmentTitle">${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`}).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
   });
   panels.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
  });
  if(!panels.length)return '<div class="empty"><h2>No grades</h2></div>';
- return `<m3e-accordion class="gradesAccordion" multi open>${panels.join('')}</m3e-accordion>`;
+ return `<m3e-accordion class="gradesAccordion" multi>${panels.join('')}</m3e-accordion>`;
 }
 
 function renderGrades(rows){return renderGradePeriods(rows,{grading_period:[]},{grading_category:[]});}
