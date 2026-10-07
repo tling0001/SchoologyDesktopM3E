@@ -2606,3 +2606,107 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 /* Remove leftover custom borders/padding from grade lists. M3E owns their
    segmented surfaces; the page only controls the five-pixel segment gap. */
 .gradesContent .gradeItemList,.gradesContent .gradeItemList::part(base){border:0!important;outline:0!important;box-shadow:none!important}
+
+/* v135: M3E owns all segmented-list spacing. Settings is the reference: the
+   host has no independent flex/grid gap; M3E's segmented token supplies exactly 5px. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.calendarUpcomingList,
+.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList,.gradeItemList{
+  --m3e-segmented-list-segment-gap:5px!important;
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  gap:0!important;
+  row-gap:0!important;
+  column-gap:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.messageList m3e-list-action,.messageList m3e-list-item,
+.materialList m3e-list-action,.materialList m3e-list-item,
+.groupSegmentedList m3e-list-action,.groupSegmentedList m3e-list-item,
+.calendarEventList m3e-list-action,.calendarEventList m3e-list-item,
+.calendarUpcomingList m3e-list-action,.calendarUpcomingList m3e-list-item,
+.upcomingSegmentedList m3e-list-action,.upcomingSegmentedList m3e-list-item,
+.settingsList m3e-list-action,.settingsList m3e-list-item,
+.courseAppList m3e-list-action,.courseAppList m3e-list-item,
+.notificationList m3e-list-action,.notificationList m3e-list-item,
+.gradeItemList m3e-list-action,.gradeItemList m3e-list-item{
+  margin:0!important;
+}
+
+/* v135: grade categories are individual expansion panels, not another
+   accordion layer. Remove the extra wrapper spacing so only M3E's 5px list
+   segment gap remains inside each category. */
+.gradePeriodInnerPanels{gap:0!important;padding:0!important;margin:0!important}
+.gradeCategoryInner{margin:0!important;padding:0!important}
+.gradeCategoryInner .gradeItemList{margin:0!important;padding:0!important;gap:0!important;row-gap:0!important}
+
+/* v135: use M3E's documented drag-handle surface instead of a light-DOM
+   pseudo-track. This keeps the 24px track color attached to the real shadow-DOM
+   drag target throughout dragging. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-primary-container)!important;
+  --m3e-split-pane-drag-handle-container-width:24px!important;
+  --m3e-split-pane-drag-handle-width:24px!important;
+  --m3e-split-pane-drag-handle-height:100%!important;
+  --m3e-split-pane-drag-handle-pressed-width:24px!important;
+  --m3e-split-pane-drag-handle-pressed-height:100%!important;
+}
+.calendarMainSplit{
+  --m3e-split-pane-drag-handle-container-width:24px!important;
+  --m3e-split-pane-drag-handle-width:100%!important;
+  --m3e-split-pane-drag-handle-height:24px!important;
+  --m3e-split-pane-drag-handle-pressed-width:100%!important;
+  --m3e-split-pane-drag-handle-pressed-height:24px!important;
+}
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,
+.calendarMainSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{
+  display:none!important;
+}
+
+/* v135: shared Electron webviews occupy the exact flex viewport below the app bar. */
+.m3eShellMain>#content:has(.embeddedPage){
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{
+  position:relative!important;
+  inset:auto!important;
+  display:block!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+}

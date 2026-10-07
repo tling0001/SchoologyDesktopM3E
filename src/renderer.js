@@ -344,30 +344,27 @@ function bind(){
   hydrateProfileDrawer();updateDrawerBadges();document.getElementById('drawerProfile')?.addEventListener('click',()=>{closeDrawerThen(()=>{state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.embeddedTitle=null;state.profileUser=state.auth?.user||null;state.profileTab='updates';state.tab='profile';state.toolbarTitle='Profile';render();loadTab()})});
   document.getElementById('drawerBack')?.addEventListener('click',()=>{state.drawerPage=null;render();requestAnimationFrame(()=>{const c=document.getElementById('appDrawerContainer');if(c)c.start=true})});
 
-  document.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',async()=>{
+  document.querySelectorAll('[data-drawer]').forEach(b=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      const wasOpen=b.hasAttribute('open');
-      state.drawerPage=wasOpen?null:id;
-      if(wasOpen){
-        setTimeout(()=>{
-          b.removeAttribute('open');
-          b.querySelectorAll(':scope > .drawerSubLoading,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
-        },0);
-      }else{
-        setTimeout(()=>{
-          b.setAttribute('open','');
-          loadCourseSubmenu();
-        },0);
-      }
+      b.addEventListener('opening',()=>{
+        state.drawerPage=id;
+        loadCourseSubmenu();
+      });
+      b.addEventListener('closing',()=>{
+        if(state.drawerPage===id)state.drawerPage=null;
+        b.querySelectorAll(':scope > .drawerSubLoading,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
+      });
       return;
     }
+    b.addEventListener('click',async()=>{
     closeDrawerThen(async()=>{
       if(id==='logout'){await A.logout();state.auth=null;state.school=null;state.tab='home';state.screen='login';render();return}
       if(id==='settings'){state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.currentGroup=null;state.profileUser=null;state.embeddedTitle=null;state.tab='settings';state.toolbarTitle='Settings';state.screen='app';render();loadTab();return}
       if(['home','calendar','grades','messages','notifications','requests','resources','profile','groups'].includes(id)){state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.currentGroup=null;state.profileUser=null;state.embeddedTitle=null;state.tab=id;state.toolbarTitle=id.charAt(0).toUpperCase()+id.slice(1);state.screen='app';render();loadTab()}
     });
-  }));
+    });
+  });
 
   if(!document.__schoologySplitStylerBound){document.__schoologySplitStylerBound=true;document.addEventListener('input',e=>{const sp=e.target?.closest?.('m3e-split-pane');if(!sp)return;const v=Number(sp.value);if(Number.isFinite(v))sp.style.setProperty('--schoology-split-track-position',`${v}%`);},{passive:true});}
   document.querySelectorAll('m3e-split-pane').forEach(sp=>{const v=Number(sp.value);if(Number.isFinite(v))sp.style.setProperty('--schoology-split-track-position',`${v}%`)});
@@ -643,30 +640,23 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  state.selectedCourse=course;state.courseView='course';state.courseTab=activeTab;state.folderStack=[];state.currentFolderId=0;state.assignmentView=null;state.embeddedTitle=null;
  state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);syncToolbar();
  const title=courseTitleOf(course), section=sectionTitleOf(course);
- const [sectionDetail,schoolFromList]=await Promise.all([
-   A.api({path:`sections/${sid}`,params:{}}).catch(()=>course),
-   resolveCourseSchoolName(course)
- ]);
- const school=await resolveCourseSchoolName(sectionDetail||course)||schoolFromList;
  const image=normalizeImageUrl(course.profile_url||course.profileUrl||course.course_profile_url||course.courseProfileUrl||course.course_theme||course.courseTheme||course.image||course.course_image||'');
- const navPerms=await getCourseNavigationPermissions(sid,state.auth?.userId||state.auth?.user?.id).catch(()=>null);
- if(renderToken!==courseRenderToken||state.screen!=='app'||state.courseView!=='course'||state.selectedCourse!==course)return;
- const canGradebook=!!navPerms?.sectionGradesPut, canGrades=!!navPerms?.userGradesGet, attendanceEnabled=!!navPerms?.attendanceGet;
  const landscape=window.matchMedia('(min-aspect-ratio: 4/3)').matches;
- const tabs=[['materials','Materials'],['updates','Updates'],...(landscape?[]:[['upcoming','Upcoming']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[]),...(landscape?[]:[['courseapp','Course App']])];
+ // Mount the Android-like course shell immediately. Network-dependent metadata and
+ // permissions are hydrated after the page is visible so slow connections show the
+ // native loading indicators instead of blocking navigation.
+ const initialTabs=[['materials','Materials'],['updates','Updates'],...(landscape?[]:[['upcoming','Upcoming']]),['grades','Grades'],['attendance','Attendance'],...(landscape?[]:[['courseapp','Course App']])];
  let effectiveTab=activeTab;
- if(effectiveTab==='grades'&&canGradebook)effectiveTab='gradebook';
- if(effectiveTab==='gradebook'&&!canGradebook)effectiveTab='grades';
- if(effectiveTab==='attendance'&&!attendanceEnabled)effectiveTab='materials';
  if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
+ const courseTabsMarkup=tabs=>tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('');
  const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
     <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="20" min="15" max="30" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
-      <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
-      <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div>${school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:''}</div></div>
+      <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
+      <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div><span class="courseSchoolLoading" aria-hidden="true"></span></div></div>
       <div class="sectionProfileRule"></div>
       <div id="sectionProfileContent" class="sectionProfileContent tabSlidePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div>
      </section>
@@ -675,8 +665,8 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    </m3e-split-pane>`;
  const coursePortraitMarkup=`<div class="coursePortraitLayout">
    <section class="courseMainPane">
-    <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
-    <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div>${school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:''}</div></div>
+    <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
+    <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div><span class="courseSchoolLoading" aria-hidden="true"></span></div></div>
     <div class="sectionProfileRule"></div>
     <div id="sectionProfileContent" class="sectionProfileContent tabSlidePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div>
    </section>
@@ -684,7 +674,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  c.innerHTML=`<section class="sectionProfilePage courseLandscapePage">${landscape?courseLandscapeMarkup:coursePortraitMarkup}</section>`;
  document.querySelector('[data-course-school-id]')?.addEventListener('click',b=>{const id=Number(b.dataset.courseSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});
  hydrateCourseImages(c);
- document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
+ const bindCourseTabs=()=>document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
    const id=b.dataset.courseTab;state.courseTab=id;state.toolbarTitle=b.textContent||'Course';
    syncM3eTabSelection(document.getElementById('content'),'courseTab',id);
    state.folderStack=[];state.currentFolderId=0;syncToolbar();
@@ -692,10 +682,34 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    if(tabContent)tabContent.innerHTML='<div class="loading courseTabLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
    loadCourseTab(course,id).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
  });
- loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
- if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
- if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
+ bindCourseTabs();
  installCourseLayoutWatcher();
+ void (async()=>{
+   const [sectionDetail,schoolFromList,navPerms]=await Promise.all([
+     A.api({path:`sections/${sid}`,params:{}}).catch(()=>course),
+     resolveCourseSchoolName(course),
+     getCourseNavigationPermissions(sid,state.auth?.userId||state.auth?.user?.id).catch(()=>null)
+   ]);
+   const school=await resolveCourseSchoolName(sectionDetail||course)||schoolFromList;
+   if(renderToken!==courseRenderToken||state.screen!=='app'||state.courseView!=='course'||state.selectedCourse!==course)return;
+   const canGradebook=!!navPerms?.sectionGradesPut, canGrades=!!navPerms?.userGradesGet, attendanceEnabled=!!navPerms?.attendanceGet;
+   const tabs=[['materials','Materials'],['updates','Updates'],...(landscape?[]:[['upcoming','Upcoming']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[]),...(landscape?[]:[['courseapp','Course App']])];
+   effectiveTab=activeTab;
+   if(effectiveTab==='grades'&&canGradebook)effectiveTab='gradebook';
+   if(effectiveTab==='gradebook'&&!canGradebook)effectiveTab='grades';
+   if(effectiveTab==='attendance'&&!attendanceEnabled)effectiveTab='materials';
+   if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
+   if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
+   state.courseTab=effectiveTab;
+   const tabsHost=c.querySelector('.courseTabsM3e');
+   if(tabsHost){tabsHost.innerHTML=courseTabsMarkup(tabs);bindCourseTabs();syncM3eTabSelection(document.getElementById('content'),'courseTab',effectiveTab);}
+   const info=c.querySelector('.courseIdentityInfoBar');
+   const loadingSchool=info?.querySelector('.courseSchoolLoading');
+   if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';info?.querySelector('[data-course-school-id]')?.addEventListener('click',b=>{const id=Number(b.dataset.courseSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});}
+   loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
+   if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
+   if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
+ })();
 }
 function collectAssignmentAttachments(a){
   const out=[],seen=new Set();
@@ -1447,7 +1461,19 @@ async function loadSectionGrades(course){
 }
 function renderOverallGrade(sec){
  const final=(sec.final_grade||sec.finalGrade||[])[0]||{};
- const val=final.grade||final.grade_override||final.calculated_grade||'—';
+ const override=final.grade_override??final.gradeOverride??'';
+ const numeric=final.grade??final.calculated_grade??final.calculatedGrade??null;
+ let val='—';
+ if(String(override).trim()) val=String(override).trim();
+ else if(numeric!==null&&numeric!==undefined&&String(numeric).trim()!==''){
+   let n=Number(String(numeric).replace(/%/g,''));
+   if(Number.isFinite(n)){
+     if(n>=0&&n<=1)n*=100;
+     const pct=`${Number.isInteger(n)?n:n.toFixed(1).replace(/\.0$/,'')}%`;
+     const letter=n>=90?'A':n>=80?'B':n>=70?'C':n>=60?'D':'F';
+     val=`${pct} (${letter})`;
+   }else val=String(numeric);
+ }
  const comment=typeof final.comment==='string'?final.comment:(final.comment?.comment||final.comment?.body||'');
  return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${comment}</div></div>`:''}</div>`;
 }
@@ -1473,7 +1499,7 @@ function renderGradePeriods(rows,periods,categories){
   panels.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
  });
  if(!panels.length)return '<div class="empty"><h2>No grades</h2></div>';
- return `<m3e-accordion class="gradesAccordion" multi>${panels.join('')}</m3e-accordion>`;
+ return `<m3e-accordion class="gradesAccordion" multi open>${panels.join('')}</m3e-accordion>`;
 }
 
 function renderGrades(rows){return renderGradePeriods(rows,{grading_period:[]},{grading_category:[]});}
