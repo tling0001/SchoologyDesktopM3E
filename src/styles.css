@@ -2264,3 +2264,119 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 .androidCommentCard .androidCommentContent{display:block!important;padding:0!important}
 .androidCommentCard .commentUserName{display:block!important;line-height:20px!important;min-height:20px!important;margin:0 0 4px!important}
 .androidCommentCard .commentBodyHtml{margin-top:0!important}
+
+/* v131: final viewport/portrait/layout corrections. Keep #content in the shell's
+   flex flow so native pages and Electron <webview> consume the exact remaining
+   space below the M3E app bar. */
+.m3eShellMain{display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.m3eShellMain>.m3eMainAppBar{flex:0 0 auto!important}
+.m3eShellMain>#content{position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;display:flex!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
+.m3eShellMain>#content>.embeddedPage,.m3eShellMain>#content>.dashboardHybrid{position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0!important;flex-direction:column!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
+.m3eShellMain>#content>.embeddedPage>webview,.m3eShellMain>#content>.dashboardHybrid>webview{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important}
+
+/* v131: only Calendar keeps a split pane in portrait. Courses, Groups and Home
+   are rendered without split markup in portrait and must not leave landscape
+   Upcoming/side panes behind. */
+@media (max-aspect-ratio:4/3){
+  .homeLandscapeSplitM3e,.courseOuterSplit,.courseInnerSplit,.groupOuterSplit{display:none!important}
+  .coursePortraitLayout{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important;flex-direction:column!important}
+  .coursePortraitLayout>.courseMainPane{display:flex!important;width:100%!important;height:auto!important;min-height:100%!important;flex:0 0 auto!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;flex:0 0 auto!important;overflow:visible!important}
+  .coursePortraitLayout>.courseAppsSidePane,.coursePortraitLayout>.courseUpcomingPane{display:none!important}
+  .groupProfilePage{display:block!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important}
+  .groupProfilePage>.groupMainPane{display:flex!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:visible!important}
+  .groupMainPane #groupTabContent{height:auto!important;min-height:0!important;overflow:visible!important}
+  .calendarAndroidPage{height:100%!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+  .calendarPagerContent{height:0!important;flex:1 1 0!important;min-height:0!important;overflow:hidden!important}
+  .calendarMainSplit{display:block!important;width:100%!important;height:100%!important;min-height:0!important}
+}
+@media (min-aspect-ratio:4/3){
+  .coursePortraitLayout{display:none!important}
+  .courseOuterSplit,.courseInnerSplit,.groupOuterSplit,.homeLandscapeSplitM3e{display:block!important}
+}
+
+/* v131: the native split pane remains the resizer; the surrounding 24px track
+   is blue like the app bar/tabs, while M3E's draggable thumb stays contrasting. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-on-surface)!important;
+  --m3e-split-pane-drag-handle-hover-opacity:12%!important;
+  --m3e-split-pane-drag-handle-focus-opacity:16%!important;
+  position:relative!important;
+  --schoology-split-track-position:50%;
+}
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.calendarMainSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{
+  content:"";position:absolute;z-index:0;pointer-events:none;background:var(--md-sys-color-primary-container);border-radius:0;
+  left:calc(var(--schoology-split-track-position) - 12px);top:0;width:24px;height:100%;
+}
+.assignmentLandscapeSplit>*,.courseOuterSplit>*,.courseInnerSplit>*,.calendarMainSplit>*,.homeLandscapeSplitM3e>*,.groupOuterSplit>*{position:relative;z-index:1}
+@media (max-aspect-ratio:4/3){
+  .calendarMainSplit::before{left:0;top:calc(var(--schoology-split-track-position) - 12px);width:100%;height:24px}
+  .calendarMainSplit{--schoology-split-track-position:64%}
+}
+
+/* v131: use the requested five-pixel native M3E segmented gap everywhere.
+   Give the gap a surface behind it so the separation is visually apparent. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList{
+  --m3e-segmented-list-segment-gap:5px!important;
+  --m3e-segmented-list-container-color:var(--md-sys-color-surface-container-low)!important;
+  --m3e-segmented-list-item-container-color:var(--md-sys-color-surface-container)!important;
+  background:var(--md-sys-color-surface-container-low)!important;
+}
+
+/* Course Apps are a native segmented action list, not a stack of bordered rows. */
+.courseAppList{display:flex!important;flex-direction:column!important;gap:5px!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;border:0!important;box-shadow:none!important;padding:0!important}
+.courseAppList m3e-list-action{margin:0!important;border:0!important;box-shadow:none!important}
+
+/* Course dashboard: scroll belongs to the page, while the cards sit inside one
+   bordered container matching Materials/Updates/Recent Activity. */
+.nativeCourseDashboard{height:auto!important;min-height:100%!important;overflow:visible!important;padding:0!important;margin:0!important}
+.nativeDashboardCourses{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important;gap:12px!important;align-items:start!important;margin:16px!important;padding:16px!important;border:1px solid var(--md-sys-color-outline-variant)!important;border-radius:var(--md-sys-shape-corner-large,16px)!important;background:var(--md-sys-color-surface-container-low)!important;box-sizing:border-box!important}
+
+/* Grades: outer page scrolls; one accordion, no inter-panel gap, with only the
+   requested outer margin around the accordion group. */
+.gradesNativePage{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+.gradesNativePage>.gradesContent{height:0!important;flex:1 1 0!important;min-height:0!important;overflow:auto!important}
+.gradesAndroid{padding:0!important;margin:0!important;min-height:max-content!important;overflow:visible!important}
+.gradesAccordion{display:block!important;margin:16px!important;padding:0!important;overflow:visible!important}
+.gradesAccordion m3e-expansion-panel{margin:0!important;padding:0!important}
+
+/* Settings and long native pages must reach the bottom and scroll inside the
+   shell content viewport. */
+.settingsPage{height:auto!important;min-height:100%!important;overflow:auto!important;padding-bottom:32px!important}
+.sectionProfilePage{height:100%!important;min-height:0!important;overflow:hidden!important}
+.courseMainPane .sectionProfileContent{min-height:0!important;overflow:auto!important}
+.messagesAndroidPage{height:100%!important;min-height:0!important;overflow:hidden!important}
+.messagesAndroidPage>.messageList{height:0!important;flex:1 1 0!important;overflow:auto!important}
+
+/* Filled comment cards with a compact left margin and author/avatar on one row. */
+.androidCommentCard{display:grid!important;grid-template-columns:48px minmax(0,1fr)!important;column-gap:12px!important;position:relative!important;padding:12px 16px!important;margin:8px 16px!important;box-sizing:border-box!important;--m3e-filled-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important;box-shadow:none!important}
+.androidCommentCard .androidCommentAvatar{position:static!important;grid-column:1!important;grid-row:1!important;width:48px!important;height:48px!important;margin:0!important}
+.androidCommentCard .androidCommentContent{grid-column:2!important;grid-row:1!important;display:block!important;min-width:0!important;padding:0!important}
+.androidCommentCard .commentUserName{display:block!important;margin:0 0 4px!important;line-height:20px!important;min-height:20px!important}
+.commentsPage,.officialComments,.commentsList{min-height:0!important}
+
+/* Drawer submenu images: an image gets no overlaid initial letter. */
+.m3eDrawerNav .drawerSubImage>span{display:none!important}
+.m3eDrawerNav .drawerSubImage img{display:block!important}
+#drawerProfile [slot="label"]{display:block!important;visibility:visible!important;opacity:1!important;color:var(--md-sys-color-on-surface)!important}
+
+/* Home and group content get an actual scroll viewport in their portrait/native
+   layouts rather than being clipped by the shell. */
+.homeTabViewport{height:100%!important;min-height:0!important;overflow:hidden!important}
+.homeTabViewport>#homeTabContent{height:0!important;min-height:0!important;flex:1 1 0!important;overflow:auto!important}
+.homeUpcomingPortraitList{min-height:max-content!important;overflow:visible!important}
+.groupMainPane #groupTabContent{min-height:0!important;overflow:auto!important}
+
+/* Assignment compose send button: medium rather than large. */
+#sendMessage{min-width:96px!important}
+
+/* Course Apps tab in portrait should scroll as a segmented list inside the main
+   course content area. */
+@media (max-aspect-ratio:4/3){
+  .courseMainPane{display:flex!important;flex-direction:column!important;height:auto!important;min-height:100%!important;overflow:visible!important}
+  .courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;overflow:visible!important;flex:0 0 auto!important}
+  .courseMainPane .courseAppList{width:100%!important;margin:0!important;padding:0 16px 16px!important;box-sizing:border-box!important}
+}
