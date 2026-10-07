@@ -2465,3 +2465,83 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 /* Grade item lists use the same segmented treatment as Materials/Messages/etc. */
 .gradeItemList{width:100%!important;margin:0!important;padding:0!important}
 .gradeItemList m3e-list-action{cursor:pointer!important}
+
+/* v133: final structural corrections. M3E's split-pane exposes the thumb
+   through documented color tokens, but its 24px drag container is a transparent
+   shadow-DOM element. This pseudo-track follows the component's actual value so
+   the container is app-bar/tab blue while the M3E thumb stays contrasting. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  position:relative!important;
+  background:transparent!important;
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-on-surface)!important;
+}
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.calendarMainSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{
+  content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;
+  background:var(--md-sys-color-primary-container)!important;border-radius:0!important;
+  left:calc(var(--schoology-split-position,50%) - 12px)!important;top:0!important;bottom:0!important;width:24px!important;
+}
+.calendarMainSplit::before{left:0!important;top:calc(var(--schoology-split-position,50%) - 12px)!important;bottom:auto!important;width:100%!important;height:24px!important}
+.assignmentLandscapeSplit>*,.courseOuterSplit>*,.courseInnerSplit>*,.calendarMainSplit>*,.homeLandscapeSplitM3e>*,.groupOuterSplit>*{position:relative!important;z-index:1!important}
+
+/* The page is responsible for scrolling; no landscape-only panes may survive
+   into portrait. */
+@media (max-aspect-ratio:4/3){
+  .courseOuterSplit,.courseInnerSplit,.groupOuterSplit,.homeLandscapeSplitM3e{display:none!important}
+  .coursePortraitLayout{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important;flex-direction:column!important}
+  .coursePortraitLayout>.courseMainPane{display:flex!important;width:100%!important;height:auto!important;min-height:0!important;flex:0 0 auto!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;overflow:visible!important;flex:0 0 auto!important}
+  .coursePortraitLayout>.courseAppsSidePane,.coursePortraitLayout>.courseUpcomingPane{display:none!important}
+  .groupProfilePage{display:flex!important;position:relative!important;width:100%!important;height:auto!important;min-height:100%!important;overflow:auto!important;flex-direction:column!important}
+  .groupProfilePage>.groupMainPane{display:flex!important;width:100%!important;height:auto!important;min-height:100%!important;flex:0 0 auto!important;overflow:visible!important}
+  .groupMainPane #groupTabContent{height:auto!important;min-height:320px!important;overflow:visible!important;flex:0 0 auto!important;padding-bottom:24px!important}
+}
+
+/* Native pages get a single full-height scrolling viewport. */
+.coursePortraitLayout,.groupProfilePage{box-sizing:border-box!important}
+
+/* WebViews: keep the shell content in normal flex flow and let the webview
+   itself occupy the exact remaining height. Avoid height:0/absolute overrides,
+   which Electron's <webview> can retain as an intrinsic gap on Windows. */
+.m3eShellMain>#content:has(.embeddedPage){
+  position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+  display:flex!important;flex-direction:column!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{
+  position:relative!important;display:flex!important;flex-direction:column!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{
+  position:relative!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;border:0!important;margin:0!important;padding:0!important;
+}
+
+/* Course Apps uses the same M3E segmented list geometry as every other list. */
+.courseAppsSideContent{padding:0!important;margin:0!important;overflow:auto!important}
+.courseAppList{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.courseAppList m3e-list-action{margin:0!important;border:0!important;box-shadow:none!important}
+
+/* Groups: landscape now has a real slot=start pane; portrait scrolls the one
+   native pane rather than a hidden split-pane child. */
+.groupProfilePage{min-height:0!important}
+.groupMainPane{min-width:0!important;min-height:0!important}
+.groupMainPane #groupTabContent{min-width:0!important;min-height:0!important}
+
+/* Keep segmented-list gaps visible by letting the page surface show through. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList,.gradeItemList{
+  --m3e-segmented-list-segment-gap:5px!important;
+  background:transparent!important;
+  --m3e-segmented-list-item-container-color:var(--md-sys-color-surface-container)!important;
+}
+
+/* Remove the accidental vertical scrollbar from the course tab strip. */
+.courseTabsM3e{overflow:hidden!important;height:48px!important;min-height:48px!important}
+.courseTabsM3e::part(base){overflow:hidden!important}
+
+/* Ensure the course/group native page wrapper itself can grow with its portrait
+   content instead of retaining the generic height:0 page-shell rule. */
+@media (max-aspect-ratio:4/3){
+  .sectionProfilePage:has(.coursePortraitLayout),.groupProfilePage{
+    position:relative!important;width:100%!important;height:auto!important;min-height:100%!important;flex:0 0 auto!important;overflow:visible!important;
+  }
+}

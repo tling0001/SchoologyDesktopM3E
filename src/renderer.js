@@ -241,7 +241,30 @@ async function updateDrawerBadges(){
   for(const [id,path] of checks){try{const x=await A.api({path,params:{limit:1}});const n=Number(x?.total||x?.unread||x?.count||0);document.querySelector(`[data-drawer="${id}"] .drawerBadge`)?.classList.toggle('visible',n>0)}catch{}}
 }
 
+function wireM3eSplitPaneTracks(root=document){
+  root.querySelectorAll?.("m3e-split-pane").forEach(p=>{
+    if(p.__schoologySplitTrackBound)return;
+    p.__schoologySplitTrackBound=true;
+    const sync=()=>{
+      const v=Number(p.value);
+      if(Number.isFinite(v))p.style.setProperty("--schoology-split-position",`${Math.max(0,Math.min(100,v))}%`);
+    };
+    p.addEventListener("input",sync);
+    p.addEventListener("change",sync);
+    customElements.whenDefined("m3e-split-pane").then(sync).catch(()=>{});
+  });
+}
+
+function installSplitPaneTrackObserver(){
+  const content=document.getElementById("content");
+  if(!content||content.__schoologySplitObserver)return;
+  content.__schoologySplitObserver=new MutationObserver(()=>wireM3eSplitPaneTracks(content));
+  content.__schoologySplitObserver.observe(content,{subtree:true,childList:true});
+  wireM3eSplitPaneTracks(content);
+}
+
 function bind(){
+  installSplitPaneTrackObserver();
   document.getElementById('composeMessage')?.addEventListener('click',()=>showComposeMessage());document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
   document.getElementById('toolbarBack')?.addEventListener('click',()=>navigateBack());
   const schoolBtn=document.getElementById('schoolLogin');if(schoolBtn)schoolBtn.onclick=()=>{state.error='';state.q='';state.schools=[];state.screen='search';render();document.getElementById('schoolSearch')?.focus()};
@@ -611,7 +634,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
  const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="25" min="18" max="45" step="1" label="Resize course apps and content">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="20" min="15" max="30" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
@@ -1517,7 +1540,7 @@ async function showGroup(group,activeTab='updates'){
   if(groupSchoolId){try{const sx=await A.api({path:`schools/${groupSchoolId}`,params:{}});const sch=sx?.school||sx;groupSchool=String(sch?.title||sch?.name||'')}catch{}}
   const groupLandscape=window.matchMedia('(min-aspect-ratio: 4/3)').matches;
   const groupTabsMarkup=`<div class="groupTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs groupTabsM3e">${['updates','upcoming','discussions','albums','resources'].map((id)=>`<m3e-tab class="groupTab ${id==='upcoming'?'groupUpcomingTab':''}" data-group-tab="${id}" ${activeTab===id?'selected':''}>${({updates:'Updates',upcoming:'Upcoming',discussions:'Discussions',albums:'Albums',resources:'Resources'})[id]}</m3e-tab>`).join('')}</m3e-tabs></div>`;
-  const groupMain=`<section class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img src="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
+  const groupMain=`<section slot="start" class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img src="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
   const groupUpcoming=`<aside slot="end" id="groupUpcomingPane" class="groupUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="groupUpcomingContent"></div></aside>`;
   c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
   const gc=document.getElementById('groupTabContent');
