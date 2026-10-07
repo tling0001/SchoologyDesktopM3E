@@ -2545,3 +2545,64 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
     position:relative!important;width:100%!important;height:auto!important;min-height:100%!important;flex:0 0 auto!important;overflow:visible!important;
   }
 }
+
+
+/* v134: restore native M3E split-pane interaction. The light-DOM pane stacking
+   layer used in v133 could sit above M3E's shadow-DOM drag handle, especially
+   on Recent Activity. Let the component own its handle hit area. */
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.calendarMainSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{z-index:0!important;pointer-events:none!important}
+.assignmentLandscapeSplit>*,.courseOuterSplit>*,.courseInnerSplit>*,.calendarMainSplit>*,.homeLandscapeSplitM3e>*,.groupOuterSplit>*{position:relative!important;z-index:auto!important}
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{isolation:auto!important}
+
+/* Keep the visual 24px track exactly at the current split value without
+   creating another interaction layer. M3E's own thumb remains above it. */
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{
+  background:var(--md-sys-color-primary-container)!important;
+  left:calc(var(--schoology-split-position,50%) - 12px)!important;
+  top:0!important;bottom:0!important;width:24px!important;height:auto!important;
+}
+.calendarMainSplit::before{background:var(--md-sys-color-primary-container)!important;left:0!important;top:calc(var(--schoology-split-position,50%) - 12px)!important;width:100%!important;height:24px!important;bottom:auto!important}
+
+/* v134: panes can shrink to their declared M3E minimum. Text—not the pane—
+   yields first, using ellipsis where a single-line label cannot fit. */
+.courseOuterSplit>[slot="start"],.courseOuterSplit>[slot="end"],.courseInnerSplit>[slot="start"],.courseInnerSplit>[slot="end"],.groupOuterSplit>[slot="start"],.groupOuterSplit>[slot="end"],.homeLandscapeSplitM3e>[slot="start"],.homeLandscapeSplitM3e>[slot="end"],.assignmentLandscapeSplit>[slot="start"],.assignmentLandscapeSplit>[slot="end"]{min-width:0!important;width:auto!important;overflow:hidden!important}
+.courseAppRow,.gradeAssignmentRow{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+.courseAppText,.courseAppText>b,.gradeAssignmentTitle{min-width:0!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.courseAppRow .courseAppText{flex:1 1 auto!important}
+
+/* One native five-pixel gap for every segmented list. Do not add a second
+   flex/grid gap around the M3E list host or its actions. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList,.gradeItemList{--m3e-segmented-list-segment-gap:5px!important;gap:initial!important;row-gap:5px!important}
+.courseAppList{display:flex!important;flex-direction:column!important;gap:initial!important;row-gap:5px!important;overflow:auto!important}
+
+/* Dashboard course images meet the info section squarely at the bottom. */
+.nativeDashboardCourse{overflow:hidden!important}
+.nativeDashboardCourseImage{border-radius:var(--m3e-shape-corner-large,16px) var(--m3e-shape-corner-large,16px) 0 0!important;overflow:hidden!important}
+.nativeDashboardCourseImage img{border-radius:inherit!important}
+.nativeDashboardCourseInfo{border-radius:0 0 var(--m3e-shape-corner-large,16px) var(--m3e-shape-corner-large,16px)!important}
+
+/* Grades: one outer accordion for grading periods; categories inside are
+   ordinary M3E expansion panels, matching the Android period/category layers. */
+.gradesAccordion{margin:16px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.gradePeriodOuter{margin:0 0 12px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:8px!important;padding:8px 0 0!important;margin:0!important;background:transparent!important;border:0!important}
+.gradeCategoryInner{margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
+.gradeCategoryInner .gradeItemList{margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.gradeCategoryInner m3e-list-action,.gradeCategoryInner m3e-list-item{border:0!important;outline:0!important;box-shadow:none!important}
+.gradeItemList m3e-list-action{min-width:0!important}
+
+/* Portrait course pages must be able to scroll beyond the first viewport. */
+@media (max-aspect-ratio:4/3){
+  .m3eShellMain>#content:has(.sectionProfilePage),.m3eShellMain>#content:has(.groupProfilePage){overflow:auto!important;height:auto!important;min-height:0!important;display:block!important}
+  .m3eShellMain>#content:has(.sectionProfilePage)>.sectionProfilePage,.m3eShellMain>#content:has(.groupProfilePage)>.groupProfilePage{height:auto!important;min-height:100%!important;overflow:visible!important}
+}
+
+/* Shared WebViews: the shell below the app bar is a flex viewport; the
+   WebView gets a zero basis so it must consume all remaining height. */
+.m3eShellMain>#content:has(.embeddedPage){position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0!important;flex-direction:column!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage{position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0!important;flex-direction:column!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview{position:relative!important;inset:auto!important;display:block!important;flex:1 1 0!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important}
+
+/* Remove leftover custom borders/padding from grade lists. M3E owns their
+   segmented surfaces; the page only controls the five-pixel segment gap. */
+.gradesContent .gradeItemList,.gradesContent .gradeItemList::part(base){border:0!important;outline:0!important;box-shadow:none!important}

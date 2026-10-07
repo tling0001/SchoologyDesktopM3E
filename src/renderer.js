@@ -141,14 +141,32 @@ async function showJoinGroupDialog(){
   wrap.querySelector('#joinGroupSubmit')?.addEventListener('click',async()=>{const code=wrap.querySelector('#joinGroupCode')?.value.trim();const st=wrap.querySelector('#joinGroupStatus');if(!code){st.textContent='Enter an access code.';return}try{st.textContent='Joining…';const x=await A.api({path:'groups/accesscode',method:'POST',json:true,params:{access_code:code}});const status=String(x?.status||x?.enrollment?.status||'').toLowerCase();st.textContent=status==='pending'?'Group request sent.':status==='active'?'You joined the group.':'Group request submitted.';setTimeout(()=>{close();loadCourseSubmenu()},500)}catch(e){st.textContent='Unable to join group: '+e.message}});
   requestAnimationFrame(()=>wrap.querySelector('#joinGroupCode')?.focus());
 }
+function wireFabMenu(plus,menu,openName="add",closeName="close"){
+  if(!plus||!menu)return;
+  const sync=()=>{
+    const open=plus.getAttribute("aria-expanded")==="true";
+    plus.querySelector("m3e-fab-menu-trigger")?.replaceChildren(Object.assign(document.createElement("m3e-icon"),{name:open?closeName:openName,variant:"outlined"}));
+  };
+  menu.addEventListener("toggle",sync);
+  const trigger=document.createElement("m3e-fab-menu-trigger");
+  trigger.setAttribute("for",menu.id);
+  plus.replaceChildren(trigger);
+  requestAnimationFrame(sync);
+}
+function createFabMenuFor(plusId,menuId,itemsHtml){
+  const plus=document.getElementById(plusId);if(!plus)return null;
+  document.getElementById(menuId)?.remove();
+  const menu=document.createElement("m3e-fab-menu");menu.id=menuId;menu.innerHTML=itemsHtml;
+  document.body.appendChild(menu);
+  wireFabMenu(plus,menu);
+  return menu;
+}
+
 function showHomeCreateMenu(){
-  const old=document.getElementById('homeCreateMenu');old?.remove();
   const plus=document.getElementById('homeCreatePlus');if(!plus)return;
-  const menu=document.createElement('m3e-fab-menu');menu.id='homeCreateMenu';
-  menu.innerHTML=`<m3e-fab-menu-item id="createHomeDiscussion"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Event</m3e-fab-menu-item>`;
-  document.body.appendChild(menu);requestAnimationFrame(()=>menu.show?.(plus));
-  document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('discussion','',null)});
-  document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('event','',null)});
+  const menu=createFabMenuFor('homeCreatePlus','homeCreateMenu',`<m3e-fab-menu-item id="createHomeDiscussion"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Event</m3e-fab-menu-item>`);if(!menu)return;
+  document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide();showCreatePostDialog('discussion','',null)});
+  document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide();showCreatePostDialog('event','',null)});
 }
 
 function showCreatePostDialog(kind,realm,realmId){
@@ -329,9 +347,19 @@ function bind(){
   document.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',async()=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      state.drawerPage=id;
-      render();
-      requestAnimationFrame(async()=>{const c=document.getElementById('appDrawerContainer');if(c)c.start=true;await loadCourseSubmenu();});
+      const wasOpen=b.hasAttribute('open');
+      state.drawerPage=wasOpen?null:id;
+      if(wasOpen){
+        setTimeout(()=>{
+          b.removeAttribute('open');
+          b.querySelectorAll(':scope > .drawerSubLoading,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
+        },0);
+      }else{
+        setTimeout(()=>{
+          b.setAttribute('open','');
+          loadCourseSubmenu();
+        },0);
+      }
       return;
     }
     closeDrawerThen(async()=>{
@@ -478,7 +506,7 @@ function syncToolbar(){
   }
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
-  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu);return;}
+  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"></m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu,{once:true});return;}
   if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
   if(state.eventView){
     slot.innerHTML=`<m3e-fab id="eventCommentPlus" variant="primary-container" aria-label="Post comment"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
@@ -495,14 +523,14 @@ function syncToolbar(){
   if(state.assignmentView&&state.assignmentLandscape&&!state.assignmentSubpage&&(state.assignmentTab==='info'||state.assignmentTab==='comments')){
     if(state.assignmentAllowComments||state.assignmentCanSubmit){
       slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Assignment actions" title="Assignment actions"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
-      document.getElementById('assignmentPlus')?.addEventListener('click',showAssignmentActionMenu);
+      document.getElementById('assignmentPlus')?.addEventListener('click',showAssignmentActionMenu,{once:true});
     }
   }else if(state.assignmentView&&state.assignmentTab==='comments'&&!state.assignmentSubpage){
     slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Post comment" title="Post comment"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
     document.getElementById('assignmentPlus')?.addEventListener('click',()=>openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0'));
   }else if(state.assignmentView&&state.assignmentCanSubmit&&state.assignmentTab==='submit'&&!state.assignmentIsTeacher&&!state.assignmentSubpage){
     slot.innerHTML='<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Submit assignment" title="Submit assignment">'+originalM3Icon('add')+'</m3e-fab>';
-    document.getElementById('assignmentPlus')?.addEventListener('click',()=>showSubmissionMenu());
+    document.getElementById('assignmentPlus')?.addEventListener('click',showSubmissionMenu,{once:true});
   }else if(state.assignmentView&&state.assignmentIsTeacher&&state.assignmentSubpage==='teacherSubmission'){
     slot.innerHTML=`<m3e-icon-button id="assignmentSaveGrade" aria-label="Save grade"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','Save')}</span></m3e-icon-button>`;
     document.getElementById('assignmentSaveGrade')?.addEventListener('click',()=>document.getElementById('saveTeacherGrade')?.click());
@@ -834,11 +862,8 @@ function openAssignmentCommentComposer(sectionId,assignmentId,parentId='0'){
 function showAssignmentActionMenu(){
   const old=document.getElementById('assignmentActionMenu');old?.remove();
   const plus=document.getElementById('assignmentPlus');if(!plus)return;
-  const menu=document.createElement('m3e-fab-menu');menu.id='assignmentActionMenu';menu.setAttribute('popover','auto');menu.setAttribute('right','');
   const canComment=!!state.assignmentAllowComments,canSubmit=!!state.assignmentCanSubmit;
-  menu.innerHTML=`${canSubmit?`<m3e-fab-menu-item id="assignmentUploadSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_ic_menu_folder.png','')}</span>Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="assignmentTextSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','')}</span>Create Text Submission</m3e-fab-menu-item>`:''}${canComment?`<m3e-fab-menu-item id="assignmentNewComment"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>Create Comment</m3e-fab-menu-item>`:''}`;
-  document.body.appendChild(menu);
-  requestAnimationFrame(()=>menu.show?.(plus));
+  const menu=createFabMenuFor('assignmentPlus','assignmentActionMenu',`${canSubmit?`<m3e-fab-menu-item id="assignmentUploadSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_ic_menu_folder.png','')}</span>Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="assignmentTextSubmission"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','')}</span>Create Text Submission</m3e-fab-menu-item>`:''}${canComment?`<m3e-fab-menu-item id="assignmentNewComment"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>Create Comment</m3e-fab-menu-item>`:''}`);if(!menu)return;
   document.getElementById('assignmentNewComment')?.addEventListener('click',()=>{menu.hide?.();openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0')});
   document.getElementById('assignmentUploadSubmission')?.addEventListener('click',()=>{menu.hide?.();showAssignmentAttachmentChooser()});
   document.getElementById('assignmentTextSubmission')?.addEventListener('click',()=>{menu.hide?.();openTextSubmissionComposer()});
@@ -893,9 +918,7 @@ async function openTeacherSubmission(sectionId,gradeItemId,assignment,userId,enr
 function showSubmissionMenu(){
   const old=document.getElementById('submissionMenu');old?.remove();
   const plus=document.getElementById('assignmentPlus');if(!plus)return;
-  const menu=document.createElement('m3e-fab-menu');menu.id='submissionMenu';menu.setAttribute('popover','auto');menu.setAttribute('right','');
-  menu.innerHTML=`<m3e-fab-menu-item id="uploadSubmissionAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_ic_menu_folder.png','')}</span>Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','')}</span>Create Text Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionCommentAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>Create Comment</m3e-fab-menu-item>`;
-  document.body.appendChild(menu);menu.show?.(plus);
+  const menu=createFabMenuFor('assignmentPlus','submissionMenu',`<m3e-fab-menu-item id="uploadSubmissionAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_ic_menu_folder.png','')}</span>Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','')}</span>Create Text Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionCommentAction"><span slot="icon" class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_comment.png','')}</span>Create Comment</m3e-fab-menu-item>`);if(!menu)return;
   document.getElementById('uploadSubmissionAction')?.addEventListener('click',()=>{menu.hide?.();showAssignmentAttachmentChooser()});
   document.getElementById('textSubmissionAction')?.addEventListener('click',()=>{menu.hide?.();openTextSubmissionComposer()});
   document.getElementById('textSubmissionCommentAction')?.addEventListener('click',()=>{menu.hide?.();openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0')});
@@ -1429,10 +1452,9 @@ function renderOverallGrade(sec){
  return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${comment}</div></div>`:''}</div>`;
 }
 function renderGradePeriods(rows,periods,categories){
- const ps=periods.grading_period||periods.gradePeriod||periods.period||periods.periods||[];
- const cats=categories.grading_category||categories.category||categories.categories||[];
- const catMap={};cats.forEach(c=>{catMap[String(c.id)]={title:c.title||c.name||'Category',weight:c.weight??c.percent??c.percentage??c.weight_percent??c.weightPercentage};});
+ const ps=periods?.grading_period||periods?.period||[];const cs=categories?.grading_category||categories?.category||[];
  const pmap={};ps.forEach(p=>pmap[String(p.id)]=p.title||p.name||'Grading Period');
+ const cmap={};cs.forEach(c=>cmap[String(c.id)]=c.title||c.name||'Category');
  const periodGroups={};
  rows.forEach(a=>{
   const pid=String(a.grading_period_id??a.grading_period??a.period_id??'0');
@@ -1443,14 +1465,12 @@ function renderGradePeriods(rows,periods,categories){
  const panels=[];
  Object.keys(periodGroups).forEach(pid=>{
   const pg=periodGroups[pid], periodTitle=pg.__title||'Grading Period';
+  const inner=[];
   Object.keys(pg).filter(k=>k!=='__title').forEach(cid=>{
-   const meta=catMap[cid]||{title:cid==='0'?'Ungraded':'Category',weight:null};const list=pg[cid];
-   panels.push(`<m3e-expansion-panel class="gradeCategory" open><span slot="header">${esc(periodTitle)} — ${esc(meta.title)}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{
-    const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;
-    const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');
-    return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span>${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`;
-   }).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
+   const list=pg[cid],meta=categories?.grading_category?.find?.(x=>String(x.id)===cid)||{};
+   inner.push(`<m3e-expansion-panel class="gradeCategoryInner"><span slot="header">${esc(meta.title||meta.name||cmap[cid]||'Category')}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span class="gradeAssignmentTitle">${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`}).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
   });
+  panels.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
  });
  if(!panels.length)return '<div class="empty"><h2>No grades</h2></div>';
  return `<m3e-accordion class="gradesAccordion" multi>${panels.join('')}</m3e-accordion>`;
