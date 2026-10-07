@@ -611,7 +611,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
  const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="75" min="55" max="85" step="1" label="Resize course apps and content">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="25" min="18" max="45" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('')}</m3e-tabs></div>
@@ -1367,7 +1367,7 @@ function renderUpcoming(events){
  const html=groups.map(g=>{
   const dateLabel=Number.isNaN(g.date.getTime())?'':g.date.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'});
   const rows=g.items.map(e=>`<m3e-list-action class="upcomingRow upcomingAssignment" data-course-upcoming-id="${esc(e.id||'')}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(upcomingIcon(e),'')}</span><span>${esc(e.title||e.name||'Upcoming')}</span><span slot="supporting-text">${esc(upcomingSupportingText(e))}</span></m3e-list-action>`).join('');
-  return `<div class="upcomingDateGroup"><m3e-action-list variant="segmented" class="upcomingSegmentedList"><m3e-list-action disabled class="upcomingDateHeader"><span>${esc(dateLabel)}</span><m3e-divider class="upcomingDateDivider"></m3e-divider></m3e-list-action>${rows}</m3e-action-list></div>`;
+  return `<div class="upcomingDateGroup"><m3e-action-list variant="segmented" class="upcomingSegmentedList"><m3e-list-item class="upcomingDateHeader"><span>${esc(dateLabel)}</span><m3e-divider class="upcomingDateDivider"></m3e-divider></m3e-list-item>${rows}</m3e-action-list></div>`;
  }).join('');
  return `<div class="upcomingList">${html}</div>`;
 }
@@ -1422,7 +1422,7 @@ function renderGradePeriods(rows,periods,categories){
   const pg=periodGroups[pid], periodTitle=pg.__title||'Grading Period';
   Object.keys(pg).filter(k=>k!=='__title').forEach(cid=>{
    const meta=catMap[cid]||{title:cid==='0'?'Ungraded':'Category',weight:null};const list=pg[cid];
-   panels.push(`<m3e-expansion-panel class="gradeCategory" open><span slot="header">${esc(periodTitle)} — ${esc(meta.title)}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="standard">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{
+   panels.push(`<m3e-expansion-panel class="gradeCategory" open><span slot="header">${esc(periodTitle)} — ${esc(meta.title)}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{
     const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;
     const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');
     return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span>${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`;
@@ -1949,7 +1949,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.130</div></section>`;
+      <div class="settingsVersion">Version: 2026.06.0-port.132</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});
@@ -2038,7 +2038,7 @@ async function loadHomeTab(){
         list.innerHTML=arr.map((course,i)=>{
           const title=courseTitleOf(course),section=sectionTitleOf(course),school=schoolNames[i]||'';
           const image=normalizeImageUrl(course.profile_url||course.profileUrl||course.course_profile_url||course.courseProfileUrl||course.course_theme||course.courseTheme||course.image||course.course_image||'');
-          return `<m3e-card actionable variant="elevated" class="nativeDashboardCourse" data-dashboard-course="${i}">${image?`<img slot="header" data-course-image-url="${esc(image)}" alt="" style="display:none;width:100%;height:130px;object-fit:cover;">`:`<div slot="header" class="nativeDashboardCourseImage dashboardCourseFallback">${esc(title.charAt(0)||'C')}</div>`}<div slot="content" class="nativeDashboardCourseInfo"><b>${esc(title)}</b>${section?`<span class="nativeDashboardCoursePeriod">${esc(section)}</span>`:''}${school?`<small>${esc(school)}</small>`:''}</div></m3e-card>`;
+          return `<m3e-card actionable variant="filled" class="nativeDashboardCourse" data-dashboard-course="${i}">${image?`<img slot="header" data-course-image-url="${esc(image)}" alt="" style="display:none;width:100%;height:130px;object-fit:cover;">`:`<div slot="header" class="nativeDashboardCourseImage dashboardCourseFallback">${esc(title.charAt(0)||'C')}</div>`}<div slot="content" class="nativeDashboardCourseInfo"><b>${esc(title)}</b>${section?`<span class="nativeDashboardCoursePeriod">${esc(section)}</span>`:''}${school?`<small>${esc(school)}</small>`:''}</div></m3e-card>`;
         }).join('');
         await hydrateCourseImages(list);
         list.querySelectorAll('[data-dashboard-course]').forEach(b=>b.onclick=()=>showCourse(arr[+b.dataset.dashboardCourse],'materials'));

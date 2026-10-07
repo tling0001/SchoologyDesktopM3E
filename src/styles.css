@@ -2380,3 +2380,88 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
   .courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;overflow:visible!important;flex:0 0 auto!important}
   .courseMainPane .courseAppList{width:100%!important;margin:0!important;padding:0 16px 16px!important;box-sizing:border-box!important}
 }
+
+
+/* v132: use M3E's actual segmented-list model. The host is transparent; the
+   five-pixel row gap therefore reveals the page surface instead of painting a
+   second sharp-cornered container behind every list. */
+.messageList,.materialList,.groupSegmentedList,.calendarEventList,.upcomingSegmentedList,.settingsList,.courseAppList,.notificationList,.gradeItemList{
+  --m3e-segmented-list-segment-gap:5px!important;
+  --m3e-segmented-list-item-container-color:var(--md-sys-color-surface-container)!important;
+  --m3e-segmented-list-item-disabled-container-color:var(--md-sys-color-surface-container)!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.messageList m3e-list-action,.messageList m3e-list-item,
+.materialList m3e-list-action,.materialList m3e-list-item,
+.groupSegmentedList m3e-list-action,.groupSegmentedList m3e-list-item,
+.calendarEventList m3e-list-action,.calendarEventList m3e-list-item,
+.upcomingSegmentedList m3e-list-action,.upcomingSegmentedList m3e-list-item,
+.settingsList m3e-list-action,.settingsList m3e-list-item,
+.courseAppList m3e-list-action,.courseAppList m3e-list-item,
+.notificationList m3e-list-action,.notificationList m3e-list-item,
+.gradeItemList m3e-list-action,.gradeItemList m3e-list-item{
+  --m3e-list-item-container-color:var(--md-sys-color-surface-container)!important;
+  --m3e-list-item-disabled-container-color:var(--md-sys-color-surface-container)!important;
+  margin:0!important;
+}
+
+/* The date is deliberately a non-actionable list item, but remains inside the
+   same segmented action-list as that date's assignments/events. */
+.upcomingDateHeader{cursor:default!important;font-weight:500!important;pointer-events:none!important}
+.upcomingDateHeader .upcomingDateDivider{display:block!important;width:100%!important;margin:8px 0 0!important;--m3e-divider-color:var(--md-sys-color-outline-variant)!important}
+
+/* Let M3E own Course Apps completely; no second flex gap/border system. */
+.courseAppList{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:auto!important;padding:0!important}
+.courseAppList m3e-list-action{border:0!important;box-shadow:none!important}
+
+/* Native page viewport: the shell content is a flex child of the M3E drawer
+   container. This is the common fix for settings/native scrolling and embedded
+   WebViews stopping above the bottom edge. */
+.m3eShellMain>#content:not(:has(.embeddedPage)):not(:has(.dashboardHybrid)){
+  position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
+  display:flex!important;flex-direction:column!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage),.m3eShellMain>#content:has(.dashboardHybrid){
+  position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid{
+  position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid>webview{
+  position:relative!important;inset:auto!important;display:block!important;flex:1 1 0!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;border:0!important;
+}
+.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage,.nativeCourseDashboard{
+  flex:1 1 0!important;height:0!important;min-height:0!important;width:100%!important;box-sizing:border-box!important;
+}
+.settingsPage{overflow:auto!important;padding-bottom:32px!important}
+.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage{overflow:auto!important}
+
+/* Split-pane track: M3E exposes the thumb through CSS variables, but not the
+   surrounding drag-handle container as a part. Making the host blue lets the
+   transparent M3E 24px drag-handle container reveal exactly the app-bar/tab
+   color, while the actual 4px thumb keeps its contrasting outline color. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  background:var(--md-sys-color-primary)!important;
+  --m3e-split-pane-drag-handle-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-hover-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-focus-color:var(--md-sys-color-outline)!important;
+  --m3e-split-pane-drag-handle-pressed-color:var(--md-sys-color-on-surface)!important;
+}
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.calendarMainSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{display:none!important}
+
+/* Course dashboard: no large enclosing card/container. The individual M3E
+   filled cards sit directly on the page surface; only their text area gets the
+   requested blue-tinted Material surface. The grid itself owns scrolling so
+   its scrollbar reaches the split/page edge. */
+.nativeCourseDashboard{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important;background:var(--md-sys-color-background)!important;padding:0!important;margin:0!important}
+.nativeDashboardCourses{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important;gap:12px!important;align-items:start!important;flex:1 1 0!important;min-height:0!important;overflow:auto!important;margin:0!important;padding:16px!important;border:0!important;border-radius:0!important;background:var(--md-sys-color-background)!important;box-sizing:border-box!important}
+.nativeDashboardCourse{--m3e-filled-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-filled-card-container-elevation:none!important;border:0!important;outline:0!important;box-shadow:none!important;background:var(--md-sys-color-surface-container)!important;border-radius:var(--md-sys-shape-corner-large,16px)!important;overflow:hidden!important}
+.nativeDashboardCourse .nativeDashboardCourseInfo{background:var(--md-sys-color-primary-container)!important;border:0!important;box-shadow:none!important;padding:14px 16px 16px!important}
+.nativeDashboardCourse .nativeDashboardCourseInfo b{color:var(--md-sys-color-on-primary-container)!important}
+.nativeDashboardCourse .nativeDashboardCourseInfo small,.nativeDashboardCourse .nativeDashboardCoursePeriod{color:var(--md-sys-color-on-primary-container)!important;opacity:.82}
+
+/* Grade item lists use the same segmented treatment as Materials/Messages/etc. */
+.gradeItemList{width:100%!important;margin:0!important;padding:0!important}
+.gradeItemList m3e-list-action{cursor:pointer!important}
