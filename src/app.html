@@ -7,9 +7,14 @@
 <title>Schoology</title>
 <link rel="stylesheet" href="styles.css">
 <script>window.m3eReady = new Promise((resolve, reject) => { window.__resolveM3eReady = resolve; window.__rejectM3eReady = reject; });</script>
-<script type="module">
-import('./m3e-bootstrap.js').catch(error => window.__rejectM3eReady?.(error));
+<script type="importmap">
+{
+  "imports": {
+    "@m3e/web/icon": "../node_modules/@m3e/web/dist/all.js"
+  }
+}
 </script>
+<script type="module" src="m3e-bootstrap.js"></script>
 </head>
 <body>
 <div id="app"></div>
