@@ -9,7 +9,16 @@ let qrStream=null;
 let qrBusy=false;
 let qrLastAttempt=0;
 let loadTabGeneration=0;
-let state={screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null};
+const THEME_STORAGE_KEY='schoology-m3e-theme-settings';
+const DEFAULT_THEME_SETTINGS={color:'#2e66a3',variant:'fidelity',scheme:'auto',contrast:'standard',motion:'expressive'};
+function getThemeSettings(){try{const v=JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)||'null');return {...DEFAULT_THEME_SETTINGS,...(v&&typeof v==='object'?v:{})}}catch{return {...DEFAULT_THEME_SETTINGS}}}
+function saveThemeSettings(v){const next={...DEFAULT_THEME_SETTINGS,...v};try{localStorage.setItem(THEME_STORAGE_KEY,JSON.stringify(next))}catch{}return next}
+function effectiveThemeIsDark(){const t=getThemeSettings();return t.scheme==='dark'||(t.scheme==='auto'&&window.matchMedia?.('(prefers-color-scheme: dark)').matches)}
+function themeLogoSrc(){return effectiveThemeIsDark()?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg'}
+function applyThemeToDocument(){const t=getThemeSettings();document.documentElement.style.colorScheme=t.scheme==='auto'?'light dark':t.scheme;document.querySelectorAll('m3e-theme').forEach(el=>{el.color=t.color;el.variant=t.variant;el.scheme=t.scheme;el.contrast=t.contrast;el.motion=t.motion});document.querySelectorAll('.m3eLoginLogo,.m3eButtonLogo,.androidSplashLogo').forEach(img=>{img.src=themeLogoSrc()})}
+if(!window.__schoologyThemeMediaBound){window.__schoologyThemeMediaBound=true;window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(getThemeSettings().scheme==='auto')applyThemeToDocument()})}
+
+let state={screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',settingsPage:null,homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null};
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function syncM3eTabSelection(container, attr, value){
   const root=typeof container==='string'?document.querySelector(container):container;
@@ -76,18 +85,16 @@ function officialOrAssetIcon(name,alt=''){const embedded=officialIcon(name,alt);
 const originalM3IconMap={school:'ic_school.svg',qr_code_scanner:'ic_qr_code.svg',arrow_back:'ic_arrow_back_white_24dp.svg',search:'ic_search_list.svg',chevron_right:'ic_chevron.svg',menu:'ic_menu.svg',menu_open:'ic_menu.svg',add:'ic_add_white_24dp.svg',notifications:'ic_menu_notifications.svg',mail:'ic_menu_messages.svg',request_quote:'ic_menu_requests.svg',home:'ic_menu_home.svg',book:'ic_menu_courses.svg',groups:'ic_menu_groups.svg',folder:'ic_menu_resources.svg',assignment:'ic_menu_grades.svg',calendar_month:'ic_menu_calender.svg',settings:'ic_menu_account_settings.svg',logout:'ic_menu_logout.svg',refresh:'ic_action_refresh.png'};
 function originalM3Icon(name,alt=''){return officialOrAssetIcon(originalM3IconMap[name]||name,alt)}
 
-function render(){let h=state.message?messageDetail():state.screen==='login'?login():state.screen==='search'?schoolSearchScreen():state.screen==='credentials'?credentials():state.screen==='externalSelect'?externalSelect():state.screen==='qr'?qr():shell();app.innerHTML=h;bind();syncWindowChrome();return h}
+function render(){let h=state.message?messageDetail():state.screen==='login'?login():state.screen==='search'?schoolSearchScreen():state.screen==='credentials'?credentials():state.screen==='externalSelect'?externalSelect():state.screen==='qr'?qr():shell();app.innerHTML=h;bind();applyThemeToDocument();syncWindowChrome();return h}
 function syncWindowChrome(){if(A.platform!=='win32'&&A.platform!=='linux')return;let color='#002137';if(state.screen!=='app'){color='#002137'}else if(document.getElementById('appDrawerContainer')?.start)color='#002137';A.setWindowChrome?.({color,symbolColor:'#ffffff',height:56}).catch?.(()=>{})}
-function m3eTheme(content,extraClass=''){
-  return `<m3e-theme class="m3eRoot ${extraClass}" color="#2e66a3" variant="fidelity" scheme="light" contrast="standard" motion="expressive" strong-focus>${content}</m3e-theme>`;
-}
-function login(){return m3eTheme(`<main class="m3eLogin loginAnimated"><img class="m3eLoginLogo" src="../assets/logo_schoology.png" alt="Schoology"><div class="m3eLoginActions">
+function m3eTheme(content,extraClass=''){const t=getThemeSettings();return `<m3e-theme class="m3eRoot ${extraClass}" color="${esc(t.color)}" variant="${esc(t.variant)}" scheme="${esc(t.scheme)}" contrast="${esc(t.contrast)}" motion="${esc(t.motion)}" strong-focus>${content}</m3e-theme>`;}
+function login(){return m3eTheme(`<main class="m3eLogin loginAnimated"><img class="m3eLoginLogo" src="${themeLogoSrc()}" alt="Schoology"><div class="m3eLoginActions">
   <m3e-button id="schoolLogin" variant="filled" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("school")}</span>Log in through your School</m3e-button>
-  <m3e-button id="continueSchoology" variant="tonal" size="large" class="m3eLoginButton"><img src="../assets/logo_schoology.png" class="m3eButtonLogo" slot="icon" alt="">Log in using schoology.com</m3e-button>
+  <m3e-button id="continueSchoology" variant="tonal" size="large" class="m3eLoginButton"><img src="${themeLogoSrc()}" class="m3eButtonLogo" slot="icon" alt="">Log in using schoology.com</m3e-button>
   <m3e-button id="qrLogin" variant="outlined" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button>
 </div><m3e-button class="m3eLoginHelp" variant="text" size="medium">I need help signing in</m3e-button>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eLoginScreen');}
-function schoolSearchScreen(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">School</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="../assets/logo_schoology.png" alt="Schoology"><div class="m3eSearchArea"><m3e-search-view id="schoolSearchView" mode="docked" contained open clear-label="Clear school search" close-label="Close school search"><span class="m3eOriginalIcon">${originalM3Icon("search")}</span><input id="schoolSearch" slot="input" autocomplete="off" placeholder="Enter your School or domain" value="${esc(state.q)}"><m3e-list variant="segmented" id="schoolSuggestions"></m3e-list></m3e-search-view><div id="schoolSearchStatus" class="m3eSearchStatus"></div></div>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eSearchScreen');}
-function credentials(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">Log in using schoology.com</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="../assets/logo_schoology.png" alt="Schoology"><form id="credentialForm" class="m3eCredentialForm"><div class="m3eCredentialSchool">${state.school?`<span class="m3eOriginalIcon">${originalM3Icon("school")}</span><span>${esc(state.school.title||'School')}</span>`:'<m3e-heading variant="title" size="medium">Log in using schoology.com</m3e-heading>'}</div><m3e-form-field variant="outlined"><label slot="label" for="user">Username or Email</label><input id="user" autocomplete="username"></m3e-form-field><m3e-form-field variant="outlined"><label slot="label" for="pass">Password</label><input id="pass" type="password" autocomplete="current-password"></m3e-form-field><m3e-button id="signIn" type="submit" variant="filled" size="large">Login</m3e-button><m3e-button id="qrLogin" type="button" variant="outlined" size="medium"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button></form>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eCredentialsScreen');}
+function schoolSearchScreen(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">School</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><div class="m3eSearchArea"><m3e-search-view id="schoolSearchView" mode="docked" contained open clear-label="Clear school search" close-label="Close school search"><span class="m3eOriginalIcon">${originalM3Icon("search")}</span><input id="schoolSearch" slot="input" autocomplete="off" placeholder="Enter your School or domain" value="${esc(state.q)}"><m3e-list variant="segmented" id="schoolSuggestions"></m3e-list></m3e-search-view><div id="schoolSearchStatus" class="m3eSearchStatus"></div></div>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eSearchScreen');}
+function credentials(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">Log in using schoology.com</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><form id="credentialForm" class="m3eCredentialForm"><div class="m3eCredentialSchool">${state.school?`<span class="m3eOriginalIcon">${originalM3Icon("school")}</span><span>${esc(state.school.title||'School')}</span>`:'<m3e-heading variant="title" size="medium">Log in using schoology.com</m3e-heading>'}</div><m3e-form-field variant="outlined"><label slot="label" for="user">Username or Email</label><input id="user" autocomplete="username"></m3e-form-field><m3e-form-field variant="outlined"><label slot="label" for="pass">Password</label><input id="pass" type="password" autocomplete="current-password"></m3e-form-field><m3e-button id="signIn" type="submit" variant="filled" size="large">Login</m3e-button><m3e-button id="qrLogin" type="button" variant="outlined" size="medium"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button></form>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eCredentialsScreen');}
 function externalSelect(){
   const name=state.school?.title||'School';
   return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">${esc(name)}</span></m3e-app-bar><div class="m3eExternalActions"><m3e-button id="browserLogin" variant="filled" size="large">Log in through your browser</m3e-button><m3e-button id="nativeLogin" variant="outlined" size="large">Log in with a username and password</m3e-button></div>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eExternalScreen');
@@ -104,10 +111,10 @@ function shell(){
   ['home','Home'],['courses','Courses'],['groups','Groups'],['resources','Resources'],['grades','Grades'],['calendar','Calendar'],
   ['settings','Settings'],['logout','Logout']
  ];
- const nested=(id,label,icon)=>{const open=state.drawerPage===id;return `<m3e-nav-menu-item id="drawer-${id}" data-drawer="${id}" ${open?'open':''}><span slot="icon" class="drawerSchoologyIcon">${originalM3Icon(icon)}</span><span slot="label">${label}</span>${open?`<m3e-nav-menu-item class="drawerSubLoading" disabled><span slot="label">Loading…</span></m3e-nav-menu-item>`:''}</m3e-nav-menu-item>`};
+ const nested=(id,label,icon)=>`<m3e-nav-menu-item id="drawer-${id}" data-drawer="${id}"><span slot="icon" class="drawerSchoologyIcon">${originalM3Icon(icon)}</span><span slot="label">${label}</span><m3e-nav-menu-item class="drawerSubLoading" disabled><span slot="label">Loading…</span></m3e-nav-menu-item></m3e-nav-menu-item>`;
  const drawerList=drawerItems.map(([id,label],i)=>`${i===3?'<m3e-divider></m3e-divider>':''}${i===9?'<m3e-divider></m3e-divider>':''}${drawerItemMarkup(id,label)}`).join('');
- const leading=state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu"><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">${originalM3Icon("menu")}</span></m3e-icon-button>`;
- return `<m3e-theme class="m3eRoot m3eShellTheme" color="#2e66a3" variant="fidelity" scheme="light" contrast="standard" motion="expressive" strong-focus><div class="shell m3eShell"><m3e-drawer-container id="appDrawerContainer" start-mode="over" class="m3eAppDrawerContainer m3eSchoologyDrawer"><nav slot="start" id="startDrawer" aria-label="Navigation" class="m3eDrawer"><m3e-nav-menu class="m3eDrawerNav"><m3e-nav-menu-item id="drawerProfile" data-drawer="profile"><img slot="icon" class="drawerProfileImage" data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt="Profile"><span slot="label">${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</span></m3e-nav-menu-item><m3e-divider></m3e-divider>${drawerItems.map(([id,label])=>id==='courses'?nested('courses','Courses','book'):id==='groups'?nested('groups','Groups','groups'):id==='grades'?nested('grades','Grades','assignment'):drawerItemMarkup(id,label)).join('')}</m3e-nav-menu></nav><main class="m3eShellMain"><m3e-app-bar id="mainAppBar" class="m3eMainAppBar">${leading}<span slot="title" class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span></m3e-app-bar><main id="content"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></main><div id="floatingActionSlot" class="floatingActionSlot"></div></main></m3e-drawer-container></div></m3e-theme>`;
+ const leading=state.settingsPage==='theme'?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:state.assignmentView||state.embeddedTitle?`<m3e-icon-button id="toolbarBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button>`:`<m3e-icon-button id="menuButton" slot="leading" aria-label="Navigation menu"><m3e-drawer-toggle for="startDrawer"></m3e-drawer-toggle><span class="m3eOriginalIcon">${originalM3Icon("menu")}</span></m3e-icon-button>`;
+ const t=getThemeSettings();return `<m3e-theme class="m3eRoot m3eShellTheme" color="${esc(t.color)}" variant="${esc(t.variant)}" scheme="${esc(t.scheme)}" contrast="${esc(t.contrast)}" motion="${esc(t.motion)}" strong-focus"><div class="shell m3eShell"><m3e-drawer-container id="appDrawerContainer" start-mode="over" class="m3eAppDrawerContainer m3eSchoologyDrawer"><nav slot="start" id="startDrawer" aria-label="Navigation" class="m3eDrawer"><m3e-nav-menu class="m3eDrawerNav"><m3e-nav-menu-item id="drawerProfile" data-drawer="profile"><img slot="icon" class="drawerProfileImage" data-profile-drawer-image="1" src="../assets/icons/profile_default_website.png" alt="Profile"><span slot="label">${esc(state.auth?.user?.name_display||state.auth?.user?.name||'Profile')}</span></m3e-nav-menu-item><m3e-divider></m3e-divider>${drawerItems.map(([id,label])=>id==='courses'?nested('courses','Courses','book'):id==='groups'?nested('groups','Groups','groups'):id==='grades'?nested('grades','Grades','assignment'):drawerItemMarkup(id,label)).join('')}</m3e-nav-menu></nav><main class="m3eShellMain"><m3e-app-bar id="mainAppBar" class="m3eMainAppBar">${leading}<span slot="title" class="toolbarTitle">${esc(state.toolbarTitle||'Home')}</span></m3e-app-bar><main id="content"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></main><div id="floatingActionSlot" class="floatingActionSlot"></div></main></m3e-drawer-container></div></m3e-theme>`;
 }
 function setDownloadButtonState(button,active,label='Downloading…'){
   if(!button)return;
@@ -361,7 +368,7 @@ function bind(){
     b.addEventListener('click',async()=>{
     closeDrawerThen(async()=>{
       if(id==='logout'){await A.logout();state.auth=null;state.school=null;state.tab='home';state.screen='login';render();return}
-      if(id==='settings'){state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.currentGroup=null;state.profileUser=null;state.embeddedTitle=null;state.tab='settings';state.toolbarTitle='Settings';state.screen='app';render();loadTab();return}
+      if(id==='settings'){state.settingsPage=null;state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.currentGroup=null;state.profileUser=null;state.embeddedTitle=null;state.tab='settings';state.toolbarTitle='Settings';state.screen='app';render();loadTab();return}
       if(['home','calendar','grades','messages','notifications','requests','resources','profile','groups'].includes(id)){state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.currentGroup=null;state.profileUser=null;state.embeddedTitle=null;state.tab=id;state.toolbarTitle=id.charAt(0).toUpperCase()+id.slice(1);state.screen='app';render();loadTab()}
     });
     });
@@ -552,6 +559,7 @@ function syncToolbar(){
 }
 
 function navigateBack(){
+  if(state.settingsPage==='theme'){state.settingsPage=null;state.toolbarTitle='Settings';render();loadTab();return;}
   const commentDialog=document.getElementById('assignmentCommentDialog');
   if(commentDialog){commentDialog.remove();state.assignmentSubpage=null;syncToolbar();return}
   document.getElementById('assignmentActionMenu')?.remove();
@@ -1481,16 +1489,19 @@ function getFinalGradeObject(sec){
    ||arr[0]||{};
 }
 function findStringGradeOverride(sec){
+ const raw=sec?.final_grade??sec?.finalGrade??sec?.final_grades??sec?.finalGrades??sec?.final??null;
+ const arr=Array.isArray(raw)?raw:(raw&&typeof raw==='object'?[raw]:[]);
+ const final=arr.find(x=>String(x?.period_id??x?.periodId??'').toLowerCase()==='final')||arr[0];
+ const direct=final?.override_str??final?.overrideStr??final?.overrideStringGrade??final?.overrideString??final?.grade_override??final?.gradeOverride;
+ if(typeof direct==='string'&&direct.trim())return direct.trim();
  const seen=new Set();
  const walk=(v,depth=0)=>{
-   if(v==null||depth>5||typeof v!=='object')return '';
+   if(v==null||depth>6||typeof v!=='object')return '';
    if(seen.has(v))return ''; seen.add(v);
    if(Array.isArray(v)){for(const x of v){const hit=walk(x,depth+1);if(hit)return hit}return '';}
-   const direct=v.override_str??v.overrideStr??v.overrideStringGrade??v.overrideString??v.grade_override??v.gradeOverride;
-   if(typeof direct==='string'&&direct.trim())return direct.trim();
-   for(const k of ['final_grade','finalGrade','final_grades','finalGrades','period','periods','section','sections','grades','grade','override_grades','overrideGrades']){
-     const hit=walk(v[k],depth+1);if(hit)return hit;
-   }
+   const d=v.override_str??v.overrideStr??v.overrideStringGrade??v.overrideString??v.grade_override??v.gradeOverride;
+   if(typeof d==='string'&&d.trim())return d.trim();
+   for(const k of ['final_grade','finalGrade','final_grades','finalGrades','override_grade','overrideGrade','override_grades','overrideGrades']){const hit=walk(v[k],depth+1);if(hit)return hit}
    return '';
  };
  return walk(sec);
@@ -2046,7 +2057,32 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
     c.innerHTML=`<section class="peopleAndroidPage"><div class="peopleList">${rows||'<div class="empty">No people found.</div>'}</div></section>`;
     document.querySelectorAll('[data-person-index]').forEach(b=>b.onclick=()=>{const u=window.__schoologyPeople[+b.dataset.personIndex];state.profileUser=u;state.tab='profile';state.profileTab='updates';state.toolbarTitle='Profile';render();loadTab()});
   }else if(state.tab==='settings'){
-    c.innerHTML=`<section class="settingsPage">
+    if(state.settingsPage==='theme'){
+      const t=getThemeSettings();
+      c.innerHTML=`<section class="themeSettingsPage"><div class="themeSettingsScroll">
+        <m3e-heading variant="label" size="large">Color</m3e-heading><input id="themeColor" type="color" aria-label="Color" value="${esc(t.color)}">
+        <m3e-heading variant="label" size="large">Color variant</m3e-heading><m3e-filter-chip-set id="themeVariant" aria-label="Color variant">
+          ${['tonal-spot','vibrant','fidelity','expressive','monochrome','neutral','rainbow','fruit-salad'].map(v=>`<m3e-filter-chip value="${v}" ${t.variant===v?'selected':''}>${v.split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')}</m3e-filter-chip>`).join('')}
+        </m3e-filter-chip-set>
+        <m3e-heading variant="label" size="large">Color scheme</m3e-heading><m3e-segmented-button id="themeScheme" aria-label="Color scheme">
+          <m3e-button-segment value="light" ${t.scheme==='light'?'checked':''}><m3e-icon slot="icon" name="light_mode"></m3e-icon>Light</m3e-button-segment>
+          <m3e-button-segment value="auto" ${t.scheme==='auto'?'checked':''}><m3e-icon slot="icon" name="settings_brightness"></m3e-icon>System</m3e-button-segment>
+          <m3e-button-segment value="dark" ${t.scheme==='dark'?'checked':''}><m3e-icon slot="icon" name="dark_mode"></m3e-icon>Dark</m3e-button-segment>
+        </m3e-segmented-button>
+        <m3e-heading variant="label" size="large">Contrast</m3e-heading><m3e-segmented-button id="themeContrast" aria-label="Contrast">
+          <m3e-button-segment value="standard" ${t.contrast==='standard'?'checked':''}>Default</m3e-button-segment><m3e-button-segment value="medium" ${t.contrast==='medium'?'checked':''}>Medium</m3e-button-segment><m3e-button-segment value="high" ${t.contrast==='high'?'checked':''}>High</m3e-button-segment>
+        </m3e-segmented-button>
+        <m3e-heading variant="label" size="large">Motion</m3e-heading><m3e-segmented-button id="themeMotion" aria-label="Motion">
+          <m3e-button-segment value="standard" ${t.motion==='standard'?'checked':''}>Standard</m3e-button-segment><m3e-button-segment value="expressive" ${t.motion==='expressive'?'checked':''}>Expressive</m3e-button-segment>
+        </m3e-segmented-button>
+      </div></section>`;
+      const updateTheme=patch=>{saveThemeSettings(patch);applyThemeToDocument()};
+      document.getElementById('themeColor')?.addEventListener('input',e=>updateTheme({color:e.target.value}));
+      document.querySelectorAll('#themeVariant m3e-filter-chip').forEach(chip=>chip.addEventListener('change',()=>updateTheme({variant:chip.getAttribute('value')||''})));
+      document.querySelectorAll('#themeScheme m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({scheme:seg.getAttribute('value')||''})));
+      document.querySelectorAll('#themeContrast m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({contrast:seg.getAttribute('value')||''})));
+      document.querySelectorAll('#themeMotion m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({motion:seg.getAttribute('value')||''})));
+    }else c.innerHTML=`<section class="settingsPage">
       <div class="settingsSection">
         <h2>Notification Settings</h2>
         <m3e-list variant="segmented" class="settingsList">
@@ -2058,14 +2094,16 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
       </div>
       <div class="settingsSection"><h2>Account Settings</h2><m3e-list variant="segmented" class="settingsList"><m3e-list-action id="accountInfo">Account Info<span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action></m3e-list></div>
       <div class="settingsSection"><h2>Schoology Desktop</h2><m3e-list variant="segmented" class="settingsList">
+        <m3e-list-action id="themeSettings">Theme<span slot="supporting-text">Color, light/dark mode, contrast, and motion</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="checkForUpdates">Check for Updates<span slot="supporting-text">Check for a newer Schoology Desktop M3E release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="trySchoologyClassic">Try Schoology Classic<span slot="supporting-text">Download the latest original Schoology Desktop release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.132</div></section>`;
+      <div class="settingsVersion">Version: 2026.06.0-port.138</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
+    document.getElementById('themeSettings')?.addEventListener('click',()=>{state.settingsPage='theme';state.toolbarTitle='Theme';render();loadTab()});
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});
     document.getElementById('checkForUpdates')?.addEventListener('click',async()=>{const b=document.getElementById('checkForUpdates');if(b)b.disabled=true;try{const u=await A.checkForUpdates(true);if(u?.available)showUpdateDialog(u);else showAppDialog('Up to date','You are using the latest available Schoology Desktop M3E release.')}catch(e){showAppDialog('Unable to check for updates',e.message||String(e))}finally{if(b)b.disabled=false}});
     async function downloadAlternateRelease(buttonId,apiMethod,title,progressId,errorTitle){const b=document.getElementById(buttonId);if(b)b.disabled=true;try{const u=await apiMethod();const dlg=showAppDialog(title,`Downloading ${u.version?`v${esc(u.version)}`:'the latest release'}…`,[{label:'Cancel',action:()=>A.cancelUpdateDownload?.()}]);const msg=dlg?.querySelector('.appDialogMessage');if(msg)msg.innerHTML=`<div class="updateDownloadProgressWrap"><m3e-linear-progress-indicator id="${progressId}Bar" mode="determinate" value="0" max="100"></m3e-linear-progress-indicator><div id="${progressId}Text" class="updateDownloadProgressText">Downloading…</div></div>`;const off=A.onUpdateDownloadProgress?.(d=>{const bar=document.getElementById(`${progressId}Bar`),txt=document.getElementById(`${progressId}Text`);if(bar&&d?.percent!=null)bar.value=Math.max(0,Math.min(100,Number(d.percent)||0));if(txt)txt.textContent=d?.percent!=null?`Downloading… ${d.percent}%`:'Downloading…'});try{await A.installUpdate(u);off?.()}catch(e){off?.();if(dlg)dlg.open=false;showAppDialog(errorTitle,e.message||String(e))}}catch(e){showAppDialog(errorTitle,e.message||String(e))}finally{if(b)b.disabled=false}}
@@ -2228,7 +2266,7 @@ installCourseLayoutWatcher();
 function showStartupOfflineError(){
   const splash=document.getElementById('startupSplash');
   if(!splash)return;
-  splash.innerHTML=`<img class="androidSplashLogo" src="../assets/android_loading_logo.png" alt="Schoology"><div class="startupOfflineError"><b>Unable to connect to Schoology</b><span>Check your internet connection and try again.</span><button id="startupRetry">Retry</button></div>`;
+  splash.innerHTML=`<img class="androidSplashLogo" src="${themeLogoSrc()}" alt="Schoology"><div class="startupOfflineError"><b>Unable to connect to Schoology</b><span>Check your internet connection and try again.</span><button id="startupRetry">Retry</button></div>`;
   splash.querySelector('#startupRetry')?.addEventListener('click',()=>startSchoologyStartup(true));
 }
 async function startSchoologyStartup(retry=false){
@@ -2239,15 +2277,15 @@ async function startSchoologyStartup(retry=false){
     if(saved?.oauth_token&&saved?.oauth_token_secret){
       state.auth=saved;
       await afterLogin();
-      window.schoologyAppReady?.();
+      requestAnimationFrame(()=>requestAnimationFrame(()=>window.schoologyAppReady?.()));
       return;
     }
     render();
-    window.schoologyAppReady?.();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.schoologyAppReady?.()));
   }catch(e){
     console.warn('Schoology startup failed:',e);
     if(retry||e?.message){showStartupOfflineError();return;}
-    render();window.schoologyAppReady?.();
+    render();requestAnimationFrame(()=>requestAnimationFrame(()=>window.schoologyAppReady?.()));
   }
 }
 startSchoologyStartup();

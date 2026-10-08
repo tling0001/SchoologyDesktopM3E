@@ -1,4 +1,11 @@
 (function(){
+  const themeKey='schoology-m3e-theme-settings';
+  const defaults={color:'#2e66a3',variant:'fidelity',scheme:'auto',contrast:'standard',motion:'expressive'};
+  let theme=defaults;try{theme={...defaults,...JSON.parse(localStorage.getItem(themeKey)||'{}')}}catch{}
+  const themeEl=document.querySelector('.splashM3eTheme');
+  if(themeEl){for(const [k,v] of Object.entries(theme))themeEl.setAttribute(k==='scheme'?'scheme':k,v);}
+  const dark=theme.scheme==='dark'||(theme.scheme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const logo=document.querySelector('.androidSplashLogo');if(logo)logo.src=dark?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg';
   const app=document.getElementById('app');
   const splash=document.getElementById('startupSplash');
   document.body.classList.add('splashVisible');

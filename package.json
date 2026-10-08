@@ -1,6 +1,6 @@
 {
   "name": "schoology-desktop-port",
-  "version": "2026.06.0-port.137",
+  "version": "2026.06.0-port.138",
   "description": "Schoology desktop port aligned with the supplied Schoology Android 2026.06.0 source",
   "main": "src/main.js",
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "jsqr": "^1.4.0",
-    "@m3e/web": "file:vendor/m3e/web-2.9.1.tgz",
+    "@m3e/web": "file:vendor/m3e/web-2.9.2.tgz",
     "@m3e/icons": "file:vendor/m3e/icons-1.0.18.tgz",
     "@floating-ui/dom": "file:vendor/m3e/dom-1.8.0.tgz",
     "@floating-ui/core": "file:vendor/m3e/core-1.8.0.tgz",

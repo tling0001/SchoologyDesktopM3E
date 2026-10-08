@@ -2875,3 +2875,108 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 .m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid>webview{
   position:relative!important;inset:auto!important;display:block!important;flex:1 1 0!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important
 }
+
+/* v138: final split-pane geometry. The track is a square-edged 24px Schoology-blue
+   strip; M3E's shadow-DOM .handle remains the only draggable dark-blue pill. */
+.assignmentLandscapeSplit,.courseOuterSplit,.courseInnerSplit,.calendarMainSplit,.homeLandscapeSplitM3e,.groupOuterSplit{
+  position:relative!important;
+  min-width:0!important;min-height:0!important;
+  --m3e-split-pane-drag-handle-color:#174a78!important;
+  --m3e-split-pane-drag-handle-hover-color:#123f69!important;
+  --m3e-split-pane-drag-handle-focus-color:#123f69!important;
+  --m3e-split-pane-drag-handle-pressed-color:#0d3558!important;
+  --m3e-split-pane-drag-handle-container-width:24px!important;
+  --m3e-split-pane-drag-handle-width:4px!important;
+  --m3e-split-pane-drag-handle-height:48px!important;
+  --m3e-split-pane-drag-handle-pressed-width:6px!important;
+  --m3e-split-pane-drag-handle-pressed-height:48px!important;
+  background:transparent!important;
+}
+.assignmentLandscapeSplit::before,.courseOuterSplit::before,.courseInnerSplit::before,.homeLandscapeSplitM3e::before,.groupOuterSplit::before{
+  content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;
+  background:var(--md-sys-color-primary-container)!important;border-radius:0!important;
+  left:calc(var(--schoology-split-position,50%) - 12px)!important;top:0!important;bottom:0!important;width:24px!important;height:auto!important;
+}
+.calendarMainSplit::before{
+  content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;
+  background:var(--md-sys-color-primary-container)!important;border-radius:0!important;
+  left:0!important;top:calc(var(--schoology-split-position,50%) - 12px)!important;width:100%!important;height:24px!important;bottom:auto!important;
+}
+.assignmentLandscapeSplit>*,.courseOuterSplit>*,.courseInnerSplit>*,.calendarMainSplit>*,.homeLandscapeSplitM3e>*,.groupOuterSplit>*{
+  position:relative!important;z-index:auto!important;
+  min-width:0!important;min-height:0!important;width:100%!important;
+  flex-shrink:1!important;overflow:hidden!important;
+  contain:inline-size!important;
+}
+.homeLandscapeSplitM3e>.homeRightPane,.homeLandscapeSplitM3e>#homeUpcomingPane,
+.courseInnerSplit>.courseAppsSidePane,.courseInnerSplit>.courseMainPane,
+.courseOuterSplit>#courseUpcomingPane,.courseOuterSplit>.courseUpcomingPane{
+  min-width:0!important;width:100%!important;contain:inline-size!important;overflow:hidden!important;
+}
+.courseAppsSideContent,.courseUpcomingContent,.homeRightPane #homeTabContent,.homeUpcomingScroll,
+.courseAppsSideContent m3e-list,.courseUpcomingContent m3e-list{
+  min-width:0!important;width:100%!important;max-width:100%!important;overflow:auto!important;
+}
+
+/* v138: native M3E segmented lists own their vertical spacing. Five pixels is
+   the only gap; no second host-level spacing system is allowed. */
+.courseAppList,.gradeItemList{
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;min-width:0!important;
+  gap:initial!important;column-gap:initial!important;row-gap:5px!important;
+  --m3e-segmented-list-segment-gap:5px!important;
+  margin:0!important;padding:0!important;
+  border:0!important;box-shadow:none!important;
+}
+.courseAppList m3e-list-action,.courseAppList m3e-list-item,
+.gradeItemList m3e-list-action,.gradeItemList m3e-list-item{
+  margin:0!important;border:0!important;box-shadow:none!important;min-width:0!important;max-width:100%!important;
+}
+
+/* v138: assignment pages must own their scroll viewport. */
+.assignmentAndroidPage:not(.assignmentLandscapePage){
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;height:auto!important;min-height:100%!important;
+  overflow:auto!important;
+}
+.assignmentAndroidPage:not(.assignmentLandscapePage) .assignmentTabContent{
+  min-width:0!important;overflow:visible!important;flex:0 0 auto!important;
+}
+@media (min-aspect-ratio:4/3){
+  .assignmentLandscapePage{height:100%!important;min-height:0!important;overflow:hidden!important;display:flex!important;}
+  .assignmentLandscapeSplit{height:100%!important;min-height:0!important;min-width:0!important;overflow:hidden!important;}
+}
+
+/* v138: keep the entire native shell and embedded WebView in a definite
+   viewport below the app bar. */
+.m3eShellMain{position:relative!important;display:flex!important;flex-direction:column!important;flex:1 1 auto!important;width:100%!important;height:0!important;min-height:0!important;overflow:hidden!important;}
+.m3eShellMain>.m3eMainAppBar{position:relative!important;flex:0 0 64px!important;width:100%!important;height:64px!important;min-height:64px!important;max-height:64px!important;}
+.m3eShellMain>#content{
+  position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0!important;flex-direction:column!important;
+  width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;margin:0!important;padding:0!important;
+}
+.m3eShellMain>#content:has(.embeddedPage),.m3eShellMain>#content:has(.dashboardHybrid){position:relative!important;display:flex!important;flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;overflow:hidden!important;}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid{
+  position:relative!important;inset:auto!important;display:flex!important;flex:1 1 0!important;flex-direction:column!important;
+  width:100%!important;height:0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;margin:0!important;padding:0!important;
+}
+.m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid>webview{
+  position:relative!important;inset:auto!important;display:block!important;flex:1 1 0!important;
+  width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;
+}
+
+/* v138: M3E color guidelines for splash/login surfaces. */
+body.splashVisible{background:var(--md-sys-color-background,#f7f7f7)!important;color:var(--md-sys-color-on-background,#1a1b20)!important;}
+.splashM3eTheme{background:var(--md-sys-color-background)!important;color:var(--md-sys-color-on-background)!important;}
+.androidSplash{background:var(--md-sys-color-background,#f7f7f7)!important;color:var(--md-sys-color-on-background,#1a1b20)!important;}
+.androidSplashSpinner{--m3e-circular-progress-indicator-active-indicator-color:var(--md-sys-color-primary)!important;}
+
+/* v138: Theme settings page follows the supplied M3E example, without the
+   directionality and text-size controls. */
+.themeSettingsPage{height:100%!important;min-height:0!important;overflow:hidden!important;background:var(--md-sys-color-background)!important;}
+.themeSettingsScroll{height:100%!important;overflow:auto!important;padding:20px 24px 32px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:12px!important;box-sizing:border-box!important;}
+.themeSettingsScroll m3e-heading{margin-top:8px!important;}
+.themeSettingsScroll input[type="color"]{width:72px!important;height:48px!important;padding:0!important;border:0!important;background:transparent!important;cursor:pointer!important;}
+.themeSettingsScroll m3e-filter-chip-set{width:100%!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;}
+.themeSettingsScroll m3e-segmented-button{max-width:100%!important;}
