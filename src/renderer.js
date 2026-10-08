@@ -148,9 +148,12 @@ function wireFabMenu(plus,menu,openName="add",closeName="close"){
     plus.querySelector("m3e-fab-menu-trigger")?.replaceChildren(Object.assign(document.createElement("m3e-icon"),{name:open?closeName:openName,variant:"outlined"}));
   };
   menu.addEventListener("toggle",sync);
-  const trigger=document.createElement("m3e-fab-menu-trigger");
+  let trigger=plus.querySelector("m3e-fab-menu-trigger");
+  if(!trigger){
+    trigger=document.createElement("m3e-fab-menu-trigger");
+    plus.replaceChildren(trigger);
+  }
   trigger.setAttribute("for",menu.id);
-  plus.replaceChildren(trigger);
   requestAnimationFrame(sync);
 }
 function createFabMenuFor(plusId,menuId,itemsHtml){
@@ -347,21 +350,12 @@ function bind(){
   document.querySelectorAll('[data-drawer]').forEach(b=>{
     const id=b.dataset.drawer;
     if(id==='courses'||id==='groups'||id==='grades'){
-      // M3E nav-menu-item owns the actual toggle. Its opening/closing events are
-      // emitted by the internal collapsible, so listening for them on the host
-      // is unreliable. Observe the completed click instead, after M3E toggles.
-      b.addEventListener('click',e=>{
-        if(e.target!==b)return;
-        setTimeout(()=>{
-          if(b.open){
-            state.drawerPage=id;
-            loadCourseSubmenu();
-          }else{
-            if(state.drawerPage===id)state.drawerPage=null;
-            b.querySelectorAll(':scope > .drawerSubLoading,:scope > .courseSubItem,:scope > [data-course-sub],:scope > [data-group-sub],:scope > .drawerErrorItem').forEach(el=>el.remove());
-          }
-        },0);
-      });
+      // M3E owns the submenu toggle. Listen to its public opening/opened and
+      // closing/closed events rather than closing the drawer or re-rendering it.
+      const openSub=()=>{ state.drawerPage=id; loadCourseSubmenu(); };
+      const closeSub=()=>{ if(state.drawerPage===id) state.drawerPage=null; };
+      b.addEventListener('opened',openSub);
+      b.addEventListener('closed',closeSub);
       return;
     }
     b.addEventListener('click',async()=>{
@@ -373,8 +367,13 @@ function bind(){
     });
   });
 
-  if(!document.__schoologySplitStylerBound){document.__schoologySplitStylerBound=true;document.addEventListener('input',e=>{const sp=e.target?.closest?.('m3e-split-pane');if(!sp)return;const v=Number(sp.value);if(Number.isFinite(v))sp.style.setProperty('--schoology-split-track-position',`${v}%`);},{passive:true});}
-  document.querySelectorAll('m3e-split-pane').forEach(sp=>{const v=Number(sp.value);if(Number.isFinite(v))sp.style.setProperty('--schoology-split-track-position',`${v}%`)});
+  if(!document.__schoologySplitStylerBound){
+    document.__schoologySplitStylerBound=true;
+    const syncSplitTrack=e=>{const sp=e.target?.closest?.('m3e-split-pane');if(!sp)return;const v=Number(sp.value);if(Number.isFinite(v)){sp.style.setProperty('--schoology-split-track-position',`${v}%`);sp.style.setProperty('--schoology-split-position',`${v}%`);}};
+    document.addEventListener('input',syncSplitTrack,{passive:true});
+    document.addEventListener('change',syncSplitTrack,{passive:true});
+  }
+  document.querySelectorAll('m3e-split-pane').forEach(sp=>{const v=Number(sp.value);if(Number.isFinite(v)){sp.style.setProperty('--schoology-split-track-position',`${v}%`);sp.style.setProperty('--schoology-split-position',`${v}%`)}});
   document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{const root=b.closest('.homeTabViewport')||document;const order=['recent','dashboard','upcoming'];const oldIndex=order.indexOf(state.homeTab),newIndex=order.indexOf(b.dataset.homeTab);state.homeTabDirection=newIndex>=oldIndex?'forward':'back';state.homeTab=b.dataset.homeTab;syncM3eTabSelection(root,'homeTab',state.homeTab);loadHomeTab()});
   document.getElementById('messageBack')?.addEventListener('click',()=>{state.message=null;state.messageThread=null;render();loadTab()});
   document.querySelectorAll('[data-download-url]').forEach(b=>b.onclick=async()=>{try{const r=await downloadWithFeedback(b,{url:b.dataset.downloadUrl,filename:b.dataset.downloadName,mime:b.dataset.downloadMime});const err=await A.openDownloadedFile({path:r.path});if(err)alert(err)}catch(e){alert('Unable to open file: '+e.message)}});
@@ -510,7 +509,11 @@ function syncToolbar(){
   }
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
-  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"></m3e-fab>`;document.getElementById('homeCreatePlus')?.addEventListener('click',showHomeCreateMenu,{once:true});return;}
+  if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){
+    slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"><m3e-fab-menu-trigger for="homeCreateMenu"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab-menu-trigger></m3e-fab>`;
+    requestAnimationFrame(()=>showHomeCreateMenu());
+    return;
+  }
   if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
   if(state.eventView){
     slot.innerHTML=`<m3e-fab id="eventCommentPlus" variant="primary-container" aria-label="Post comment"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
@@ -658,8 +661,8 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
  const courseTabsMarkup=tabs=>tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('');
- const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="50" max="85" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="20" min="15" max="30" step="1" label="Resize course apps and content">
+ const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="20" min="5" max="45" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
@@ -1468,21 +1471,45 @@ async function loadSectionGrades(course){
 }
 function getFinalGradeObject(sec){
  const raw=sec?.final_grade??sec?.finalGrade??sec?.final_grades??sec?.finalGrades??sec?.final??null;
- if(Array.isArray(raw)){
-   return raw.find(x=>String(x?.period_id??x?.periodId??'').toLowerCase()===String('final'))||raw.find(x=>x&&((x.override_str??x.overrideStringGrade??x.grade_override??x.gradeOverride)!=null||(x.grade??x.calculated_grade??x.calculatedGrade)!=null))||raw[0]||{};
- }
- return raw&&typeof raw==='object'?raw:{};
+ const arr=Array.isArray(raw)?raw:(raw&&typeof raw==='object'?[raw]:[]);
+ // Android uses the FINAL period object and checks override_str first, then
+ // override_numeric, before formatting the calculated grade.
+ return arr.find(x=>String(x?.period_id??x?.periodId??'').toLowerCase()==='final')
+   ||arr.find(x=>x&&String(x?.override_str??x?.overrideStr??x?.overrideStringGrade??'').trim())
+   ||arr.find(x=>x&&((x.override_numeric??x.overrideNumericGrade)!=null))
+   ||arr.find(x=>x&&((x.grade??x.calculated_grade??x.calculatedGrade)!=null))
+   ||arr[0]||{};
+}
+function findStringGradeOverride(sec){
+ const seen=new Set();
+ const walk=(v,depth=0)=>{
+   if(v==null||depth>5||typeof v!=='object')return '';
+   if(seen.has(v))return ''; seen.add(v);
+   if(Array.isArray(v)){for(const x of v){const hit=walk(x,depth+1);if(hit)return hit}return '';}
+   const direct=v.override_str??v.overrideStr??v.overrideStringGrade??v.overrideString??v.grade_override??v.gradeOverride;
+   if(typeof direct==='string'&&direct.trim())return direct.trim();
+   for(const k of ['final_grade','finalGrade','final_grades','finalGrades','period','periods','section','sections','grades','grade','override_grades','overrideGrades']){
+     const hit=walk(v[k],depth+1);if(hit)return hit;
+   }
+   return '';
+ };
+ return walk(sec);
 }
 function renderOverallGrade(sec){
  const final=getFinalGradeObject(sec);
- // The Android model uses override_str/override_numeric. An override is the
- // displayed final grade and must replace the calculated percentage entirely.
- const override=final.override_str??final.overrideStringGrade??final.override_numeric??final.overrideNumericGrade??final.grade_override??final.gradeOverride??'';
+ // Match the Android GradesStringProvider: any override_str is returned
+ // directly, before the calculated grade is formatted. A numeric override is
+ // also an override, but a string override always wins over it.
+ const stringOverride=findStringGradeOverride(sec);
+ const numericOverride=final.override_numeric??final.overrideNumericGrade;
  const rawGrade=final.grade??final.calculated_grade??final.calculatedGrade??final.score??null;
  let val='—';
- if(String(override).trim()) {
-   val=String(override).trim();
- } else if(rawGrade!==null&&rawGrade!==undefined&&String(rawGrade).trim()!==''){
+ if(stringOverride){
+   val=stringOverride;
+ }else if(numericOverride!==null&&numericOverride!==undefined&&String(numericOverride).trim()!==''){
+   const n=Number(numericOverride);
+   val=Number.isFinite(n)?`${Number.isInteger(n)?n:n.toFixed(1).replace(/\.0$/,'')}%`:String(numericOverride);
+ }else if(rawGrade!==null&&rawGrade!==undefined&&String(rawGrade).trim()!==''){
    const rawText=String(rawGrade).trim();
    const n=Number(rawText.replace(/%/g,''));
    if(Number.isFinite(n)){
@@ -1490,11 +1517,7 @@ function renderOverallGrade(sec){
      const pct=`${Number.isInteger(pctValue)?pctValue:pctValue.toFixed(1).replace(/\.0$/,'')}%`;
      const letter=pctValue>=90?'A':pctValue>=80?'B':pctValue>=70?'C':pctValue>=60?'D':'F';
      val=`${pct} (${letter})`;
-   }else{
-     // Some courses use a non-numeric grading scale. Preserve the letter/text
-     // supplied by Schoology instead of inventing a percentage.
-     val=rawText;
-   }
+   }else val=rawText;
  }
  const comment=typeof final.comment==='string'?final.comment:(final.comment?.comment||final.comment?.body||'');
  return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${esc(comment)}</div></div>`:''}</div>`;
@@ -1510,18 +1533,18 @@ function renderGradePeriods(rows,periods,categories){
   (periodGroups[pid]??={}).__title=pmap[pid]||'Grading Period';
   (periodGroups[pid][cid]??=[]).push(a);
  });
- const panels=[];
+ const periodsHtml=[];
  Object.keys(periodGroups).forEach(pid=>{
   const pg=periodGroups[pid], periodTitle=pg.__title||'Grading Period';
   const inner=[];
   Object.keys(pg).filter(k=>k!=='__title').forEach(cid=>{
-   const list=pg[cid],meta=categories?.grading_category?.find?.(x=>String(x.id)===cid)||{};
+   const list=pg[cid],meta=cs.find?.(x=>String(x.id)===cid)||{};
    inner.push(`<m3e-expansion-panel class="gradeCategoryInner" open><span slot="header">${esc(meta.title||meta.name||cmap[cid]||'Category')}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span class="gradeAssignmentTitle">${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`}).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
   });
-  panels.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
+  periodsHtml.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
  });
- if(!panels.length)return '<div class="empty"><h2>No grades</h2></div>';
- return `<m3e-accordion class="gradesAccordion" multi>${panels.join('')}</m3e-accordion>`;
+ if(!periodsHtml.length)return '<div class="empty"><h2>No grades</h2></div>';
+ return `<m3e-accordion class="gradesAccordion" multi><m3e-expansion-panel class="gradesPeriodsOuter" open><span slot="header">Grades</span><div class="gradesPeriodsBody">${periodsHtml.join('')}</div></m3e-expansion-panel></m3e-accordion>`;
 }
 
 function renderGrades(rows){return renderGradePeriods(rows,{grading_period:[]},{grading_category:[]});}
@@ -1854,7 +1877,7 @@ async function loadTab(){
     const landscape=window.matchMedia('(min-aspect-ratio: 4/3)').matches;
     if(landscape){
       const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs homeTabsM3e">${`<m3e-tab data-home-tab="recent" ${state.homeTab==='recent'?'selected':''}>Recent Activity</m3e-tab>`}${state.courseDashboardEnabled?`<m3e-tab data-home-tab="dashboard" ${state.homeTab==='dashboard'?'selected':''}>Course Dashboard</m3e-tab>`:''}</m3e-tabs>`;
-      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" orientation="auto" value="75" min="45" max="88" step="1" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
+      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" orientation="auto" value="75" min="20" max="90" step="1" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
       document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{state.homeTab=b.dataset.homeTab;syncM3eTabSelection(document.getElementById('content'),'homeTab',state.homeTab);loadHomeTab()});
       await loadHomeUpcomingPane();
       await loadHomeTab();
