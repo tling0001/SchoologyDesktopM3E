@@ -2100,7 +2100,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.139</div></section>`;
+      <div class="settingsVersion">Version: 2026.06.0-port.140</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
     document.getElementById('themeSettings')?.addEventListener('click',()=>{state.settingsPage='theme';state.toolbarTitle='Theme';render();loadTab()});
