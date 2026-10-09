@@ -2980,3 +2980,125 @@ body.splashVisible{background:var(--md-sys-color-background,#f7f7f7)!important;c
 .themeSettingsScroll input[type="color"]{width:72px!important;height:48px!important;padding:0!important;border:0!important;background:transparent!important;cursor:pointer!important;}
 .themeSettingsScroll m3e-filter-chip-set{width:100%!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;}
 .themeSettingsScroll m3e-segmented-button{max-width:100%!important;}
+
+/* v144: M3E token-driven dark surfaces for legacy Schoology screens. The theme
+   element remains the source of truth; these rules only replace old light-mode
+   hard-coded surfaces that predate M3E. */
+html[data-theme-effective="dark"],
+html[data-theme-effective="dark"] body,
+html[data-theme-effective="dark"] #app,
+html[data-theme-effective="dark"] .shell,
+html[data-theme-effective="dark"] #content {
+  background: var(--md-sys-color-background, #111318) !important;
+  color: var(--md-sys-color-on-background, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .page,
+html[data-theme-effective="dark"] .activity,
+html[data-theme-effective="dark"] .profilePage,
+html[data-theme-effective="dark"] .messageDetail,
+html[data-theme-effective="dark"] .submissionPage,
+html[data-theme-effective="dark"] .officialSubmissionPage,
+html[data-theme-effective="dark"] .androidCommentComposer,
+html[data-theme-effective="dark"] .commentsAndroidList,
+html[data-theme-effective="dark"] .gradeDropboxAndroid,
+html[data-theme-effective="dark"] .peoplePage,
+html[data-theme-effective="dark"] .resourcesAndroidPage,
+html[data-theme-effective="dark"] .courseDetail,
+html[data-theme-effective="dark"] .courseHero,
+html[data-theme-effective="dark"] .courseRows,
+html[data-theme-effective="dark"] .upcomingList,
+html[data-theme-effective="dark"] .upcomingCard,
+html[data-theme-effective="dark"] .homeLandscapeSplit,
+html[data-theme-effective="dark"] .homeUpcomingPane,
+html[data-theme-effective="dark"] .courseUpcomingPane,
+html[data-theme-effective="dark"] .courseAppsSidePane,
+html[data-theme-effective="dark"] .courseAppsSideContent .courseAppList,
+html[data-theme-effective="dark"] .attendanceList,
+html[data-theme-effective="dark"] .settingsPage,
+html[data-theme-effective="dark"] .themeSettingsPage {
+  background: var(--md-sys-color-surface, #191b20) !important;
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .activityCard,
+html[data-theme-effective="dark"] .eventCard,
+html[data-theme-effective="dark"] .messageCard,
+html[data-theme-effective="dark"] .dashboardCard,
+html[data-theme-effective="dark"] .courseRows button,
+html[data-theme-effective="dark"] .resourceCategoryHeader,
+html[data-theme-effective="dark"] .resourceCollectionRow,
+html[data-theme-effective="dark"] .resourceFileRow,
+html[data-theme-effective="dark"] .peopleRow,
+html[data-theme-effective="dark"] .gradeStudentRow,
+html[data-theme-effective="dark"] .teacherGradeHeader,
+html[data-theme-effective="dark"] .courseUpdatesToolbar,
+html[data-theme-effective="dark"] .courseUpdatesToolbar button,
+html[data-theme-effective="dark"] .androidMoreButton,
+html[data-theme-effective="dark"] .submissionMenu,
+html[data-theme-effective="dark"] .submissionMenu button,
+html[data-theme-effective="dark"] .submissionStatusCard,
+html[data-theme-effective="dark"] .updateCommentsPanel,
+html[data-theme-effective="dark"] .updatePoll,
+html[data-theme-effective="dark"] .gradeDropboxHeader {
+  background: var(--md-sys-color-surface-container, #202329) !important;
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+  border-color: var(--md-sys-color-outline-variant, #454750) !important;
+}
+html[data-theme-effective="dark"] :is(.page h1,.dashboardCard b,.upcomingCard b,.courseHero h1,.courseRows button,.messageDetail h1,.messageBody,.submissionExisting h3,.submissionHeader h1,.submissionHeader strong,.officialCommentBody>b,.commentHtml,.submissionRevisionAndroid b,.gradeStudentName b,.gradeStudentScore,.teacherUser,.studentOverallComment div,.peopleName,.peopleName strong,.resourceBackTitle,.resourceCollectionRow b,.resourceFileRow b,.settingsSection h2) {
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] :is(.dashboardCard small,.upcomingCard small,.courseHero p,.messageSender,.messageDate,.submissionHeader small,.submissionRevisionAndroid small,.gradeStudentName small,.peoplePreferred,.peopleListLoading,.resourceCollectionRow small,.resourceFileRow small,.resourceEmpty,.settingsVersion,.submissionSectionTitle) {
+  color: var(--md-sys-color-on-surface-variant, #c4c6d0) !important;
+}
+html[data-theme-effective="dark"] :is(.resourceCategoryChildren,.resourceCategory,.courseAppsSidePane,.courseUpcomingPane,.homeUpcomingPane,.courseRows button,.officialCommentMain,.submissionExisting,.submissionRevisionAndroid,.submissionHeader,.submissionStatusCard,.teacherGradeHeader,.gradeStudentRow,.peopleRow,.resourceCategoryHeader,.resourceCollectionRow,.resourceFileRow) {
+  border-color: var(--md-sys-color-outline-variant, #454750) !important;
+}
+html[data-theme-effective="dark"] :is(input,textarea,select,.submissionText,.teacherOverallComment textarea,.teacherScore input,.androidCommentComposer textarea) {
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+  background: var(--md-sys-color-surface-container-high, #2a2d33) !important;
+  border-color: var(--md-sys-color-outline, #747782) !important;
+  caret-color: var(--md-sys-color-primary, #a7c8ff);
+}
+html[data-theme-effective="dark"] .androidSplash,
+html[data-theme-effective="dark"] body.splashVisible {
+  background: var(--md-sys-color-background, #111318) !important;
+  color: var(--md-sys-color-on-background, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .androidSplashSpinner {
+  --m3e-circular-progress-indicator-active-indicator-color: var(--md-sys-color-primary, #a7c8ff) !important;
+}
+html[data-theme-effective="dark"] .fatal {
+  background: var(--md-sys-color-surface-container, #202329) !important;
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .m3eLogin,
+html[data-theme-effective="dark"] .m3eQrScreen,
+html[data-theme-effective="dark"] .m3eExternalActions,
+html[data-theme-effective="dark"] .m3eSearchArea,
+html[data-theme-effective="dark"] .m3eCredentialForm,
+html[data-theme-effective="dark"] .m3eCredentialSchool {
+  background: var(--md-sys-color-background, #111318) !important;
+  color: var(--md-sys-color-on-background, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .m3eLoginError,
+html[data-theme-effective="dark"] .m3eQrError,
+html[data-theme-effective="dark"] .apiError {
+  background: var(--md-sys-color-error-container, #93000a) !important;
+  color: var(--md-sys-color-on-error-container, #ffdad6) !important;
+  border-color: var(--md-sys-color-outline-variant, #454750) !important;
+}
+html[data-theme-effective="dark"] .m3eLogin input,
+html[data-theme-effective="dark"] .m3eQrScreen input {
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+  background: var(--md-sys-color-surface-container-high, #2a2d33) !important;
+}
+html[data-theme-effective="dark"] .startupFatal {
+  height: auto !important;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow: auto;
+  background: var(--md-sys-color-surface-container, #202329) !important;
+  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .startupFatalNote {
+  color: var(--md-sys-color-on-surface-variant, #c4c6d0) !important;
+}

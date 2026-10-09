@@ -4,7 +4,11 @@
   let theme=defaults;try{theme={...defaults,...JSON.parse(localStorage.getItem(themeKey)||'{}')}}catch{}
   const themeEl=document.querySelector('.splashM3eTheme');
   if(themeEl){for(const [k,v] of Object.entries(theme))themeEl.setAttribute(k==='scheme'?'scheme':k,v);}
-  const dark=theme.scheme==='dark'||(theme.scheme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const isDark=()=>theme.scheme==='dark'||(theme.scheme!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const syncEarlyTheme=()=>{const dark=isDark();document.documentElement.dataset.themeEffective=dark?'dark':'light';document.documentElement.style.colorScheme=dark?'dark':'light';const logo=document.querySelector('.androidSplashLogo');if(logo)logo.src=dark?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg';};
+  syncEarlyTheme();
+  if(!window.__schoologySplashThemeBound){window.__schoologySplashThemeBound=true;matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(theme.scheme==='auto')syncEarlyTheme()})}
+  const dark=isDark();
   const logo=document.querySelector('.androidSplashLogo');if(logo)logo.src=dark?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg';
   const app=document.getElementById('app');
   const splash=document.getElementById('startupSplash');
@@ -17,10 +21,18 @@
   }
   window.schoologyAppReady=hideSplash;
   function showError(title,detail){
+    // Startup faults must always replace the blank app area with a visible diagnostic.
+    // Do not route these through the in-app request-error dialog: that dialog itself
+    // depends on a successfully mounted shell and can silently hide startup failures.
     hideSplash();
-    if(window.schoologyShowError && document.querySelector('.shell')){ try{window.schoologyShowError(new Error(detail));return;}catch{} }
     if(!app)return;
-    app.innerHTML='<div class="fatal"><h2>'+title+'</h2><p>'+detail+'</p><p style="font-size:12px;word-break:break-word">If this persists, the application renderer or Electron preload bridge failed to initialize.</p></div>';
+    const panel=document.createElement('section');
+    panel.className='fatal startupFatal';
+    const heading=document.createElement('h2');heading.textContent=title;
+    const body=document.createElement('p');body.textContent=String(detail||'Unknown startup error');
+    const note=document.createElement('p');note.className='startupFatalNote';note.textContent='The application renderer failed before startup completed. Close Schoology and try again; include this error when reporting the problem.';
+    panel.replaceChildren(heading,body,note);app.replaceChildren(panel);
+    console.error(title+':',detail);
   }
   window.addEventListener('error',function(e){
     const msg=e&&e.error&&e.error.stack ? e.error.stack : (e&&e.message||'Unknown renderer error');
