@@ -6,14 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Schoology</title>
 <link rel="stylesheet" href="styles.css">
-<script type="importmap">
-{
-  "imports": {
-    "@m3e/web/icon": "../node_modules/@m3e/web/dist/all.js"
-  }
-}
+<script type="module">
+  import('./m3e-bootstrap.js').catch((error) => {
+    console.error('M3E bootstrap failed:', error);
+    window.__rejectM3eReady?.(error);
+    if (!window.__rejectM3eReady) {
+      const message = document.createElement('pre');
+      message.className = 'fatal';
+      message.textContent = 'Material 3 Expressive could not initialize: ' + (error?.stack || error?.message || error);
+      document.body.appendChild(message);
+    }
+  });
 </script>
-<script type="module" src="m3e-bootstrap.js"></script>
 </head>
 <body class="androidSplashPage">
 <div class="androidSplash" aria-label="Loading Schoology">
