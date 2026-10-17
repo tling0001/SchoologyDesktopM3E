@@ -3102,3 +3102,19 @@ html[data-theme-effective="dark"] .startupFatal {
 html[data-theme-effective="dark"] .startupFatalNote {
   color: var(--md-sys-color-on-surface-variant, #c4c6d0) !important;
 }
+
+
+/* v146: M3E drawer-container's internal content wrapper is not a flex parent.
+   Keep the slotted app shell at full height; height:0 made the authenticated
+   shell collapse even though the login screen (outside the drawer) still worked. */
+.m3eAppDrawerContainer > .m3eShellMain,
+.m3eShellMain {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+.m3eShellMain > #content {
+  flex: 1 1 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+}
