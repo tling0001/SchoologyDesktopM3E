@@ -106,7 +106,7 @@ function login(){return m3eTheme(`<main class="m3eLogin loginAnimated"><img clas
   <m3e-button id="schoolLogin" variant="filled" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("school")}</span>Log in through your School</m3e-button>
   <m3e-button id="continueSchoology" variant="tonal" size="large" class="m3eLoginButton"><img src="${themeLogoSrc()}" class="m3eButtonLogo" slot="icon" alt="">Log in using schoology.com</m3e-button>
   <m3e-button id="qrLogin" variant="outlined" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button>
-</div><m3e-button class="m3eLoginHelp" variant="text" size="medium">I need help signing in</m3e-button>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eLoginScreen');}
+</div><m3e-button id="loginHelp" class="m3eLoginHelp" variant="text" size="medium">I need help signing in</m3e-button>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eLoginScreen');}
 function schoolSearchScreen(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">School</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><div class="m3eSearchArea"><m3e-search-view id="schoolSearchView" mode="docked" contained open clear-label="Clear school search" close-label="Close school search"><span class="m3eOriginalIcon">${originalM3Icon("search")}</span><input id="schoolSearch" slot="input" autocomplete="off" placeholder="Enter your School or domain" value="${esc(state.q)}"><m3e-list variant="segmented" id="schoolSuggestions"></m3e-list></m3e-search-view><div id="schoolSearchStatus" class="m3eSearchStatus"></div></div>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eSearchScreen');}
 function credentials(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">Log in using schoology.com</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><form id="credentialForm" class="m3eCredentialForm"><div class="m3eCredentialSchool">${state.school?`<span class="m3eOriginalIcon">${originalM3Icon("school")}</span><span>${esc(state.school.title||'School')}</span>`:'<m3e-heading variant="title" size="medium">Log in using schoology.com</m3e-heading>'}</div><m3e-form-field variant="outlined"><label slot="label" for="user">Username or Email</label><input id="user" autocomplete="username"></m3e-form-field><m3e-form-field variant="outlined"><label slot="label" for="pass">Password</label><input id="pass" type="password" autocomplete="current-password"></m3e-form-field><m3e-button id="signIn" type="submit" variant="filled" size="large">Login</m3e-button><m3e-button id="qrLogin" type="button" variant="outlined" size="medium"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button></form>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eCredentialsScreen');}
 function externalSelect(){
@@ -117,8 +117,11 @@ function externalSelect(){
 async function startSchoolBrowserLogin(){
   state.loading=true;state.error='';render();
   try{
-    const raw=String(state.school?.domain||state.school?.school_domain||state.school?.schoolDomain||state.school?.url||'').trim();
-    let domain='';try{const parsed=new URL(raw.indexOf('://')>=0?raw:'https://'+raw);if(['http:','https:'].includes(parsed.protocol))domain=parsed.host}catch{}
+    let domain='';
+    for(const candidate of [state.school?.domain,state.school?.school_domain,state.school?.schoolDomain,state.school?.url,state.school?.login_url,state.school?.loginUrl]){
+      const raw=String(candidate||'').trim();if(!raw)continue;
+      try{const parsed=new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)?raw:`https://${raw}`);if(['http:','https:'].includes(parsed.protocol)&&parsed.hostname){domain=parsed.host;break}}catch{}
+    }
     if(!domain)throw new Error('This school did not provide a valid login domain.');
     state.auth=await A.loginSchoolBrowser({domain});await afterLogin();
   }catch(error){state.loading=false;state.error=error.message||'Browser sign-in failed.';render()}
@@ -323,6 +326,7 @@ function bind(){
   installSplitPaneTrackObserver();
   document.getElementById('composeMessage')?.addEventListener('click',()=>showComposeMessage());document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
   document.getElementById('toolbarBack')?.addEventListener('click',()=>navigateBack());
+  document.getElementById('loginHelp')?.addEventListener('click',()=>A.openExternal('https://docs.powerschool.com/SGYH/en/students/schoology-mobile-apps/logging-into-the-schoology-mobile-app-students').catch(e=>{state.error=e.message||'Unable to open the sign-in help page.';render()}));
   const schoolBtn=document.getElementById('schoolLogin');if(schoolBtn)schoolBtn.onclick=()=>{state.error='';state.q='';state.schools=[];state.screen='search';render();document.getElementById('schoolSearch')?.focus()};
   const accountBtn=document.getElementById('continueSchoology');if(accountBtn)accountBtn.onclick=()=>{state.error='';state.school=null;state.screen='credentials';render();document.getElementById('user')?.focus()};
   const qrbtn=document.getElementById('qrLogin');if(qrbtn)qrbtn.onclick=()=>{state.error='';state.screen='qr';render();startQR()};
@@ -339,14 +343,10 @@ function bind(){
           const school=state.schools[+item.dataset.school];
           if(!school)return;
           state.school=school;state.schools=[];state.error='';
-          const external=!!school&&school.login_type&&school.login_type!=='schoology';
-          const browserFlow=!!school&&(school.use_browser_login_flow??school.useBrowserLoginFlow??true);
-          if(!external){state.screen='credentials';render();document.getElementById('user')?.focus();return}
-          if(browserFlow){state.screen='externalSelect';state.loading=true;render();void startSchoolBrowserLogin();return}
-          state.loading=true;updateSearchUi();
-          try{state.auth=await A.loginExternalSchool({url:school.login_url||school.loginUrl||'',domain:school.domain||''});await afterLogin()}
-          catch(e){state.error=e.message||'School sign-in failed.';state.screen='search';render()}
-          finally{state.loading=false}
+          state.screen='externalSelect';
+          state.loading=true;
+          render();
+          void startSchoolBrowserLogin();
         };
         item.addEventListener('click',choose,{once:true});
         item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose()}},{once:true});
@@ -736,7 +736,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    </section>
   </div>`;
  c.innerHTML=`<section class="sectionProfilePage courseLandscapePage">${landscape?courseLandscapeMarkup:coursePortraitMarkup}</section>`;
- document.querySelector('[data-course-school-id]')?.addEventListener('click',b=>{const id=Number(b.dataset.courseSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});
+ document.querySelector('[data-course-school-id]')?.addEventListener('click',event=>{const button=event.currentTarget;const id=Number(button?.dataset?.courseSchoolId||0);if(id)openSchoolProfile(id,button?.textContent||'School')});
  hydrateCourseImages(c);
  const bindCourseTabs=()=>document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
    const id=b.dataset.courseTab;state.courseTab=id;state.toolbarTitle=b.textContent||'Course';
@@ -769,7 +769,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    if(tabsHost){tabsHost.innerHTML=courseTabsMarkup(tabs);bindCourseTabs();syncM3eTabSelection(document.getElementById('content'),'courseTab',effectiveTab);}
    const info=c.querySelector('.courseIdentityInfoBar');
    const loadingSchool=info?.querySelector('.courseSchoolLoading');
-   if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';info?.querySelector('[data-course-school-id]')?.addEventListener('click',b=>{const id=Number(b.dataset.courseSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});}
+   if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';info?.querySelector('[data-course-school-id]')?.addEventListener('click',event=>{const button=event.currentTarget;const id=Number(button?.dataset?.courseSchoolId||0);if(id)openSchoolProfile(id,button?.textContent||'School')});}
    loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
    if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
    if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
@@ -2325,24 +2325,26 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
       <div class="settingsSection">
         <h2>Notification Settings</h2>
         <m3e-list variant="segmented" class="settingsList">
-          <m3e-list-item><span slot="leading"><span class="m3eOriginalIcon">${originalM3Icon("notifications")}</span></span>Notifications<span slot="supporting-text" id="notifSummary">Enabled</span><m3e-switch slot="trailing" id="notifToggle" checked aria-label="Notifications"></m3e-switch></m3e-list-item>
+          <m3e-list-item>Schoology notifications<span slot="supporting-text">Show a desktop notification when new activity arrives</span><m3e-switch slot="trailing" id="desktopNotificationsToggle" ${state.desktopNotifications?'checked':''} aria-label="Schoology notifications"></m3e-switch></m3e-list-item>
+          <m3e-list-item>Notification sound<span slot="supporting-text">Play the system notification sound for new activity</span><m3e-switch slot="trailing" id="notificationSoundToggle" ${state.notificationSound?'checked':''} ${state.desktopNotifications?'':'disabled'} aria-label="Notification sound"></m3e-switch></m3e-list-item>
+          <m3e-list-item><span slot="leading"><span class="m3eOriginalIcon">${originalM3Icon("notifications")}</span></span>In-app notifications<span slot="supporting-text" id="notifSummary">Enabled</span><m3e-switch slot="trailing" id="notifToggle" checked aria-label="In-app notifications"></m3e-switch></m3e-list-item>
           <m3e-list-action id="notificationRingtone">Ringtone<span slot="supporting-text">Set Notification Ringtone</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
           <m3e-list-item>Vibrate<span slot="supporting-text">Vibrate on incoming notifications</span><m3e-switch slot="trailing" id="vibrateToggle" checked aria-label="Vibrate"></m3e-switch></m3e-list-item>
           <m3e-list-item>Phone LED<span slot="supporting-text">Flash LED on notifications</span><m3e-switch slot="trailing" id="ledToggle" checked aria-label="Phone LED"></m3e-switch></m3e-list-item>
         </m3e-list>
       </div>
+      <div class="settingsSection"><h2>Link Handling</h2><m3e-list variant="segmented" class="settingsList">
+        <m3e-list-action id="setupChromeLinkHandler">Set up Chrome link handling<span slot="supporting-text">Load the companion extension to open supported Schoology links in this app</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
+      </m3e-list></div>
       <div class="settingsSection"><h2>Account Settings</h2><m3e-list variant="segmented" class="settingsList"><m3e-list-action id="accountInfo">Account Info<span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action></m3e-list></div>
       <div class="settingsSection"><h2>Schoology Desktop</h2><m3e-list variant="segmented" class="settingsList">
         <m3e-list-action id="themeSettings">Theme<span slot="supporting-text">Color, light/dark mode, contrast, and motion</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
-        <m3e-list-action id="setupChromeLinkHandler">Set up Chrome link handling<span slot="supporting-text">Load the companion extension to open supported Schoology links in this app</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
-        <m3e-list-item>Schoology notifications<span slot="supporting-text">Show a desktop notification when new activity arrives</span><m3e-switch slot="trailing" id="desktopNotificationsToggle" ${state.desktopNotifications?'checked':''} aria-label="Schoology notifications"></m3e-switch></m3e-list-item>
-        <m3e-list-item>Notification sound<span slot="supporting-text">Play the system notification sound for new activity</span><m3e-switch slot="trailing" id="notificationSoundToggle" ${state.notificationSound?'checked':''} ${state.desktopNotifications?'':'disabled'} aria-label="Notification sound"></m3e-switch></m3e-list-item>
         <m3e-list-action id="checkForUpdates">Check for Updates<span slot="supporting-text">Check for a newer Schoology Desktop M3E release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="trySchoologyClassic">Try Schoology Classic<span slot="supporting-text">Download the latest original Schoology Desktop release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.148')}</div></section>`;
+      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.149')}</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
     document.getElementById('setupChromeLinkHandler')?.addEventListener('click',async()=>{try{state.openSchoologyLinks=await A.setOpenSchoologyLinks?.(true)!==false;const error=await A.openChromeExtensionFolder?.();if(error)throw new Error(error);showAppDialog('Chrome link handler','In Chrome, open chrome://extensions, enable Developer mode, choose Load unpacked, and select the chrome-link-handler folder that was opened. Supported Schoology links will now open in this app.')}catch(err){showAppDialog('Unable to open Chrome link handler folder',err.message||String(err))}});
