@@ -14,6 +14,7 @@ try {
 
 contextBridge.exposeInMainWorld('schoology',{
   authState:()=>ipcRenderer.invoke('auth-state'),
+  onDeepLink:fn=>{const h=(_,url)=>fn(url);ipcRenderer.on('schoology-deep-link',h);ipcRenderer.invoke('renderer-deep-link-ready').catch(e=>console.warn('Could not signal deep-link readiness:',e));return()=>ipcRenderer.removeListener('schoology-deep-link',h)},
   networkOnline:()=>ipcRenderer.invoke('network-online'),
   loginCredentials:x=>ipcRenderer.invoke('login-credentials',x),
   loginQR:x=>ipcRenderer.invoke('login-qr',x),

@@ -23,6 +23,39 @@ const storeFile=path.join(stableUserData,'auth.json');
 const legacyStoreFile=path.join(legacyUserData,'auth.json');
 let win;
 let serverTimeOffset=0;
+let pendingSchoologyDeepLink=null;
+let rendererDeepLinkReady=false;
+let pendingExternalSchoolLogin=null;
+const hasSingleInstanceLock=app.requestSingleInstanceLock();
+if(!hasSingleInstanceLock)app.quit();
+function extractSchoologyDeepLink(argv){return (argv||[]).find(value=>typeof value==='string'&&value.toLowerCase().startsWith('schoology://'))||null}
+pendingSchoologyDeepLink=extractSchoologyDeepLink(process.argv);
+function acceptExternalLoginCallback(url,source='protocol'){
+  if(!pendingExternalSchoolLogin)return false;
+  let parsed;try{parsed=new URL(url)}catch{return false}
+  if(parsed.protocol!=='schoology:'||parsed.hostname.toLowerCase()!=='external_login_callback')return false;
+  const pending=pendingExternalSchoolLogin;
+  const received=parsed.searchParams.get('request_token')||'';
+  if(!received||received!==pending.requestToken){console.warn('Ignored Schoology external-login callback with an unexpected request token.');return true}
+  if(pending.processing)return true;
+  pending.processing=true;
+  exchangeToken(pending.credential).then(auth=>pending.finish(null,auth)).catch(error=>pending.finish(error));
+  console.info('Schoology external login callback accepted from',source);
+  return true;
+}
+function flushPendingSchoologyDeepLink(){
+  if(!pendingSchoologyDeepLink||!rendererDeepLinkReady||!win||win.isDestroyed())return;
+  if(win.webContents.isLoading()){win.webContents.once('did-stop-loading',()=>setImmediate(flushPendingSchoologyDeepLink));return}
+  const url=pendingSchoologyDeepLink;pendingSchoologyDeepLink=null;
+  try{win.webContents.send('schoology-deep-link',url)}catch(error){pendingSchoologyDeepLink=url;console.warn('Could not deliver Schoology deep link; queued for retry:',error.message)}
+}
+function deliverSchoologyDeepLink(url){
+  if(!url||!String(url).toLowerCase().startsWith('schoology://'))return;
+  if(acceptExternalLoginCallback(url,'application protocol'))return;
+  pendingSchoologyDeepLink=url;flushPendingSchoologyDeepLink();
+}
+app.on('second-instance',(_event,argv)=>{const url=extractSchoologyDeepLink(argv);if(url)deliverSchoologyDeepLink(url);if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.focus()}});
+app.on('open-url',(event,url)=>{event.preventDefault();deliverSchoologyDeepLink(url)});
 const windowChromeSettingsFile=path.join(stableUserData,'window-chrome.json');
 function windowChromeOverlayEnabled(){
   if(process.platform==='darwin'){try{const v=JSON.parse(fs.readFileSync(windowChromeSettingsFile,'utf8'));return v?.overlay===true}catch{};return false}
@@ -49,7 +82,7 @@ function saveAuth(v){
   fs.writeFileSync(tmp,JSON.stringify(v,null,2),'utf8');
   fs.renameSync(tmp,storeFile);
 }
-function enc(v){return encodeURIComponent(String(v)).replace(/[!'()*]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase()).replace(/%20/g,'+')}
+function enc(v){return encodeURIComponent(String(v)).replace(/[!'()~]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase()).replace(/%20/g,'+')}
 function parseBody(s){return Object.fromEntries(String(s||'').split('&').filter(Boolean).map(x=>{const i=x.indexOf('=');const k=i<0?x:x.slice(0,i);const v=i<0?'':x.slice(i+1);return [decodeURIComponent(k.replace(/\+/g,' ')),decodeURIComponent(v.replace(/\+/g,' '))]}))}
 function oauthTimestamp(){return Math.floor(Date.now()/1000)+serverTimeOffset}
 function sortedOAuthBaseParams(method,url,oauth,extra=[]){
@@ -74,11 +107,11 @@ function makeOAuthHeader(method,url,authToken,authSecret,qrData=''){
   // request-token request its value is explicitly the empty string.
   oauth.oauth_token=authToken==null?'':String(authToken);
   const extra=[];
-  if(qrData) extra.push(['scanned_qr_data',qrData]);
+  if(qrData) extra.push(['scanned_qr_data',enc(qrData)]);
   const normalized=sortedOAuthBaseParams(method,url,oauth,extra);
   const u=new URL(url);
   const base=method.toUpperCase()+'&'+enc(u.protocol+'//'+u.host+u.pathname)+'&'+enc(normalized);
-  const key=enc(CONSUMER_SECRET)+'&'+enc(authSecret||'');
+  const key=String(CONSUMER_SECRET)+'&'+String(authSecret||'');
   oauth.oauth_signature=crypto.createHmac('sha1',key).update(base).digest('base64');
   return 'OAuth '+['oauth_consumer_key','oauth_token','oauth_nonce','oauth_timestamp','oauth_signature_method','oauth_version'].map(k=>k+'="'+String(oauth[k])+'"').join(', ')+', oauth_signature="'+enc(oauth.oauth_signature)+'"';
 }
@@ -447,37 +480,25 @@ function buildAndroidOAuthLoginUrl(domain,requestToken){
 async function loginThroughSchoolBrowser(info){
   if(!info||!info.domain)throw new Error('This school did not provide a login domain.');
   await syncServerTime().catch(()=>{});
-  const requestCredential=await getRequestToken();
-  const loginUrl=buildAndroidOAuthLoginUrl(info.domain,requestCredential.oauth_token);
+  const credential=await getRequestToken();
+  let rawHost=String(info.domain||'').trim();
+  rawHost=rawHost.replace('https://','').replace('http://','');
+  while(rawHost.endsWith('/'))rawHost=rawHost.slice(0,-1);
+  let host='';try{const parsed=new URL('https://'+rawHost);if(parsed.hostname&&parsed.pathname==='/'&&!parsed.search&&!parsed.hash)host=parsed.host}catch{}
+  if(!host)throw new Error('This school did not provide a valid login domain.');
+  const callback='https://'+host+'/mobile_login_success?os=android&os_version=34&app_version=600000477';
+  const oauthPath='oauth/authorize?oauth_token='+encodeURIComponent(credential.oauth_token)+'&oauth_callback='+encodeURIComponent(callback);
+  const loginUrl='https://'+host+'/'+oauthPath+'&login_landing_dest='+encodeURIComponent(oauthPath);
   return new Promise((resolve,reject)=>{
-    let child=null,settled=false;
-    const finish=(err,value)=>{
-      if(settled)return;
-      settled=true;
-      if(child&&!child.isDestroyed())child.close();
-      err?reject(err):resolve(value);
-    };
-    const callbackMatches=(url)=>{
-      try{
-        const u=new URL(url);
-        if(!/\/mobile_login_success$/.test(u.pathname))return false;
-        return u.searchParams.get('request_token')===requestCredential.oauth_token;
-      }catch{return false}
-    };
-    const handleNavigation=(event,url)=>{
-      if(!callbackMatches(url))return;
-      event.preventDefault();
-      exchangeToken(requestCredential).then(auth=>finish(null,auth)).catch(finish);
-    };
-    child=new BrowserWindow({width:1100,height:800,modal:true,parent:win,show:true,autoHideMenuBar:true,backgroundColor:'#ffffff',webPreferences:{contextIsolation:true,nodeIntegration:false,javascript:true,webSecurity:true,session:session.defaultSession}});
-    // Android SchoologyWebView appends its identity to the normal Android WebView UA.
-    child.webContents.setUserAgent(ANDROID_WEBVIEW_UA);
-    child.webContents.on('will-navigate',handleNavigation);
-    child.webContents.on('will-redirect',handleNavigation);
-    child.webContents.on('did-fail-load',(_,code,desc)=>{if(code!==-3)console.error('School login browser failed:',code,desc)});
-    child.webContents.on('console-message',(_,level,message,line,source)=>console.log('School login browser:',message,'at',source+':'+line));
-    child.on('closed',()=>{if(!settled)reject(new Error('School login window was closed.'))});
-    child.loadURL(loginUrl).catch(e=>{if(e?.code==='ERR_ABORTED'||/ERR_ABORTED|(-3)/i.test(String(e?.message||''))){if(!settled&&!processing)return;return}finish(e)});
+    let settled=false,timeout=null;
+    const pending={requestToken:credential.oauth_token,credential,processing:false,finish:(error,value)=>{
+      if(settled)return;settled=true;if(timeout)clearTimeout(timeout);
+      if(pendingExternalSchoolLogin===pending)pendingExternalSchoolLogin=null;
+      error?reject(error):resolve(value);
+    }};
+    pendingExternalSchoolLogin=pending;
+    timeout=setTimeout(()=>pending.finish(new Error('Timed out waiting for school sign-in. Finish signing in in your default browser and allow it to return to Schoology.')),10*60*1000);
+    shell.openExternal(loginUrl).catch(error=>pending.finish(new Error('Could not open the default browser for school sign-in: '+(error?.message||error))));
   });
 }
 
@@ -636,6 +657,8 @@ function create(){
   win.webContents.on('console-message',(_,level,message,line,source)=>console.log('Renderer:',message,'at',source+':'+line));
   win.webContents.on('did-navigate',(_,url)=>console.log('Schoology navigated to:',url));
   win.webContents.on('did-navigate-in-page',(_,url)=>console.log('Schoology in-page navigation:',url));
+  win.webContents.on('did-finish-load',()=>flushPendingSchoologyDeepLink());
+  win.webContents.on('did-stop-loading',()=>flushPendingSchoologyDeepLink());
   win.once('ready-to-show',()=>{try{if(overlay)win.setTitleBarOverlay?.({color:'#002137',symbolColor:'#ffffff',height:56})}catch{};win.show();});
   // Load the real application document directly. index.html is only a legacy splash redirect;
   // entering it first races the M3E bootstrap against a second file:// navigation and can leave
@@ -645,6 +668,8 @@ function create(){
 app.whenReady().then(()=>{
   session.defaultSession.setPermissionRequestHandler((_wc,permission,callback)=>callback(permission==='media'||permission==='camera'||permission==='microphone'));
   session.defaultSession.setPermissionCheckHandler((_wc,permission)=>permission==='media'||permission==='camera'||permission==='microphone');
+  try{app.setAsDefaultProtocolClient('schoology')}catch(e){console.error('Could not register Schoology URL protocol:',e.message)}
+  ipcMain.handle('renderer-deep-link-ready',()=>{rendererDeepLinkReady=true;setImmediate(flushPendingSchoologyDeepLink);return true});
   ipcMain.handle('auth-state',()=>loadAuth());
   ipcMain.handle('network-online',()=>require('electron').net.isOnline());
   ipcMain.handle('login-credentials',(_,x)=>authorizeCredentials(x.user,x.password,x.schoolId));
