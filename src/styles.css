@@ -3118,3 +3118,22 @@ html[data-theme-effective="dark"] .startupFatalNote {
   min-height: 0 !important;
   min-width: 0 !important;
 }
+
+
+/* v147: reliable M3E FAB menu icon slots and assignment attachment rows. */
+m3e-fab#homeCreatePlus m3e-fab-menu-trigger{display:contents}
+.assignmentAttachmentsButton{display:block;width:calc(100% - 32px);margin:10px 16px 12px}
+.assignmentAttachmentDialogOverlay{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.32)}
+.assignmentAttachmentDialog{width:min(520px,calc(100vw - 32px));max-height:min(680px,calc(100vh - 40px));overflow:hidden;--md-sys-color-surface:var(--md-sys-color-surface-container, #fff);color:var(--md-sys-color-on-surface,#202124)}
+.assignmentAttachmentDialog .assignmentAttachmentList{display:flex;flex-direction:column;min-height:0;max-height:calc(100vh - 190px);overflow:auto;overscroll-behavior:contain;border-top:1px solid var(--md-sys-color-outline-variant,#d9dce0);border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dce0)}
+.assignmentAttachmentRow{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:9px 20px;border:0;border-bottom:1px solid var(--md-sys-color-outline-variant,#e1e4e8);background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#202124);text-align:left;cursor:pointer;font:inherit}
+.assignmentAttachmentRow:last-child{border-bottom:0}
+.assignmentAttachmentRow:hover{background:var(--md-sys-color-surface-container-high,#f2f3f5)}
+.assignmentAttachmentIcon{display:flex;flex:0 0 36px;width:36px;height:36px;align-items:center;justify-content:center}
+.assignmentAttachmentIcon img{display:block;width:32px;height:32px;object-fit:contain}
+.assignmentAttachmentName{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.35;font-size:14px}
+.assignmentAttachmentActions{display:flex;justify-content:flex-end;padding:8px 16px 4px}
+:root[data-theme-effective="dark"] .assignmentAttachmentDialog{color:var(--md-sys-color-on-surface,#e6e8eb)}
+:root[data-theme-effective="dark"] .assignmentAttachmentDialog .assignmentAttachmentList{border-color:var(--md-sys-color-outline-variant,#444a50)}
+:root[data-theme-effective="dark"] .assignmentAttachmentRow{background:var(--md-sys-color-surface,#202327);color:var(--md-sys-color-on-surface,#e6e8eb);border-color:var(--md-sys-color-outline-variant,#3a3f46)}
+:root[data-theme-effective="dark"] .assignmentAttachmentRow:hover{background:var(--md-sys-color-surface-container-high,#292d32)}

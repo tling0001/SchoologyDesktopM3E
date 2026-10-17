@@ -148,20 +148,24 @@ async function showJoinGroupDialog(){
   wrap.querySelector('#joinGroupSubmit')?.addEventListener('click',async()=>{const code=wrap.querySelector('#joinGroupCode')?.value.trim();const st=wrap.querySelector('#joinGroupStatus');if(!code){st.textContent='Enter an access code.';return}try{st.textContent='Joining…';const x=await A.api({path:'groups/accesscode',method:'POST',json:true,params:{access_code:code}});const status=String(x?.status||x?.enrollment?.status||'').toLowerCase();st.textContent=status==='pending'?'Group request sent.':status==='active'?'You joined the group.':'Group request submitted.';setTimeout(()=>{close();loadCourseSubmenu()},500)}catch(e){st.textContent='Unable to join group: '+e.message}});
   requestAnimationFrame(()=>wrap.querySelector('#joinGroupCode')?.focus());
 }
-function wireFabMenu(plus,menu,openName="add",closeName="close"){
+function wireFabMenu(plus,menu){
   if(!plus||!menu)return;
-  const sync=()=>{
-    const open=plus.getAttribute("aria-expanded")==="true";
-    plus.querySelector("m3e-fab-menu-trigger")?.replaceChildren(Object.assign(document.createElement("m3e-icon"),{name:open?closeName:openName,variant:"outlined"}));
-  };
-  menu.addEventListener("toggle",sync);
   let trigger=plus.querySelector("m3e-fab-menu-trigger");
   if(!trigger){
     trigger=document.createElement("m3e-fab-menu-trigger");
     plus.replaceChildren(trigger);
   }
+  const add=document.createElement("m3e-icon");
+  add.setAttribute("name","add");
+  add.setAttribute("variant","outlined");
+  const close=document.createElement("m3e-icon");
+  close.setAttribute("slot","close-icon");
+  close.setAttribute("name","close");
+  close.setAttribute("variant","outlined");
+  // M3E hides the default slot while expanded and reveals slot="close-icon".
+  // Do not manually toggle icon contents: that can display two close glyphs.
+  trigger.replaceChildren(add,close);
   trigger.setAttribute("for",menu.id);
-  requestAnimationFrame(sync);
 }
 function createFabMenuFor(plusId,menuId,itemsHtml){
   const plus=document.getElementById(plusId);if(!plus)return null;
@@ -517,8 +521,8 @@ function syncToolbar(){
   const slot=document.getElementById('floatingActionSlot');if(!slot)return;
   slot.innerHTML='';
   if(state.tab==='home'&&!state.courseView&&!state.assignmentView&&!state.embeddedTitle){
-    slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"><m3e-fab-menu-trigger for="homeCreateMenu"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab-menu-trigger></m3e-fab>`;
-    requestAnimationFrame(()=>showHomeCreateMenu());
+    slot.innerHTML=`<m3e-fab id="homeCreatePlus" variant="primary-container" aria-label="Create"><m3e-fab-menu-trigger for="homeCreateMenu"><m3e-icon name="add" variant="outlined"></m3e-icon><m3e-icon slot="close-icon" name="close" variant="outlined"></m3e-icon></m3e-fab-menu-trigger></m3e-fab>`;
+    showHomeCreateMenu();
     return;
   }
   if(state.tab==='calendar'&&!state.courseView&&!state.embeddedTitle){if(state.calendarCanCreate){slot.innerHTML=`<m3e-fab id="calendarCreatePlus" variant="primary-container" aria-label="Create event"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;document.getElementById('calendarCreatePlus')?.addEventListener('click',()=>showCreatePostDialog('event','',null));}return;}
@@ -741,18 +745,50 @@ function collectAssignmentAttachments(a){
     for(const k of ['attachment','attachments','files','links','videos','embeds','file','link','video','embed'])if(v[k]&&v[k]!==a)walk(v[k]);
   };walk(a);return out;
 }
-async function showAssignmentAttachmentDialog(attachments){
-  const items=collectAssignmentAttachments(attachments);if(!items.length)return;
-  const actions=items.slice(0,50).map(item=>({label:String(item.title||item.fileTitle||item.filename||item.fileName||item.linkTitle||item.videoTitle||'Attachment'),action:async()=>{
-    try{
-      if(item.kind==='file'){
-        const url=item.resolveDownloadUrl||item.resolve_download_url||item.converted_download_path||item.convertedDownloadPath||item.download_path||item.downloadPath||item.url;if(!url)throw new Error('Schoology did not provide a file URL.');
-        const r=await A.downloadFile({url,filename:item.filename||item.fileName||item.title||'Schoology file',mime:item.filemime||item.fileMIME||'application/octet-stream'});const err=await A.openDownloadedFile({path:r.path});if(err)alert(err);
-      }else if(item.kind==='link'||item.kind==='video'){const u=item.url||item.linkURL||item.linkUrl||item.href||item.videoURL||item.videoUrl;if(!u)throw new Error('Schoology did not provide a link URL.');await A.prepareWebSession();showEmbeddedWeb(u,item.linkTitle||item.title||item.videoTitle||'Link');}
-      else if(item.kind==='embed'){const code=item.embed_code||item.embedCode||'';if(code)showEmbeddedWeb('data:text/html;charset=utf-8,'+encodeURIComponent(code),item.title||'Embedded content',{allowBrowser:false});}
-    }catch(e){alert('Unable to open attachment: '+e.message)}
-  }}));
-  actions.push({label:'Cancel',action:null});showAppDialog('Attachments',`${items.length} attachment${items.length===1?'':'s'}`,actions);
+async function openAssignmentAttachmentItem(item,button,dialog){
+  try{
+    if(item.kind==='file'){
+      const url=item.resolveDownloadUrl||item.resolve_download_url||item.converted_download_path||item.convertedDownloadPath||item.download_path||item.downloadPath||item.url;
+      if(!url)throw new Error('Schoology did not provide a file URL.');
+      const result=await downloadWithFeedback(button,{url,filename:item.filename||item.fileName||item.title||'Schoology file',mime:item.filemime||item.fileMIME||item.mime||'application/octet-stream'});
+      const error=await A.openDownloadedFile({path:result.path});if(error)throw new Error(error);
+      dialog.remove();
+    }else if(item.kind==='link'||item.kind==='video'){
+      const url=item.url||item.linkURL||item.linkUrl||item.link_url||item.href||item.videoURL||item.videoUrl||item.video_url;
+      if(!url)throw new Error('Schoology did not provide a link URL.');
+      dialog.remove();
+      if(await routeSchoologyLink(url))return;
+      await A.prepareWebSession();showEmbeddedWeb(url,item.linkTitle||item.title||item.videoTitle||item.video_title||'Link');
+    }else if(item.kind==='embed'){
+      const code=item.embed_code||item.embedCode||'';
+      if(!code)throw new Error('Schoology did not provide embedded content.');
+      dialog.remove();showEmbeddedWeb('data:text/html;charset=utf-8,'+encodeURIComponent(code),item.title||'Embedded content',{allowBrowser:false});
+    }else if(item.kind==='external_tool'){
+      const url=item.launch_url||item.launchUrl||item.url||item.tool_url||item.toolUrl||item.web_url||item.webUrl;
+      if(!url)throw new Error('Schoology did not provide a launch URL for this tool.');
+      dialog.remove();await A.prepareWebSession();showEmbeddedWeb(url,item.tool_name||item.toolName||item.title||'External Tool',{allowBrowser:false,lti:true});
+    }
+  }catch(error){showAppDialog('Unable to open attachment',error.message||String(error))}
+}
+function showAssignmentAttachmentDialog(attachments){
+  const items=(Array.isArray(attachments)?attachments:collectAssignmentAttachments(attachments)).slice(0,50);
+  if(!items.length)return;
+  document.getElementById('assignmentAttachmentDialog')?.remove();
+  const dialog=document.createElement('div');dialog.id='assignmentAttachmentDialog';dialog.className='assignmentAttachmentDialogOverlay';
+  dialog.innerHTML=`<m3e-dialog open class="assignmentAttachmentDialog" disable-close><span slot="header">Attachments</span><div class="assignmentAttachmentList">${items.map((item,index)=>{
+    const title=String(item.title||item.fileTitle||item.filename||item.fileName||item.linkTitle||item.videoTitle||item.name||item.tool_name||'Attachment');
+    const mime=item.filemime||item.fileMIME||item.mime||'';
+    const iconName=item.kind==='link'||item.kind==='video'||item.kind==='embed'||item.kind==='external_tool'?'attachment_link_icon.png':mimeIconForFilename(title,mime);
+    const icon=localAttachmentIcon(iconName)||localAttachmentIcon('attachment_document_icon.png');
+    return `<button type="button" class="assignmentAttachmentRow" data-assignment-attachment-index="${index}"><span class="assignmentAttachmentIcon" aria-hidden="true"><img src="${esc(icon)}" alt=""></span><span class="assignmentAttachmentName">${esc(title)}</span></button>`;
+  }).join('')}</div><div slot="actions" end class="assignmentAttachmentActions"><m3e-button id="assignmentAttachmentCancel" variant="text">Cancel</m3e-button></div></m3e-dialog>`;
+  document.body.appendChild(dialog);
+  dialog.querySelector('#assignmentAttachmentCancel')?.addEventListener('click',()=>dialog.remove());
+  dialog.querySelectorAll('[data-assignment-attachment-index]').forEach(button=>button.addEventListener('click',async()=>{
+    const item=items[Number(button.dataset.assignmentAttachmentIndex)];
+    if(item)await openAssignmentAttachmentItem(item,button,dialog);
+  }));
+  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.remove()});
 }
 async function showAssignment(sectionId,assignmentId){
   const c=document.getElementById('content'); if(!c)return;
@@ -802,7 +838,7 @@ async function showAssignment(sectionId,assignmentId){
       const el=document.getElementById('assignmentTabContent');if(!el)return;
       const teacherComment=typeof assignmentGrade.comment==='string'?assignmentGrade.comment:(assignmentGrade.comment?.comment||assignmentGrade.comment?.body||'');
       const attachmentCount=collectAssignmentAttachments(attachments).length;
-      el.innerHTML=`<m3e-card variant="filled" class="assignmentInfoCard"><div class="assignmentInfoHeader"><h1>${esc(at.title||'Assignment')}</h1><div>${esc(at.due||'')}</div></div>${attachmentCount?`<button id="viewAssignmentAttachments" class="assignmentAttachmentsButton">View Attachments (${attachmentCount})</button>`:''}<div class="assignmentDescription">${html||'<span class="muted">No description.</span>'}</div>${teacherComment?`<section class="assignmentTeacherComment"><b>Teacher Comment</b><div>${teacherComment}</div></section>`:''}<div class="assignmentMeta">${at.max_points!=null?`<span>${esc(at.max_points)} points</span>`:''}</div></m3e-card>`;
+      el.innerHTML=`<m3e-card variant="filled" class="assignmentInfoCard"><div class="assignmentInfoHeader"><h1>${esc(at.title||'Assignment')}</h1><div>${esc(at.due||'')}</div></div>${attachmentCount?`<m3e-button id="viewAssignmentAttachments" class="assignmentAttachmentsButton" variant="outlined">View Attachments (${attachmentCount})</m3e-button>`:''}<div class="assignmentDescription">${html||'<span class="muted">No description.</span>'}</div>${teacherComment?`<section class="assignmentTeacherComment"><b>Teacher Comment</b><div>${teacherComment}</div></section>`:''}<div class="assignmentMeta">${at.max_points!=null?`<span>${esc(at.max_points)} points</span>`:''}</div></m3e-card>`;
       state.assignmentTab='info';state.assignmentSubpage=null;state.submissionMenu=false;syncToolbar();
       document.getElementById('viewAssignmentAttachments')?.addEventListener('click',()=>showAssignmentAttachmentDialog(attachments));
       hydrateMediaImages(el);
@@ -1469,6 +1505,7 @@ async function loadSectionGrades(course){
  const assignments=items.assignment||items.assignments||[];
  const gs=userGrades.section||userGrades.sections||[];
  const current=gs.find(s=>String(s.section_id||s.id)===String(sid))||gs[0]||{};
+ try{await hydrateUserCourseGrades([current])}catch{}
  const byId={};
  for(const per of (current.period||current.periods||[])){
   for(const ga of (per.assignment||per.assignments||[]))byId[String(ga.assignment_id||ga.id)]={...ga};
@@ -1506,32 +1543,81 @@ function findStringGradeOverride(sec){
  };
  return walk(sec);
 }
-function renderOverallGrade(sec){
- const final=getFinalGradeObject(sec);
- // Match the Android GradesStringProvider: any override_str is returned
- // directly, before the calculated grade is formatted. A numeric override is
- // also an override, but a string override always wins over it.
- const stringOverride=findStringGradeOverride(sec);
- const numericOverride=final.override_numeric??final.overrideNumericGrade;
- const rawGrade=final.grade??final.calculated_grade??final.calculatedGrade??final.score??null;
- let val='—';
- if(stringOverride){
-   val=stringOverride;
- }else if(numericOverride!==null&&numericOverride!==undefined&&String(numericOverride).trim()!==''){
-   const n=Number(numericOverride);
-   val=Number.isFinite(n)?`${Number.isInteger(n)?n:n.toFixed(1).replace(/\.0$/,'')}%`:String(numericOverride);
- }else if(rawGrade!==null&&rawGrade!==undefined&&String(rawGrade).trim()!==''){
-   const rawText=String(rawGrade).trim();
-   const n=Number(rawText.replace(/%/g,''));
-   if(Number.isFinite(n)){
-     const pctValue=(n>=0&&n<=1)?n*100:n;
-     const pct=`${Number.isInteger(pctValue)?pctValue:pctValue.toFixed(1).replace(/\.0$/,'')}%`;
-     const letter=pctValue>=90?'A':pctValue>=80?'B':pctValue>=70?'C':pctValue>=60?'D':'F';
-     val=`${pct} (${letter})`;
-   }else val=rawText;
+function getFinalGradeDisplay(sec){
+ const firstDefined=(...values)=>values.find(v=>v!==undefined&&v!==null&&String(v).trim()!=='');
+ const rawFinal=sec?._resolvedFinalGrade??sec?.final_grade??sec?.finalGrade??sec?.final_grades??sec?.finalGrades??[];
+ const finals=(Array.isArray(rawFinal)?rawFinal:(rawFinal?[rawFinal]:[])).filter(v=>v&&typeof v==='object');
+ const periodList=f=>{const v=f?.period??f?.periods??f?.final_period??f?.finalPeriod??f?.final_grade_period??f?.finalGradePeriod??[];return Array.isArray(v)?v:(v?[v]:[])};
+ const entries=finals.flatMap(final=>{const periods=periodList(final);return periods.length?periods.map(period=>({final,period:period||{}})):[{final,period:{}}]});
+ const entry=entries.find(e=>String(e.period?.period_id??e.period?.periodId??'')==='final')||{final:finals[0]||{},period:{}};
+ const final=entry.final||{},period=entry.period||{};
+ const override=firstDefined(period.override_str,period.overrideStr,period.override_string,period.overrideString,period.grade_override,period.gradeOverride,final.override_str,final.overrideStr,final.override_string,final.overrideString,final.grade_override,final.gradeOverride);
+ if(override!==undefined)return {value:String(override).trim(),letter:String(override).trim(),percentage:'',overridden:true,final,period};
+ const numericOverride=firstDefined(period.override_numeric,period.overrideNumeric,final.override_numeric,final.overrideNumeric);
+ const grade=numericOverride!==undefined?numericOverride:firstDefined(period.grade,final.grade,final.calculated_grade,final.calculatedGrade,sec?.grade);
+ if(grade===undefined)return {value:'—',letter:'',percentage:'',overridden:false,final,period};
+ const numeric=Number(String(grade).replace(/%$/,''));
+ if(Number.isFinite(numeric)){
+  const letter=letterGradeForCourse(sec,entry,numeric),scale=gradingScaleForCourse(sec,entry);
+  const pct=formatGradeNumber(numeric)+'%';
+  const scaleType=Number(scale?.type??scale?.scale_type??scale?.scaleType);
+  const hideNumeric=[true,1,'1','true'].includes(scale?.hide_numeric??scale?.hideNumeric);
+  if(letter&&scaleType===1)return {value:hideNumeric?letter:`${letter} (${pct})`,letter,percentage:pct,overridden:numericOverride!==undefined,final,period};
+  return {value:pct,letter:'',percentage:pct,overridden:numericOverride!==undefined,final,period};
  }
+ return {value:String(grade),letter:'',percentage:'',overridden:numericOverride!==undefined,final,period};
+}
+function formatGradeNumber(value){const n=Number(value);return Number.isFinite(n)?String(Number(n.toFixed(2))):String(value)}
+function gradingScaleForCourse(sec,entry){
+ const final=entry?.final||{},period=entry?.period||{};
+ const scaleId=String(final.scale_id??final.scaleId??period.scale_id??period.scaleId??sec?._gradeScaleId??'');
+ const root=sec?._gradingScales||{};
+ const raw=root.grading_scale??root.gradingScale??root.scales??root.scale??root.data?.grading_scale??root.data?.scales??[];
+ const scales=Array.isArray(raw)?raw:(raw?[raw]:[]);
+ let scale=scales.find(s=>String(s.id??s.scale_id??s.scaleId??'')===scaleId);
+ if(!scale&&scales.length===1)scale=scales[0];
+ return scale||null;
+}
+function letterGradeForCourse(sec,entry,numeric){
+ const scale=gradingScaleForCourse(sec,entry);if(!scale)return '';
+ const type=Number(scale.type??scale.scale_type??scale.scaleType);
+ if(Number.isFinite(type)&&type!==1)return '';
+ const lv=scale.scale?.level??scale.scale?.levels?.level??scale.scale?.levels??scale.levels?.level??scale.levels??scale.level??[];
+ const levels=(Array.isArray(lv)?lv:(lv?[lv]:[])).map(l=>({grade:l.grade??l.title??l.name,cutoff:Number(l.cutoff??l.average??l.percent??l.percentage)})).filter(l=>l.grade!=null&&Number.isFinite(l.cutoff)).sort((a,b)=>b.cutoff-a.cutoff);
+ const matched=levels.find(l=>numeric>=l.cutoff);return matched?String(matched.grade):'';
+}
+async function hydrateUserCourseGrades(sections){
+ const uid=state.auth?.userId||state.auth?.user?.id;
+ await Promise.all((sections||[]).map(async sec=>{
+  const sid=sec.section_id??sec.sectionId??sec.id;if(!sid)return;
+  try{
+   const [grades,scales,enrollments,sectionDetail]=await Promise.all([
+    A.api({path:`sections/${sid}/grades`,params:{}}).catch(()=>null),
+    A.api({path:`sections/${sid}/grading_scales`,params:{}}).catch(()=>null),
+    A.api({path:`sections/${sid}/enrollments`,params:{start:0,limit:200,enrollment_status:1}}).catch(()=>null),
+    A.api({path:`sections/${sid}`,params:{}}).catch(()=>null)
+   ]);
+   const all=grades?.final_grade??grades?.finalGrade??grades?.final_grades??[];
+   const list=Array.isArray(all)?all:(all?[all]:[]);
+   const enrollmentList=enrollments?.enrollment??enrollments?.enrollments??[];
+   const myEnrollment=enrollmentList.find(en=>String(en.uid??en.user_id??en.userId??'')===String(uid));
+   const enrollmentId=String(myEnrollment?.id??sec.enrollment_id??sec.enrollmentId??sec.enrollment?.id??'');
+   let matched=list.find(f=>enrollmentId&&String(f.enrollment_id??f.enrollmentId??'')===enrollmentId);
+   if(!matched&&list.length===1)matched=list[0];
+   if(matched)sec._resolvedFinalGrade=[matched];
+   sec._gradingScales=scales||{};
+   const matchedPeriods=matched?.period??matched?.periods??matched?.final_period??matched?.finalPeriod??[];
+   const periodArray=Array.isArray(matchedPeriods)?matchedPeriods:(matchedPeriods?[matchedPeriods]:[]);
+   const finalPeriod=periodArray.find(p=>String(p?.period_id??p?.periodId??'')==='final');
+   sec._gradeScaleId=finalPeriod?.scale_id??finalPeriod?.scaleId??matched?.scale_id??matched?.scaleId??sec.scale_id??sec.scaleId??sectionDetail?.section?.options?.default_grading_scale_id??sectionDetail?.options?.default_grading_scale_id;
+  }catch{}
+ }));
+}
+function renderOverallGrade(sec){
+ const display=getFinalGradeDisplay(sec);
+ const final=display.final;
  const comment=typeof final.comment==='string'?final.comment:(final.comment?.comment||final.comment?.body||'');
- return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(val)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${esc(comment)}</div></div>`:''}</div>`;
+ return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(display.value)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${comment}</div></div>`:''}</div>`;
 }
 function renderGradePeriods(rows,periods,categories){
  const ps=periods?.grading_period||periods?.period||[];const cs=categories?.grading_category||categories?.category||[];

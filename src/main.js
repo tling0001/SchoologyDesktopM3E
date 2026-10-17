@@ -49,7 +49,7 @@ function saveAuth(v){
   fs.writeFileSync(tmp,JSON.stringify(v,null,2),'utf8');
   fs.renameSync(tmp,storeFile);
 }
-function enc(v){return encodeURIComponent(String(v)).replace(/[!'()*]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase()).replace(/%20/g,'+')}
+function enc(v){return encodeURIComponent(String(v)).replace(/[!'()~]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase()).replace(/%20/g,'+')}
 function parseBody(s){return Object.fromEntries(String(s||'').split('&').filter(Boolean).map(x=>{const i=x.indexOf('=');const k=i<0?x:x.slice(0,i);const v=i<0?'':x.slice(i+1);return [decodeURIComponent(k.replace(/\+/g,' ')),decodeURIComponent(v.replace(/\+/g,' '))]}))}
 function oauthTimestamp(){return Math.floor(Date.now()/1000)+serverTimeOffset}
 function sortedOAuthBaseParams(method,url,oauth,extra=[]){
@@ -74,11 +74,11 @@ function makeOAuthHeader(method,url,authToken,authSecret,qrData=''){
   // request-token request its value is explicitly the empty string.
   oauth.oauth_token=authToken==null?'':String(authToken);
   const extra=[];
-  if(qrData) extra.push(['scanned_qr_data',qrData]);
+  if(qrData) extra.push(['scanned_qr_data',enc(qrData)]);
   const normalized=sortedOAuthBaseParams(method,url,oauth,extra);
   const u=new URL(url);
   const base=method.toUpperCase()+'&'+enc(u.protocol+'//'+u.host+u.pathname)+'&'+enc(normalized);
-  const key=enc(CONSUMER_SECRET)+'&'+enc(authSecret||'');
+  const key=String(CONSUMER_SECRET)+'&'+String(authSecret||'');
   oauth.oauth_signature=crypto.createHmac('sha1',key).update(base).digest('base64');
   return 'OAuth '+['oauth_consumer_key','oauth_token','oauth_nonce','oauth_timestamp','oauth_signature_method','oauth_version'].map(k=>k+'="'+String(oauth[k])+'"').join(', ')+', oauth_signature="'+enc(oauth.oauth_signature)+'"';
 }
