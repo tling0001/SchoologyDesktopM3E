@@ -15,7 +15,7 @@ function getThemeSettings(){try{const v=JSON.parse(localStorage.getItem(THEME_ST
 function saveThemeSettings(v){const next={...DEFAULT_THEME_SETTINGS,...v};try{localStorage.setItem(THEME_STORAGE_KEY,JSON.stringify(next))}catch{}return next}
 function effectiveThemeIsDark(){const t=getThemeSettings();return t.scheme==='dark'||(t.scheme==='auto'&&window.matchMedia?.('(prefers-color-scheme: dark)').matches)}
 function themeLogoSrc(){return effectiveThemeIsDark()?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg'}
-function applyThemeToDocument(){const t=getThemeSettings();const dark=effectiveThemeIsDark();document.documentElement.dataset.themeEffective=dark?'dark':'light';document.documentElement.style.colorScheme=dark?'dark':'light';document.querySelectorAll('m3e-theme').forEach(el=>{el.color=t.color;el.variant=t.variant;el.scheme=t.scheme;el.contrast=t.contrast;el.motion=t.motion});document.querySelectorAll('.m3eLoginLogo,.m3eButtonLogo,.androidSplashLogo').forEach(img=>{img.src=themeLogoSrc()});if(dark)requestAnimationFrame(()=>fixDarkRichTextColors())}
+function applyThemeToDocument(){const t=getThemeSettings();const dark=effectiveThemeIsDark();document.documentElement.dataset.themeEffective=dark?'dark':'light';document.documentElement.style.colorScheme=dark?'dark':'light';document.querySelectorAll('m3e-theme').forEach(el=>{el.color=t.color;el.variant=t.variant;el.scheme=t.scheme;el.contrast=t.contrast;el.motion=t.motion});document.querySelectorAll('.m3eLoginLogo,.m3eButtonLogo,.androidSplashLogo').forEach(img=>{img.src=themeLogoSrc()});try{A.setSharedWebviewTheme?.(dark)}catch{}if(dark)requestAnimationFrame(()=>fixDarkRichTextColors())}
 function fixDarkRichTextColors(root=document.getElementById('content')){
  if(document.documentElement.dataset.themeEffective!=='dark'||!root?.querySelectorAll)return;
  const values=color=>(String(color||'').match(/[0-9.]+/g)||[]).map(Number);
@@ -28,7 +28,11 @@ if(!window.__schoologyDarkTextObserver){window.__schoologyDarkTextObserver=new M
 
 if(!window.__schoologyThemeMediaBound){window.__schoologyThemeMediaBound=true;window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(getThemeSettings().scheme==='auto')applyThemeToDocument()})}
 
-let state={screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',settingsPage:null,homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null,peopleEnabled:false};
+let state={screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',settingsPage:null,homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null,peopleEnabled:false,openSchoologyLinks:true,desktopNotifications:true,notificationSound:false,appVersion:''};
+A.getOpenSchoologyLinks?.().then(v=>{state.openSchoologyLinks=v!==false}).catch(()=>{});
+A.getDesktopNotifications?.().then(v=>{state.desktopNotifications=v!==false}).catch(()=>{});
+A.getNotificationSound?.().then(v=>{state.notificationSound=v===true}).catch(()=>{});
+A.getAppVersion?.().then(v=>{state.appVersion=String(v||'');const label=document.querySelector('.settingsVersion');if(label)label.textContent='Version: '+state.appVersion}).catch(()=>{});
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function syncM3eTabSelection(container, attr, value){
   const root=typeof container==='string'?document.querySelector(container):container;
@@ -1271,7 +1275,21 @@ async function routeSchoologyLink(rawUrl){
  if(scheme)path=`/${host}${path}`;
  const webHost=u.hostname.toLowerCase();
  const isSchoolHost=webHost==='lms.lausd.net'||webHost.endsWith('.schoology.com');
- if(!scheme&&!isSchoolHost)return false;
+ if(!scheme&&(!state.openSchoologyLinks||!isSchoolHost))return false;
+ if(scheme&&host==='link'){
+   const target=u.searchParams.get('url')||'';let destination;try{destination=new URL(target)}catch{return true}
+   if(!['http:','https:'].includes(destination.protocol))return true;
+   if(state.openSchoologyLinks&&isSchoologyRoutableLink(destination.toString())){
+     try{if(await routeSchoologyLink(destination.toString()))return true;await A.prepareWebSession();await showEmbeddedWeb(destination.toString(),'Schoology Link',{allowBrowser:false});return true}
+     catch(e){showAppDialog('Unable to open Schoology link',e.message||String(e));return true}
+   }
+   try{await A.openExternal(destination.toString())}catch(e){showAppDialog('Unable to open external link',e.message||String(e))}return true;
+ }
+ if(scheme&&host==='external-document'){
+   const primary=u.searchParams.get('uri')||'',fallback=u.searchParams.get('fallback-url')||'';
+   for(const candidate of [primary,fallback]){if(!candidate)continue;try{await A.openExternal(candidate);return true}catch{}}
+   showAppDialog('Unable to open document','Neither the document link nor its fallback could be opened.');return true;
+ }
  const mCourse=path.match(/^\/course(?:s)?\/(\d+)(?:\/materials(?:\/gp\/(\d+))?)?$/i);
  const mSection=path.match(/^\/section(?:s)?\/(\d+)$/i);
  const mAssignment=path.match(/^\/(?:assignment|assignments)\/(\d+)(?:\/info)?$/i);
@@ -1780,11 +1798,75 @@ async function openGroupResourceItem(d,b,gid){
   if(dt==='link'||t==='link'){await A.prepareWebSession();showEmbeddedWeb(u,d.title||d.name||'Link');return;}
   const r=await downloadWithFeedback(b,{url:u,filename,mime});const err=await A.openDownloadedFile({path:r.path});if(err)alert(err);
 }
+async function loadSchoolProfileUpcoming(){
+ const id=Number(state.schoolProfile?.schoolId);if(!id)return [];
+ const x=await A.api({path:`schools/${id}/events`,params:{start:formatApiDate(new Date()),limit:50}});
+ const events=(x?.event||x?.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'').toLowerCase()));
+ state.schoolProfile.events=events;
+ const pane=document.getElementById('schoolProfileUpcomingContent');
+ if(pane){pane.innerHTML=renderUpcoming(events);wireSchoolProfileUpcoming(pane,events,id)}
+ return events;
+}
+function wireSchoolProfileUpcoming(root,events,schoolId){
+ root.querySelectorAll('[data-course-upcoming-id]').forEach(button=>button.onclick=async()=>{
+  const event=events.find(v=>String(v.id||'')===String(button.dataset.courseUpcomingId));if(!event)return;
+  const type=String(event.type||'').toLowerCase(),assignmentId=event.assignment_id??event.assignmentId??event.assignment?.id,sectionId=event.section_id??event.sectionId;
+  if(type==='assignment'&&assignmentId&&sectionId){showAssignment(sectionId,assignmentId);return}
+  if(['assessment','assessment_v2','managed_assessment','quiz'].includes(type)){const id=assignmentId??event.id;if(id){await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,event.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})}return}
+  if(type==='event'&&event.id){showEventNative('schools',schoolId,event.id,event.title||'Event');return}
+  const url=event.web_url||event.webUrl||event.url;
+  if(url){await A.prepareWebSession();showEmbeddedWeb(url,event.title||'Upcoming',{allowBrowser:false})}
+ });
+}
 async function openSchoolProfile(schoolId,title='School'){
   const c=document.getElementById('content');if(!c)return;
-  state.embeddedTitle=title;state.embeddedTheme='';state.embeddedReturn={tab:state.tab,title:state.toolbarTitle};state.toolbarTitle=title;syncToolbar();
-  c.innerHTML='<section class="schoolProfileNativePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></section>';
-  try{const x=await A.api({path:`schools/${schoolId}`,params:{}});const sch=x?.school||x;c.innerHTML=`<section class="schoolProfileNativePage"><div class="schoolProfileHeader"><h1>${esc(sch?.title||sch?.name||title)}</h1><p>${esc(sch?.description||sch?.location||'')}</p></div></section>`;}catch(e){c.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}
+  state.embeddedTitle=title;state.embeddedTheme='school-profile';state.embeddedCanOpenExternal=false;state.embeddedReturn={tab:state.tab,title:state.toolbarTitle,group:state.currentGroup,groupTab:state.groupTab};state.toolbarTitle=title;state.schoolProfile={schoolId:Number(schoolId),tab:'updates',events:[]};syncToolbar();
+  c.innerHTML='<section class="schoolProfileNativePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading school…</span></div></section>';
+  try{
+   const x=await A.api({path:`schools/${schoolId}`,params:{}}),school=x?.school||x||{},schoolTitle=school.title||school.name||title;
+   state.toolbarTitle=schoolTitle;syncToolbar();
+   const image=normalizeImageUrl(school.picture_url||school.pictureUrl||school.picture||school.image||'');
+   c.innerHTML=`<section class="schoolProfileNativePage"><div class="schoolProfileLayout"><section class="schoolProfileMainPane"><m3e-tabs variant="secondary" class="m3eSchoologyTabs schoolProfileTabs"><m3e-tab data-school-profile-tab="updates" selected>Updates</m3e-tab><m3e-tab data-school-profile-tab="info">Info</m3e-tab><m3e-tab data-school-profile-tab="upcoming">Upcoming</m3e-tab><m3e-tab data-school-profile-tab="resources">Resources</m3e-tab><m3e-tab data-school-profile-tab="discussions">Discussions</m3e-tab></m3e-tabs><div class="schoolProfileHeader"><div class="schoolProfileHeaderImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:'<img src="../assets/icons/group_default_website.png" alt="">'}</div><div class="schoolProfileHeaderText"><h1>${esc(schoolTitle)}</h1><p>${esc(school.description||school.location||'')}</p></div></div><div id="schoolProfileTabContent" class="schoolProfileTabContent"></div></section><aside id="schoolProfileUpcomingPane" class="schoolProfileUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="schoolProfileUpcomingContent" class="schoolProfileUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside></div></section>`;
+   await hydrateMediaImages(c);
+   const content=document.getElementById('schoolProfileTabContent');
+   const selectTab=async tab=>{
+    state.schoolProfile.tab=tab;syncM3eTabSelection(c,'schoolProfileTab',tab);
+    content.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
+    try{
+     if(tab==='info'){
+      const address=[school.address1,school.address2,school.city,school.state,school.postal_code,school.country].filter(v=>v!=null&&String(v).trim()!=='').map(String).join(' ');
+      const rows=[];if(address)rows.push(['Address',address]);if(school.phone)rows.push(['Phone',String(school.phone)]);
+      content.innerHTML=rows.length?`<div class="schoolProfileInfoRows">${rows.map(([k,v])=>`<div class="schoolProfileInfoRow"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>`:'<div class="empty">No information available.</div>';return;
+     }
+     if(tab==='updates'){
+      const response=await A.api({path:`schools/${schoolId}/updates`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
+      const items=response?.update||response?.updates||response?.update_list||[];
+      const ids=[...new Set(items.map(u=>u.user_id||u.uid||u.author_id||u.authorId).filter(Boolean).map(Number))],users={};
+      await Promise.all(ids.map(async id=>{try{const result=await A.api({path:`users/${id}`,params:{}});users[id]=result?.user||result}catch{}}));
+      content.innerHTML=items.length?`<div class="schoolProfileUpdates">${items.map(item=>{const id=item.user_id||item.uid||item.author_id||item.authorId,user=users[Number(id)]||{},name=user.name_display||user.name||item.display_name||item.user_name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||item.picture_url||item.pictureUrl||''),initials=String(name).trim().split(/\\s+/).slice(0,2).map(v=>v.charAt(0)).join('').toUpperCase()||'S';return `<article class="schoolProfileUpdate"><div class="schoolProfileUpdateAuthorRow"><span class="schoolProfileUpdateAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="">`:`<span>${esc(initials)}</span>`}</span><button type="button" class="schoolProfileUpdateAuthor" data-school-profile-author-id="${esc(id||'')}">${esc(name)}</button></div><div class="schoolProfileUpdateBody">${item.body||item.message||''}</div>${renderAttachments(item.attachments||item.attachment||item.files||{})}<small>${esc(formatSchoologyDate(item.created||item.timestamp||item.last_updated||''))}</small></article>`}).join('')}</div>`:'<div class="empty">No updates.</div>';
+      await hydrateMediaImages(content);content.querySelectorAll('[data-school-profile-author-id]').forEach(button=>button.onclick=()=>{if(button.dataset.schoolProfileAuthorId)openProfileById(button.dataset.schoolProfileAuthorId,button.textContent||'Profile')});return;
+     }
+     if(tab==='upcoming'){
+      const events=state.schoolProfile.events.length?state.schoolProfile.events:await loadSchoolProfileUpcoming();
+      content.innerHTML=events.length?renderUpcoming(events):'<div class="empty">No upcoming events.</div>';wireSchoolProfileUpcoming(content,events,Number(schoolId));return;
+     }
+     if(tab==='resources'){
+      const response=await A.api({path:`schools/${schoolId}/resources`,params:{start:0,limit:200,with_attachments:'TRUE'}});
+      const items=response?.resource||response?.resources||response?.resource_list||[];window.__schoolProfileResources=items;
+      content.innerHTML=items.length?`<m3e-list variant="segmented" class="schoolProfileResourceRows">${items.map((item,i)=>`<m3e-list-action data-school-resource-index="${i}">${esc(resourceTitle(item))}<span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>`).join('')}</m3e-list>`:'<div class="empty">No resources.</div>';
+      content.querySelectorAll('[data-school-resource-index]').forEach(button=>button.onclick=async()=>{try{await openCollectionResource(window.__schoolProfileResources[Number(button.dataset.schoolResourceIndex)],button)}catch(error){showAppDialog('Unable to open resource',error.message||String(error))}});return;
+     }
+     if(tab==='discussions'){
+      const response=await A.api({path:`schools/${schoolId}/discussions`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}}).catch(()=>({}));
+      const items=response?.discussion||response?.discussions||response?.discussion_list||[];
+      content.innerHTML=items.length?`<m3e-list variant="segmented" class="schoolProfileDiscussionRows">${items.map(item=>`<m3e-list-action data-school-discussion-id="${esc(item.id||item.discussion_id||'')}" data-school-discussion-url="${esc(item.web_url||item.webUrl||'')}">${esc(item.title||item.name||'Discussion')}<span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>`).join('')}</m3e-list>`:'<div class="empty">No discussions.</div>';
+      content.querySelectorAll('[data-school-discussion-id]').forEach(button=>button.onclick=async()=>{const url=button.dataset.schoolDiscussionUrl||`https://app.schoology.com/school/${schoolId}/discussions/${button.dataset.schoolDiscussionId}`;await A.prepareWebSession();showEmbeddedWeb(url,button.textContent?.trim()||'Discussion',{allowBrowser:false})});return;
+     }
+    }catch(error){content.innerHTML=`<div class="error apiError">${esc(error.message||String(error))}</div>`}
+   };
+   c.querySelectorAll('[data-school-profile-tab]').forEach(button=>button.addEventListener('click',()=>selectTab(button.dataset.schoolProfileTab)));
+   await Promise.all([selectTab('updates'),loadSchoolProfileUpcoming().catch(error=>{const pane=document.getElementById('schoolProfileUpcomingContent');if(pane)pane.innerHTML=`<div class="error apiError">${esc(error.message||String(error))}</div>`})]);
+  }catch(error){c.innerHTML=`<div class="error apiError">${esc(error.message||String(error))}</div>`}
 }
 
 async function showGroup(group,activeTab='updates'){
@@ -2252,14 +2334,20 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
       <div class="settingsSection"><h2>Account Settings</h2><m3e-list variant="segmented" class="settingsList"><m3e-list-action id="accountInfo">Account Info<span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action></m3e-list></div>
       <div class="settingsSection"><h2>Schoology Desktop</h2><m3e-list variant="segmented" class="settingsList">
         <m3e-list-action id="themeSettings">Theme<span slot="supporting-text">Color, light/dark mode, contrast, and motion</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
+        <m3e-list-action id="setupChromeLinkHandler">Set up Chrome link handling<span slot="supporting-text">Load the companion extension to open supported Schoology links in this app</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
+        <m3e-list-item>Schoology notifications<span slot="supporting-text">Show a desktop notification when new activity arrives</span><m3e-switch slot="trailing" id="desktopNotificationsToggle" ${state.desktopNotifications?'checked':''} aria-label="Schoology notifications"></m3e-switch></m3e-list-item>
+        <m3e-list-item>Notification sound<span slot="supporting-text">Play the system notification sound for new activity</span><m3e-switch slot="trailing" id="notificationSoundToggle" ${state.notificationSound?'checked':''} ${state.desktopNotifications?'':'disabled'} aria-label="Notification sound"></m3e-switch></m3e-list-item>
         <m3e-list-action id="checkForUpdates">Check for Updates<span slot="supporting-text">Check for a newer Schoology Desktop M3E release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="trySchoologyClassic">Try Schoology Classic<span slot="supporting-text">Download the latest original Schoology Desktop release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: 2026.06.0-port.138</div></section>`;
+      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.148')}</div></section>`;
     document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
     document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
+    document.getElementById('setupChromeLinkHandler')?.addEventListener('click',async()=>{try{state.openSchoologyLinks=await A.setOpenSchoologyLinks?.(true)!==false;const error=await A.openChromeExtensionFolder?.();if(error)throw new Error(error);showAppDialog('Chrome link handler','In Chrome, open chrome://extensions, enable Developer mode, choose Load unpacked, and select the chrome-link-handler folder that was opened. Supported Schoology links will now open in this app.')}catch(err){showAppDialog('Unable to open Chrome link handler folder',err.message||String(err))}});
+    document.getElementById('desktopNotificationsToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.desktopNotifications=await A.setDesktopNotifications?.(next)!==false;const sound=document.getElementById('notificationSoundToggle');if(sound)sound.disabled=!state.desktopNotifications}catch(err){e.target.checked=state.desktopNotifications;showAppDialog('Unable to update notifications',err.message||String(err))}});
+    document.getElementById('notificationSoundToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.notificationSound=await A.setNotificationSound?.(next)===true}catch(err){e.target.checked=state.notificationSound;showAppDialog('Unable to update notification sound',err.message||String(err))}});
     document.getElementById('themeSettings')?.addEventListener('click',()=>{state.settingsPage='theme';state.toolbarTitle='Theme';render();loadTab()});
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});
     document.getElementById('checkForUpdates')?.addEventListener('click',async()=>{const b=document.getElementById('checkForUpdates');if(b)b.disabled=true;try{const u=await A.checkForUpdates(true);if(u?.available)showUpdateDialog(u);else showAppDialog('Up to date','You are using the latest available Schoology Desktop M3E release.')}catch(e){showAppDialog('Unable to check for updates',e.message||String(e))}finally{if(b)b.disabled=false}});

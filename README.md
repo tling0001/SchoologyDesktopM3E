@@ -13,7 +13,7 @@ A Windows-first Electron desktop port of Schoology, implemented from the supplie
 
 Schoology-specific behavior is based on the supplied `schoology-android-2026-06-0.zip`. Do not substitute unrelated web implementations when changing Schoology behavior.
 
-M3E dependencies are vendored under `vendor/m3e/`. The current build uses the supplied `@m3e/web` **2.9.1** package and the supplied `@m3e/icons` package.
+M3E dependencies are vendored under `vendor/m3e/`. The current build uses the supplied `@m3e/web` **2.9.2** package and the supplied `@m3e/icons` package.
 
 ## Repository structure
 
@@ -21,6 +21,7 @@ M3E dependencies are vendored under `vendor/m3e/`. The current build uses the su
 src/
   main.js             Electron main process and native bridge
   preload.js          Renderer IPC bridge
+  webview-dark-preload.js  Early theme handling for shared Schoology WebViews
   renderer.js         Schoology UI, navigation, native screens, API flows
   styles.css          Layout/integration styling
   m3e-bootstrap.js    M3E Web Components bootstrap
@@ -29,6 +30,7 @@ src/
   appboot.js          Renderer startup/error bridge
   splash.js           Splash-to-app transition
 assets/               Schoology/Android artwork and application assets
+chrome-link-handler/  Optional Chrome extension for routing supported Schoology links into the app
 vendor/m3e/           Vendored M3E packages used for reproducible builds
 package.json          Version, dependencies, and electron-builder configuration
 ```
@@ -73,9 +75,15 @@ The authoritative application version is the `version` field in `package.json`. 
 
 The installed product remains named **Schoology**, even though the project/repository is named **Schoology Desktop Port**.
 
+## Desktop integrations
+
+The Settings page can open the packaged `chrome-link-handler` folder for Chrome's **Load unpacked** flow. The extension lets you choose which Schoology page categories are routed into the desktop app; authentication and SSO pages remain in Chrome. Desktop notifications are persisted per-user and poll the authenticated Schoology notifications API without replaying the existing notification history on first run.
+
+Shared embedded WebViews use a document-start preload to follow the M3E theme and invert only pages detected as light-themed. The main renderer retains M3E's own theme settings and native controls.
+
 ## Updates
 
-The Settings page currently exposes the existing **Check for Updates** workflow. Variant installers such as Schoology Classic and Schoology Liquid Glass are separate actions and are not part of the normal update check.
+The Settings page exposes the normal **Check for Updates** workflow. Windows continues to launch the downloaded installer with its standard visible UI and default arguments. macOS update installation stages the replacement `.app` bundle beside the existing app, waits for Schoology to exit, and restores a backup if replacement fails. Variant installers such as Schoology Classic and Schoology Liquid Glass are separate actions and are not part of the normal update check.
 
 ## Reproducible builds
 
@@ -87,11 +95,10 @@ Do not rename a supplied M3E tarball to claim a different version; the package's
 
 Before packaging:
 
-1. Run JavaScript syntax checks for `src/main.js`, `src/preload.js`, and `src/renderer.js`.
+1. Run JavaScript syntax checks for `src/main.js`, `src/preload.js`, `src/renderer.js`, and `src/webview-dark-preload.js`.
 2. Verify the supplied M3E tarballs contain the expected package versions.
-3. Build the Windows NSIS target.
-4. Launch the installed application and check the splash/startup path, authentication, drawer navigation, tabs, course landscape/portrait layouts, shared WebViews, assignments, grades, messages, calendar, settings scrolling, and update check.
-5. Test the installer on a clean Windows profile when possible.
+3. Let GitHub Actions build the Windows, macOS, and Linux artifacts; do not run local Electron or installer builds for this workflow.
+4. After CI artifacts are available, check startup/authentication, shared WebView theme behavior, Schoology link routing, desktop notifications, school profile tabs/Upcoming, assignment attachments, grades, messages, calendar, settings, and the platform update flows.
 
 ## Commit messages
 

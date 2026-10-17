@@ -14,6 +14,15 @@ try {
 
 contextBridge.exposeInMainWorld('schoology',{
   authState:()=>ipcRenderer.invoke('auth-state'),
+  getAppVersion:()=>ipcRenderer.invoke('app-version'),
+  getOpenSchoologyLinks:()=>ipcRenderer.invoke('get-open-schoology-links'),
+  setOpenSchoologyLinks:enabled=>ipcRenderer.invoke('set-open-schoology-links',enabled),
+  getDesktopNotifications:()=>ipcRenderer.invoke('get-desktop-notifications'),
+  setDesktopNotifications:enabled=>ipcRenderer.invoke('set-desktop-notifications',enabled),
+  getNotificationSound:()=>ipcRenderer.invoke('get-notification-sound'),
+  setNotificationSound:enabled=>ipcRenderer.invoke('set-notification-sound',enabled),
+  setSharedWebviewTheme:dark=>ipcRenderer.send('shared-webview-theme-set',!!dark),
+  openChromeExtensionFolder:()=>ipcRenderer.invoke('open-chrome-extension-folder'),
   onDeepLink:fn=>{const h=(_,url)=>fn(url);ipcRenderer.on('schoology-deep-link',h);ipcRenderer.invoke('renderer-deep-link-ready').catch(e=>console.warn('Could not signal deep-link readiness:',e));return()=>ipcRenderer.removeListener('schoology-deep-link',h)},
   networkOnline:()=>ipcRenderer.invoke('network-online'),
   loginCredentials:x=>ipcRenderer.invoke('login-credentials',x),

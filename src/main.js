@@ -1,4 +1,4 @@
-const {app,BrowserWindow,session,ipcMain,shell,dialog}=require('electron');
+const {app,BrowserWindow,session,ipcMain,shell,dialog,Notification}=require('electron');
 const path=require('path');
 const crypto=require('crypto');
 const fs=require('fs');
@@ -23,6 +23,10 @@ const storeFile=path.join(stableUserData,'auth.json');
 const legacyStoreFile=path.join(legacyUserData,'auth.json');
 let win;
 let serverTimeOffset=0;
+const attachedGuestWebContents=new Set();
+let sharedWebviewDark=false;
+let schoologyNotificationTimer=null;
+let updateProgressWindow=null;
 let pendingSchoologyDeepLink=null;
 let rendererDeepLinkReady=false;
 let pendingExternalSchoolLogin=null;
@@ -57,6 +61,54 @@ function deliverSchoologyDeepLink(url){
 app.on('second-instance',(_event,argv)=>{const url=extractSchoologyDeepLink(argv);if(url)deliverSchoologyDeepLink(url);if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.focus()}});
 app.on('open-url',(event,url)=>{event.preventDefault();deliverSchoologyDeepLink(url)});
 const windowChromeSettingsFile=path.join(stableUserData,'window-chrome.json');
+const appSettingsFile=path.join(stableUserData,'app-settings.json');
+const notificationSeenFile=path.join(stableUserData,'notification-seen.json');
+function readAppSettings(){try{const value=JSON.parse(fs.readFileSync(appSettingsFile,'utf8'))||{};return {openSchoologyLinks:value.openSchoologyLinks!==false,desktopNotifications:value.desktopNotifications!==false,notificationSound:value.notificationSound===true}}catch{return {openSchoologyLinks:true,desktopNotifications:true,notificationSound:false}}}
+function saveAppSettings(patch){const settings={...readAppSettings(),...(patch||{})};fs.mkdirSync(path.dirname(appSettingsFile),{recursive:true});fs.writeFileSync(appSettingsFile,JSON.stringify(settings,null,2),'utf8');return settings}
+function readNotificationSeen(){try{const value=JSON.parse(fs.readFileSync(notificationSeenFile,'utf8'))||{};return {userId:String(value.userId||''),ids:Array.isArray(value.ids)?value.ids.map(String):[]}}catch{return {userId:'',ids:[]}}}
+function writeNotificationSeen(userId,ids){try{fs.mkdirSync(path.dirname(notificationSeenFile),{recursive:true});fs.writeFileSync(notificationSeenFile,JSON.stringify({userId:String(userId||''),ids:ids.slice(0,200)},null,2),'utf8')}catch{}}
+function notificationKey(item){return String(item?.id??item?.notification_id??item?.notificationId??`${item?.type||''}:${item?.created||item?.timestamp||''}:${item?.body||item?.message||item?.title||''}`)}
+function notificationText(item){const body=String(item?.body||item?.message||item?.title||'You have a new Schoology notification');const args=item?.body_args||item?.bodyArgs||[];const rendered=Array.isArray(args)?args.reduce((out,arg)=>out.replace('%s',String(arg?.title||arg?.name||'')),body):body;return rendered.replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim().slice(0,220)}
+async function pollSchoologyNotifications(){
+  const auth=loadAuth();if(!auth)return;
+  try{
+    const response=await api('notifications');
+    const raw=response?.notification??response?.notifications??response?.data?.notification??response?.data?.notifications??[];
+    const items=(Array.isArray(raw)?raw:(raw?.notification||raw?.notifications||raw?.items||[])).filter(Boolean);
+    const userId=String(auth.userId||auth.user?.id||'');
+    const keys=items.map(notificationKey);const previous=readNotificationSeen();
+    const sameUser=previous.userId===userId;const seen=new Set(sameUser?previous.ids:[]);
+    if(sameUser&&readAppSettings().desktopNotifications&&Notification.isSupported()){
+      const settings=readAppSettings();
+      const fresh=items.filter(item=>!seen.has(notificationKey(item))).slice(0,3).reverse();
+      for(const item of fresh){
+        const title=String(item?.title||item?.type_label||'Schoology');
+        const notification=new Notification({title:'Schoology',body:notificationText(item)||title,silent:!settings.notificationSound});
+        notification.on('click',()=>{if(!win||win.isDestroyed())return;if(win.isMinimized())win.restore();win.show();win.focus();});
+        notification.show();
+      }
+    }
+    writeNotificationSeen(userId,keys);
+  }catch(error){if(!/Not signed in|session expired/i.test(String(error?.message||error)))console.warn('Schoology notification check failed:',error?.message||error)}
+}
+function scheduleSchoologyNotifications(){if(schoologyNotificationTimer)clearInterval(schoologyNotificationTimer);schoologyNotificationTimer=setInterval(()=>pollSchoologyNotifications().catch(()=>{}),5*60*1000);schoologyNotificationTimer.unref?.();setTimeout(()=>pollSchoologyNotifications().catch(()=>{}),15000).unref?.()}
+function styleAttachedGuest(guest){if(!guest||guest.isDestroyed?.())return;try{guest.setBackgroundColor?.(sharedWebviewDark?'#17191c':'#ffffff')}catch{}try{guest.send('shared-webview-theme-changed',{dark:sharedWebviewDark})}catch{}}
+function resolveThemeColors(){return sharedWebviewDark?{background:'#17191c',foreground:'#e6e8eb',muted:'#a9afb7',track:'#34383e',accent:'#7ab7ff'}:{background:'#ffffff',foreground:'#202124',muted:'#5f6368',track:'#e5e7eb',accent:'#2e66a3'}}
+function showMacUpdateProgressWindow(){
+  if(process.platform!=='darwin')return null;
+  if(updateProgressWindow&&!updateProgressWindow.isDestroyed()){updateProgressWindow.show();return updateProgressWindow}
+  const colors=resolveThemeColors();
+  updateProgressWindow=new BrowserWindow({width:420,height:180,resizable:false,fullscreenable:false,minimizable:false,maximizable:false,alwaysOnTop:true,center:true,title:'Schoology Update',backgroundColor:colors.background,webPreferences:{contextIsolation:true,nodeIntegration:false}});
+  updateProgressWindow.removeMenu();
+  updateProgressWindow.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(`<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:28px 30px;color:${colors.foreground};background:${colors.background}}h2{font-size:20px;font-weight:600;margin:0 0 18px}p{font-size:14px;color:${colors.muted};margin:0 0 16px}#track{height:6px;background:${colors.track};border-radius:4px;overflow:hidden}#bar{height:100%;width:0;background:${colors.accent};transition:width .15s}#percent{text-align:right;font-size:12px;color:${colors.muted};margin-top:7px}</style></head><body><h2>Updating Schoology</h2><p id="status">Preparing update…</p><div id="track"><div id="bar"></div></div><div id="percent">0%</div></body></html>`));
+  updateProgressWindow.on('closed',()=>{updateProgressWindow=null});
+  return updateProgressWindow;
+}
+function updateMacProgress(status,percent){
+  if(!updateProgressWindow||updateProgressWindow.isDestroyed())return;
+  const payload=JSON.stringify({status:String(status||''),percent:Math.max(0,Math.min(100,Number(percent)||0))});
+  updateProgressWindow.webContents.executeJavaScript(`(()=>{const d=${payload};const s=document.getElementById('status'),b=document.getElementById('bar'),p=document.getElementById('percent');if(s)s.textContent=d.status;if(b)b.style.width=d.percent+'%';if(p)p.textContent=d.percent+'%'})()`).catch(()=>{});
+}
 function windowChromeOverlayEnabled(){
   if(process.platform==='darwin'){try{const v=JSON.parse(fs.readFileSync(windowChromeSettingsFile,'utf8'));return v?.overlay===true}catch{};return false}
   try{const v=JSON.parse(fs.readFileSync(windowChromeSettingsFile,'utf8'));return v?.overlay===true}catch{return false}
@@ -612,7 +664,7 @@ function fetchJson(url){return new Promise((resolve,reject)=>{const u=new URL(ur
 async function sha256File(file){return await new Promise((resolve,reject)=>{const h=crypto.createHash('sha256'),s=fs.createReadStream(file);s.on('data',d=>h.update(d));s.on('error',reject);s.on('end',()=>resolve(h.digest('hex')))});}
 let activeDownloadRequest=null;
 function cancelActiveDownload(){try{activeDownloadRequest?.destroy(new Error('Download cancelled.'))}catch{} activeDownloadRequest=null;}
-function downloadUrl(url,target,totalHint=0){return new Promise((resolve,reject)=>{const get=(href,depth=0)=>{if(depth>8)return reject(new Error('Too many update redirects.'));const u=new URL(href);const req=https.request({hostname:u.hostname,path:u.pathname+u.search,method:'GET',headers:{'User-Agent':'Schoology-Desktop-Port-Updater','Accept':'application/octet-stream'}},res=>{const code=res.statusCode||0;if([301,302,303,307,308].includes(code)&&res.headers.location){res.resume();return get(new URL(res.headers.location,u).toString(),depth+1)}if(code<200||code>=300){res.resume();return reject(new Error(`Update download failed (HTTP ${code})`))}const headerTotal=Number(res.headers['content-length']||0);const expected=headerTotal||Number(totalHint||0);let received=0;const sendProgress=done=>{try{if(win&&!win.isDestroyed()){const percent=expected?Math.min(100,Math.round(received*100/expected)):null;win.webContents.send('update-download-progress',{received,total:expected||received,percent,done:!!done})}}catch{}};sendProgress(false);const out=fs.createWriteStream(target);res.on('data',d=>{received+=d.length;sendProgress(false)});res.pipe(out);out.on('finish',()=>out.close(()=>{if(expected&&received!==expected){try{fs.unlinkSync(target)}catch{};return reject(new Error(`Update download was incomplete (${received}/${expected} bytes).`))}sendProgress(true);resolve(target)}));out.on('error',e=>{try{out.close()}catch{};try{fs.unlinkSync(target)}catch{};reject(e)})});activeDownloadRequest=req;req.setTimeout(10*60*1000,()=>req.destroy(new Error('Update download timed out')));req.on('error',e=>{activeDownloadRequest=null;try{fs.unlinkSync(target)}catch{};reject(e)});req.on('close',()=>{if(activeDownloadRequest===req)activeDownloadRequest=null});req.end()};get(url)})}
+function downloadUrl(url,target,totalHint=0){return new Promise((resolve,reject)=>{const get=(href,depth=0)=>{if(depth>8)return reject(new Error('Too many update redirects.'));const u=new URL(href);const req=https.request({hostname:u.hostname,path:u.pathname+u.search,method:'GET',headers:{'User-Agent':'Schoology-Desktop-Port-Updater','Accept':'application/octet-stream'}},res=>{const code=res.statusCode||0;if([301,302,303,307,308].includes(code)&&res.headers.location){res.resume();return get(new URL(res.headers.location,u).toString(),depth+1)}if(code<200||code>=300){res.resume();return reject(new Error(`Update download failed (HTTP ${code})`))}const headerTotal=Number(res.headers['content-length']||0);const expected=headerTotal||Number(totalHint||0);let received=0;const sendProgress=done=>{try{if(win&&!win.isDestroyed()){const percent=expected?Math.min(100,Math.round(received*100/expected)):null;win.webContents.send('update-download-progress',{received,total:expected||received,percent,done:!!done});if(process.platform==='darwin')updateMacProgress(done?'Download complete':(percent==null?'Downloading update…':`Downloading update… ${percent}%`),percent||0)}}catch{}};sendProgress(false);const out=fs.createWriteStream(target);res.on('data',d=>{received+=d.length;sendProgress(false)});res.pipe(out);out.on('finish',()=>out.close(()=>{if(expected&&received!==expected){try{fs.unlinkSync(target)}catch{};return reject(new Error(`Update download was incomplete (${received}/${expected} bytes).`))}sendProgress(true);resolve(target)}));out.on('error',e=>{try{out.close()}catch{};try{fs.unlinkSync(target)}catch{};reject(e)})});activeDownloadRequest=req;req.setTimeout(10*60*1000,()=>req.destroy(new Error('Update download timed out')));req.on('error',e=>{activeDownloadRequest=null;try{fs.unlinkSync(target)}catch{};reject(e)});req.on('close',()=>{if(activeDownloadRequest===req)activeDownloadRequest=null});req.end()};get(url)})}
 
 function updateAssetForPlatform(release){const assets=Array.isArray(release?.assets)?release.assets:[];const arch=process.arch;let wanted=[];if(process.platform==='win32')wanted=['Setup-x64.exe'];else if(process.platform==='darwin')wanted=[arch==='arm64'?'arm64.dmg':'x64.dmg'];else if(process.platform==='linux')wanted=[fs.existsSync('/usr/bin/rpm')&&!fs.existsSync('/usr/bin/dpkg')?'x86_64.rpm':'amd64.deb'];return assets.find(a=>wanted.some(s=>String(a.name||'').endsWith(s)))||null}
 async function checkForUpdates(force=false){const now=Date.now(),st=readUpdateState();if(!force&&st.lastSuccessfulCheck&&now-st.lastSuccessfulCheck<UPDATE_INTERVAL_MS)return {checked:false,available:false};if(!require('electron').net.isOnline())throw new Error('Computer is offline.');const release=await fetchJson(`https://api.github.com/repos/${UPDATE_REPO}/releases/latest`);const tag=String(release.tag_name||'');const remote=Number((tag.match(/(\d+)$/)||[])[1]||0),local=localReleaseNumber();if(!remote||remote<=local||release.draft||release.prerelease){writeUpdateState({lastSuccessfulCheck:now,lastRemoteTag:tag});return {checked:true,available:false,version:local};}const asset=updateAssetForPlatform(release);if(!asset)throw new Error('No compatible update package was found for this computer.');writeUpdateState({lastSuccessfulCheck:now,lastRemoteTag:tag});return {checked:true,available:true,version:remote,tag,assetName:asset.name,url:asset.browser_download_url,size:Number(asset.size||0),digest:asset.digest||null};}
@@ -621,25 +673,52 @@ async function downloadLiquidGlass(){return getLatestRepoReleaseAsset('tling0001
 async function downloadClassic(){return getLatestRepoReleaseAsset('tling0001/schoology-for-desktop-port','Schoology Classic');}
 async function downloadAndVerifyUpdate(info){if(!info?.url)throw new Error('The update download URL is missing.');const tag=String(info.tag||'update').replace(/[^A-Za-z0-9._-]/g,'_');const name=String(info.assetName||path.basename(new URL(info.url).pathname)||'schoology-update').replace(/[^A-Za-z0-9._-]/g,'_');const tmp=path.join(app.getPath('temp'),`schoology-update-${tag}-${name}`);let valid=false;if(fs.existsSync(tmp)){try{if(info.size&&fs.statSync(tmp).size!==Number(info.size))throw new Error('size');if(info.digest&&/^sha256:/i.test(String(info.digest))){const actual=await sha256File(tmp);if(actual.toLowerCase()!==String(info.digest).split(':').pop().toLowerCase())throw new Error('digest')}valid=true}catch{try{fs.unlinkSync(tmp)}catch{}}}if(!valid)await downloadUrl(info.url,tmp,Number(info.size||0));if(info.size&&fs.statSync(tmp).size!==Number(info.size))throw new Error('Downloaded update size does not match GitHub release metadata.');if(info.digest&&/^sha256:/i.test(String(info.digest))){const actual=await sha256File(tmp);const expected=String(info.digest).split(':').pop().toLowerCase();if(actual.toLowerCase()!==expected){try{fs.unlinkSync(tmp)}catch{};throw new Error('Downloaded update failed its SHA-256 integrity check.');}}return tmp;}
 async function installUpdate(info){
+  const macProgress=process.platform==='darwin'?showMacUpdateProgressWindow():null;
+  if(macProgress)macProgress.once('ready-to-show',()=>{macProgress.show();updateMacProgress('Downloading update…',0)});
   const file=typeof info==='string'?info:await downloadAndVerifyUpdate(info);
   if(!file||!fs.existsSync(file))throw new Error('The update installer is no longer available.');
   if(process.platform==='win32'){
     const {spawn}=require('child_process');
-    // Run the NSIS installer normally, with its standard UI and default arguments.
-    // This is the original Windows update behavior that worked reliably before the custom wrapper.
+    // Keep the regular visible installer and its default behavior on Windows.
     const child=spawn(file,[],{detached:true,stdio:'ignore',windowsHide:false});
-    child.unref();
-    app.quit();
-    return true;
+    child.unref();app.quit();return true;
   }
   if(process.platform==='darwin'){
-    const {spawn}=require('child_process'); const targetApp=path.dirname(path.dirname(process.execPath)); const parentDir=path.dirname(targetApp);
+    const {spawn}=require('child_process');
+    updateMacProgress('Preparing update…',100);
+    const targetApp=path.dirname(path.dirname(path.dirname(process.execPath))),parentDir=path.dirname(targetApp);
     const shPath=path.join(app.getPath('temp'),`schoology-update-${process.pid}-${Date.now()}.sh`),q=v=>String(v).replace(/'/g,"'\"'\"'");
-    const mount=path.join(app.getPath('temp'),`schoology-dmg-${process.pid}-${Date.now()}`);fs.mkdirSync(mount,{recursive:true});
-    const script=`#!/bin/bash\nset -e\nDMG='${q(file)}'\nTARGET='${q(targetApp)}'\nPARENT='${q(parentDir)}'\nMOUNT='${q(mount)}'\nPID=${process.pid}\nfor i in {1..300}; do kill -0 $PID 2>/dev/null || break; sleep .2; done\nhdiutil attach -nobrowse -readonly -mountpoint "$MOUNT" "$DMG" >/dev/null\nAPP=$(find "$MOUNT" -maxdepth 2 -name '*.app' -type d -print -quit)\nif [ -z "$APP" ]; then hdiutil detach "$MOUNT" >/dev/null; exit 1; fi\nrm -rf "$TARGET"\nditto "$APP" "$TARGET"\nhdiutil detach "$MOUNT" >/dev/null\nopen "$TARGET"\nrm -f "$DMG" "$0"\n`;
-    fs.writeFileSync(shPath,script,{encoding:'utf8',mode:0o755});spawn('/bin/bash',[shPath],{detached:true,stdio:'ignore'}).unref();app.quit();return true;
+    const mount=path.join(app.getPath('temp'),`schoology-dmg-${process.pid}-${Date.now()}`);
+    const stagedApp=path.join(parentDir,`.Schoology-update-${process.pid}-${Date.now()}.app`);
+    const logPath=path.join(app.getPath('temp'),`schoology-update-${process.pid}.log`);
+    fs.mkdirSync(mount,{recursive:true});
+    const script=`#!/bin/bash
+set -euo pipefail
+exec >>'${q(logPath)}' 2>&1
+UPDATE_FILE='${q(file)}'
+TARGET='${q(targetApp)}'
+STAGED='${q(stagedApp)}'
+MOUNT='${q(mount)}'
+PID=${process.pid}
+cleanup(){ hdiutil detach "$MOUNT" >/dev/null 2>&1 || true; rm -f "$UPDATE_FILE" "$0"; rm -rf "$MOUNT"; }
+trap cleanup EXIT
+if [[ "$UPDATE_FILE" == *.dmg ]]; then hdiutil attach -nobrowse -readonly -mountpoint "$MOUNT" "$UPDATE_FILE" >/dev/null; else ditto -x -k "$UPDATE_FILE" "$MOUNT"; fi
+APP=$(find "$MOUNT" -maxdepth 4 -name '*.app' -type d -print -quit)
+if [ -z "$APP" ]; then echo 'No .app bundle found in update image'; exit 1; fi
+rm -rf "$STAGED"
+ditto --rsrc --extattr --qtn "$APP" "$STAGED"
+xattr -dr com.apple.quarantine "$STAGED" 2>/dev/null || true
+codesign --force --deep --sign - "$STAGED" >/dev/null 2>&1 || true
+for i in {1..300}; do kill -0 "$PID" 2>/dev/null || break; sleep .2; done
+BACKUP="${TARGET}.schoology-backup-$$"
+if [ -e "$TARGET" ]; then mv "$TARGET" "$BACKUP"; fi
+if mv "$STAGED" "$TARGET"; then rm -rf "$BACKUP"; else [ ! -e "$BACKUP" ] || mv "$BACKUP" "$TARGET"; exit 1; fi
+open "$TARGET"
+`;
+    fs.writeFileSync(shPath,script,{encoding:'utf8',mode:0o755});
+    spawn('/bin/bash',[shPath],{detached:true,stdio:'ignore'}).unref();app.quit();return true;
   }
-  const r=await shell.openPath(file);if(r)throw new Error(r);return true;
+  const result=await shell.openPath(file);if(result)throw new Error(result);return true;
 }
 let updateTimer=null;function scheduleUpdateChecks(){const run=async()=>{try{const result=await checkForUpdates(false);if(result?.available){try{win?.webContents?.send('update-available',result)}catch(e){console.error('Automatic Schoology update notification failed:',e.message)}}if(updateTimer)clearTimeout(updateTimer);updateTimer=setTimeout(run,UPDATE_INTERVAL_MS)}catch(e){console.log('Schoology update check deferred:',e.message);if(updateTimer)clearTimeout(updateTimer);updateTimer=setTimeout(run,UPDATE_RETRY_MS)}};const st=readUpdateState();const due=!st.lastSuccessfulCheck||Date.now()-st.lastSuccessfulCheck>=UPDATE_INTERVAL_MS;setTimeout(()=>{if(due)run();else updateTimer=setTimeout(run,Math.max(1000,UPDATE_INTERVAL_MS-(Date.now()-st.lastSuccessfulCheck)))},8000)}
 
@@ -659,6 +738,15 @@ function create(){
   win.webContents.on('did-navigate-in-page',(_,url)=>console.log('Schoology in-page navigation:',url));
   win.webContents.on('did-finish-load',()=>flushPendingSchoologyDeepLink());
   win.webContents.on('did-stop-loading',()=>flushPendingSchoologyDeepLink());
+  win.webContents.on('will-attach-webview',(_event,webPreferences)=>{
+    webPreferences.preload=path.join(__dirname,'webview-dark-preload.js');
+    webPreferences.contextIsolation=true;
+    webPreferences.nodeIntegration=false;
+  });
+  win.webContents.on('did-attach-webview',(_event,guest)=>{
+    attachedGuestWebContents.add(guest);styleAttachedGuest(guest);
+    guest.once('destroyed',()=>attachedGuestWebContents.delete(guest));
+  });
   win.once('ready-to-show',()=>{try{if(overlay)win.setTitleBarOverlay?.({color:'#002137',symbolColor:'#ffffff',height:56})}catch{};win.show();});
   // Load the real application document directly. index.html is only a legacy splash redirect;
   // entering it first races the M3E bootstrap against a second file:// navigation and can leave
@@ -670,6 +758,21 @@ app.whenReady().then(()=>{
   session.defaultSession.setPermissionCheckHandler((_wc,permission)=>permission==='media'||permission==='camera'||permission==='microphone');
   try{app.setAsDefaultProtocolClient('schoology')}catch(e){console.error('Could not register Schoology URL protocol:',e.message)}
   ipcMain.handle('renderer-deep-link-ready',()=>{rendererDeepLinkReady=true;setImmediate(flushPendingSchoologyDeepLink);return true});
+  ipcMain.handle('app-version',()=>app.getVersion());
+  ipcMain.handle('get-open-schoology-links',()=>readAppSettings().openSchoologyLinks);
+  ipcMain.handle('set-open-schoology-links',(_,enabled)=>saveAppSettings({openSchoologyLinks:!!enabled}).openSchoologyLinks);
+  ipcMain.handle('get-desktop-notifications',()=>readAppSettings().desktopNotifications);
+  ipcMain.handle('set-desktop-notifications',(_,enabled)=>saveAppSettings({desktopNotifications:!!enabled}).desktopNotifications);
+  ipcMain.handle('get-notification-sound',()=>readAppSettings().notificationSound);
+  ipcMain.handle('set-notification-sound',(_,enabled)=>saveAppSettings({notificationSound:!!enabled}).notificationSound);
+  ipcMain.handle('open-chrome-extension-folder',async()=>{
+    const folder=app.isPackaged?path.join(process.resourcesPath,'chrome-link-handler'):path.join(__dirname,'..','chrome-link-handler');
+    if(!fs.existsSync(path.join(folder,'manifest.json')))throw new Error('The Chrome link handler folder is missing from this build.');
+    return shell.openPath(folder);
+  });
+  ipcMain.handle('get-shared-webview-theme',()=>({dark:sharedWebviewDark}));
+  ipcMain.on('get-shared-webview-theme-sync',event=>{event.returnValue={dark:sharedWebviewDark}});
+  ipcMain.on('shared-webview-theme-set',(_event,dark)=>{sharedWebviewDark=!!dark;for(const guest of attachedGuestWebContents)styleAttachedGuest(guest)});
   ipcMain.handle('auth-state',()=>loadAuth());
   ipcMain.handle('network-online',()=>require('electron').net.isOnline());
   ipcMain.handle('login-credentials',(_,x)=>authorizeCredentials(x.user,x.password,x.schoolId));
@@ -723,5 +826,6 @@ ipcMain.handle('cancel-update-download',()=>{cancelActiveDownload();return true}
   ipcMain.handle('pick-file',async()=>{const r=await dialog.showOpenDialog(win,{properties:['openFile']});return r.canceled?null:r.filePaths[0]});
   create();
   scheduleUpdateChecks();
+  scheduleSchoologyNotifications();
 });
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit()});

@@ -1,6 +1,6 @@
 {
   "name": "schoology-desktop-port",
-  "version": "2026.06.0-port.147",
+  "version": "2026.06.0-port.148",
   "description": "Schoology desktop port aligned with the supplied Schoology Android 2026.06.0 source",
   "main": "src/main.js",
   "scripts": {
@@ -49,7 +49,8 @@
       "node_modules/lit/**/*",
       "node_modules/tslib/**/*",
       "node_modules/jsqr/**/*",
-      "package.json"
+      "package.json",
+      "chrome-link-handler/**/*"
     ],
     "win": {
       "target": [
@@ -57,7 +58,13 @@
         "dir"
       ],
       "icon": "assets/ic_launcher_256.ico",
-      "requestedExecutionLevel": "asInvoker"
+      "requestedExecutionLevel": "asInvoker",
+      "extraResources": [
+        {
+          "from": "chrome-link-handler",
+          "to": "chrome-link-handler"
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -73,7 +80,13 @@
       ],
       "identity": "-",
       "hardenedRuntime": false,
-      "icon": "assets/ic_launcher.icns"
+      "icon": "assets/ic_launcher.icns",
+      "extraResources": [
+        {
+          "from": "chrome-link-handler",
+          "to": "chrome-link-handler"
+        }
+      ]
     },
     "protocols": [
       {
@@ -82,7 +95,15 @@
           "schoology"
         ]
       }
-    ]
+    ],
+    "linux": {
+      "extraResources": [
+        {
+          "from": "chrome-link-handler",
+          "to": "chrome-link-handler"
+        }
+      ]
+    }
   },
   "productName": "Schoology"
 }
