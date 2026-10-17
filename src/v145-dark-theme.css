@@ -1,0 +1,71 @@
+/* v145: complete dark M3E system color roles and splash surfaces */
+html[data-theme-effective="dark"] .m3eRoot,
+html[data-theme-effective="dark"] .m3eShellTheme,
+html[data-theme-effective="dark"] .splashM3eTheme {
+  color-scheme: dark !important;
+  --md-sys-color-primary: #a7c8ff !important;
+  --md-sys-color-on-primary: #102f52 !important;
+  --md-sys-color-primary-container: #29496f !important;
+  --md-sys-color-on-primary-container: #d7e3ff !important;
+  --md-sys-color-secondary: #bdc7dc !important;
+  --md-sys-color-on-secondary: #273141 !important;
+  --md-sys-color-secondary-container: #3d4758 !important;
+  --md-sys-color-on-secondary-container: #d9e2f8 !important;
+  --md-sys-color-tertiary: #a1cbe5 !important;
+  --md-sys-color-on-tertiary: #07354a !important;
+  --md-sys-color-tertiary-container: #244c62 !important;
+  --md-sys-color-on-tertiary-container: #c2e8ff !important;
+  --md-sys-color-error: #ffb4ab !important;
+  --md-sys-color-on-error: #690005 !important;
+  --md-sys-color-error-container: #93000a !important;
+  --md-sys-color-on-error-container: #ffdad6 !important;
+  --md-sys-color-background: #111318 !important;
+  --md-sys-color-on-background: #e2e2e9 !important;
+  --md-sys-color-surface: #111318 !important;
+  --md-sys-color-on-surface: #e2e2e9 !important;
+  --md-sys-color-surface-variant: #444750 !important;
+  --md-sys-color-on-surface-variant: #c4c6d0 !important;
+  --md-sys-color-surface-dim: #111318 !important;
+  --md-sys-color-surface-bright: #37393f !important;
+  --md-sys-color-surface-container-lowest: #0c0e13 !important;
+  --md-sys-color-surface-container-low: #191b20 !important;
+  --md-sys-color-surface-container: #1d2024 !important;
+  --md-sys-color-surface-container-high: #272a2f !important;
+  --md-sys-color-surface-container-highest: #32353a !important;
+  --md-sys-color-outline: #8e909a !important;
+  --md-sys-color-outline-variant: #444750 !important;
+  --md-sys-color-inverse-surface: #e2e2e9 !important;
+  --md-sys-color-inverse-on-surface: #2f3036 !important;
+  --md-sys-color-inverse-primary: #405f91 !important;
+  --md-sys-color-scrim: #000000 !important;
+  --md-sys-color-shadow: #000000 !important;
+}
+html[data-theme-effective="dark"],
+html[data-theme-effective="dark"] body,
+html[data-theme-effective="dark"] #app,
+html[data-theme-effective="dark"] .splashM3eTheme,
+html[data-theme-effective="dark"] .androidSplash,
+html[data-theme-effective="dark"] .m3eRoot,
+html[data-theme-effective="dark"] .m3eShell,
+html[data-theme-effective="dark"] .m3eShellMain,
+html[data-theme-effective="dark"] #content {
+  background: var(--md-sys-color-background, #111318) !important;
+  color: var(--md-sys-color-on-background, #e2e2e9) !important;
+}
+html[data-theme-effective="dark"] .androidSplash {
+  background: var(--md-sys-color-background, #111318) !important;
+}
+.startupBootStatus {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--md-sys-color-background, #f4f5f5);
+  color: var(--md-sys-color-on-background, #22303e);
+  font: 500 16px/24px Arial, sans-serif;
+}
+html[data-theme-effective="dark"] .startupBootStatus {
+  background: var(--md-sys-color-background, #111318) !important;
+  color: var(--md-sys-color-on-background, #e2e2e9) !important;
+}
