@@ -1,6 +1,6 @@
 {
   "name": "schoology-desktop-port",
-  "version": "2026.06.0-port.149",
+  "version": "2026.06.0-port.150",
   "description": "Schoology desktop port aligned with the supplied Schoology Android 2026.06.0 source",
   "main": "src/main.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "dist": "electron-builder --win nsis dir --publish never",
     "dist:win": "electron-builder --win nsis dir --publish never",
     "dist:mac": "electron-builder --mac dmg --publish never",
-    "dist:linux": "electron-builder --linux deb rpm --publish never"
+    "dist:linux": "electron-builder --linux deb rpm --publish never",
+    "build:updater": "node updater/prepare.js && electron-builder --config updater/electron-builder.yml --publish never"
   },
   "devDependencies": {
     "electron": "^39.1.0",
@@ -103,7 +104,13 @@
           "to": "chrome-link-handler"
         }
       ]
-    }
+    },
+    "extraResources": [
+      {
+        "from": "updater/dist/SchoologyUpdater.exe",
+        "to": "SchoologyUpdater.exe"
+      }
+    ]
   },
   "productName": "Schoology"
 }

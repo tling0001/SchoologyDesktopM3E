@@ -10,9 +10,9 @@ let qrBusy=false;
 let qrLastAttempt=0;
 let loadTabGeneration=0;
 const THEME_STORAGE_KEY='schoology-m3e-theme-settings';
-const DEFAULT_THEME_SETTINGS={color:'#2e66a3',variant:'fidelity',scheme:'auto',contrast:'standard',motion:'expressive'};
-function getThemeSettings(){try{const v=JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)||'null');return {...DEFAULT_THEME_SETTINGS,...(v&&typeof v==='object'?v:{})}}catch{return {...DEFAULT_THEME_SETTINGS}}}
-function saveThemeSettings(v){const next={...DEFAULT_THEME_SETTINGS,...v};try{localStorage.setItem(THEME_STORAGE_KEY,JSON.stringify(next))}catch{}return next}
+const DEFAULT_THEME_SETTINGS={color:'#7ea9d8',variant:'tonal-spot',scheme:'auto',contrast:'standard',motion:'expressive',colorVersion:2};
+function getThemeSettings(){try{const v=JSON.parse(localStorage.getItem(THEME_STORAGE_KEY)||'null');const next={...DEFAULT_THEME_SETTINGS,...(v&&typeof v==='object'?v:{})};if(v?.color==='#2e66a3'&&!v?.colorVersion){next.color=DEFAULT_THEME_SETTINGS.color;next.variant='tonal-spot';next.colorVersion=2;localStorage.setItem(THEME_STORAGE_KEY,JSON.stringify(next))}return next}catch{return {...DEFAULT_THEME_SETTINGS}}}
+function saveThemeSettings(v){const next={...DEFAULT_THEME_SETTINGS,...v,colorVersion:2};try{localStorage.setItem(THEME_STORAGE_KEY,JSON.stringify(next))}catch{}return next}
 function effectiveThemeIsDark(){const t=getThemeSettings();return t.scheme==='dark'||(t.scheme==='auto'&&window.matchMedia?.('(prefers-color-scheme: dark)').matches)}
 function themeLogoSrc(){return effectiveThemeIsDark()?'../assets/logo_schoology.png':'../assets/schoology-logo-expressive-light.svg'}
 function applyThemeToDocument(){const t=getThemeSettings();const dark=effectiveThemeIsDark();document.documentElement.dataset.themeEffective=dark?'dark':'light';document.documentElement.style.colorScheme=dark?'dark':'light';document.querySelectorAll('m3e-theme').forEach(el=>{el.color=t.color;el.variant=t.variant;el.scheme=t.scheme;el.contrast=t.contrast;el.motion=t.motion});document.querySelectorAll('.m3eLoginLogo,.m3eButtonLogo,.androidSplashLogo').forEach(img=>{img.src=themeLogoSrc()});try{A.setSharedWebviewTheme?.(dark)}catch{}if(dark)requestAnimationFrame(()=>fixDarkRichTextColors())}
@@ -736,7 +736,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    </section>
   </div>`;
  c.innerHTML=`<section class="sectionProfilePage courseLandscapePage">${landscape?courseLandscapeMarkup:coursePortraitMarkup}</section>`;
- document.querySelector('[data-course-school-id]')?.addEventListener('click',event=>{const button=event.currentTarget;const id=Number(button?.dataset?.courseSchoolId||0);if(id)openSchoolProfile(id,button?.textContent||'School')});
+ const schoolButton=document.querySelector('[data-course-school-id]');if(schoolButton)schoolButton.onclick=()=>{const id=Number(schoolButton.getAttribute('data-course-school-id')||0);if(id)openSchoolProfile(id,schoolButton.textContent||'School')};
  hydrateCourseImages(c);
  const bindCourseTabs=()=>document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
    const id=b.dataset.courseTab;state.courseTab=id;state.toolbarTitle=b.textContent||'Course';
@@ -769,7 +769,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    if(tabsHost){tabsHost.innerHTML=courseTabsMarkup(tabs);bindCourseTabs();syncM3eTabSelection(document.getElementById('content'),'courseTab',effectiveTab);}
    const info=c.querySelector('.courseIdentityInfoBar');
    const loadingSchool=info?.querySelector('.courseSchoolLoading');
-   if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';info?.querySelector('[data-course-school-id]')?.addEventListener('click',event=>{const button=event.currentTarget;const id=Number(button?.dataset?.courseSchoolId||0);if(id)openSchoolProfile(id,button?.textContent||'School')});}
+   if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';const infoSchoolButton=info?.querySelector('[data-course-school-id]');if(infoSchoolButton)infoSchoolButton.onclick=()=>{const id=Number(infoSchoolButton.getAttribute('data-course-school-id')||0);if(id)openSchoolProfile(id,infoSchoolButton.textContent||'School')};}
    loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
    if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
    if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
@@ -1884,10 +1884,11 @@ async function showGroup(group,activeTab='updates'){
   const groupUpcoming=`<aside slot="end" id="groupUpcomingPane" class="groupUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="groupUpcomingContent"></div></aside>`;
   c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
   const gc=document.getElementById('groupTabContent');
-  document.querySelector('[data-group-school-id]')?.addEventListener('click',async b=>{const id=Number(b.dataset.groupSchoolId);if(id)openSchoolProfile(id,b.textContent||'School')});
+  const groupSchoolButton=document.querySelector('[data-group-school-id]');if(groupSchoolButton)groupSchoolButton.onclick=()=>{const id=Number(groupSchoolButton.getAttribute('data-group-school-id')||0);if(id)openSchoolProfile(id,groupSchoolButton.textContent||'School')};
   const loadGroupUpcoming=async()=>{const up=document.getElementById('groupUpcomingContent');if(!up)return;try{const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));up.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';up.querySelectorAll('[data-course-upcoming-id]').forEach(b=>b.onclick=()=>{const e=a.find(v=>String(v.id||'')===String(b.dataset.courseUpcomingId));if(!e)return;const aid=e.assignment_id??e.assignmentId??e.assignment?.id;if(String(e.type||'').toLowerCase()==='assignment'&&aid){showAssignment(gid,aid);}else if(['assessment','assessment_v2','managed_assessment','quiz'].includes(String(e.type||'').toLowerCase())){const id=aid??e.id;(async()=>{await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,e.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})})()}else if(String(e.type||'').toLowerCase()==='event'&&e.id){openWithPressTransition(b,()=>showEventNative('groups',gid,e.id,e.title||'Event'));}})}catch(e){up.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}};
   const load=async(tab)=>{
     state.groupTab=tab;syncM3eTabSelection(document.getElementById('content'),'groupTab',tab);
+    gc.innerHTML='<div class="loading groupTabLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
     try{
       if(tab==='updates'){
         const x=await A.api({path:`groups/${gid}/updates`,params:{start:0,limit:20,with_attachments:'TRUE',richtext:1}});
@@ -2381,10 +2382,10 @@ async function loadHomeTab(){
   if(state.homeTab==='recent'){
     const recent=await A.api({path:'recent',params:{start:0,limit:20,with_attachments:'TRUE',richtext:1}});
     const updates=recent?.update||recent?.updates||recent?.update_list||[];
-    const userIds=[...new Set(updates.map(x=>x.user_id||x.uid).filter(Boolean).map(Number))];
-    const userMap={};
-    await Promise.all(userIds.slice(0,20).map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});userMap[id]=u?.user||u}catch{}}));
-    state.activityUsers=userMap;state.__activityById=Object.fromEntries(updates.map(u=>[String(u.id),u]));
+    const userIds=[...new Set(updates.map(x=>x.user_id||x.uid||x.author_id||x.authorId).filter(Boolean).map(Number))];
+    const userMap={};await Promise.all(userIds.slice(0,20).map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});userMap[id]=u?.user||u}catch{}}));
+    const groupIds=[...new Set(updates.filter(x=>['group','groups'].includes(String(x.realm||x.realm_name||x.realmName||'').toLowerCase())).map(x=>Number(x.group_id||x.groupId||x.realm_id||x.realmId)).filter(id=>Number.isSafeInteger(id)&&id>0))];const groupMap={};await Promise.all(groupIds.slice(0,10).map(async id=>{try{const x=await A.api({path:`groups/${id}`,params:{}});groupMap[id]=x?.group||x}catch{}}));
+    state.activityUsers=userMap;state.__activityById=Object.fromEntries(updates.map(u=>[String(u.id),u]));state.__activityGroups=groupMap;
     c.classList.add('recentActivityScroll');
     c.innerHTML=updates.length?updates.map(x=>{
       const uid=x.user_id||x.uid||x.author_id||x.authorId;
@@ -2394,9 +2395,9 @@ async function loadHomeTab(){
       const created=formatSchoologyDate(x.created||x.timestamp||x.created_at||'');
       const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||u.photo_url||x.user_photo||x.photo_url||'');
       const media=renderAttachments(x.attachments||x.attachment||x.files||{});
-      const comments=Number(x.num_comments||x.comment_count||0);
+      const comments=Number(x.num_comments||x.comment_count||0),realm=String(x.realm||x.realm_name||x.realmName||'').toLowerCase(),groupId=Number(x.group_id||x.groupId||x.realm_id||x.realmId||0),group=groupMap[groupId]||{},groupName=x.group_name||x.groupName||x.realm_title||x.realmTitle||group.name||group.title||'',groupContext=['group','groups'].includes(realm)&&groupId>0&&!!groupName;
       return `<m3e-card variant="filled" class="androidActivityCard">
-        <div class="activityHeader">${avatar?`<img class="activityAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="activityAvatar">${esc(String(name).charAt(0))}</span>`}<button class="activityUser activityAuthorLink" data-author-id="${esc(u.user_id||u.uid||u.author_id||u.authorId||u.creator_id||u.creatorId||'')}">${esc(name)}</button></div>
+        <div class="activityHeader">${avatar?`<img class="activityAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="activityAvatar">${esc(String(name).charAt(0))}</span>`}<button class="activityUser activityAuthorLink" data-author-id="${esc(u.user_id||u.uid||u.author_id||u.authorId||u.creator_id||u.creatorId||'')}">${esc(name)}</button>${groupContext?`<span class="activityContextArrow" aria-hidden="true">›</span><button class="activityGroupLink" data-activity-group-id="${groupId}">${esc(groupName)}</button>`:''}</div>
         <div class="activityBody">${body}</div>
         ${media}
         <div class="activityMeta">${esc(created)}</div>
@@ -2406,6 +2407,7 @@ async function loadHomeTab(){
     await hydrateMediaImages(c);
     document.querySelectorAll('[data-activityAuthorLink],[data-activity-author-id]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.activityAuthorId||btn.dataset.authorId;if(id)openProfileById(id,btn.textContent||'Profile')});
     document.querySelectorAll('.activityAuthorLink[data-author-id]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.authorId;if(id)openProfileById(id,btn.textContent||'Profile')});
+    document.querySelectorAll('[data-activity-group-id]').forEach(btn=>btn.onclick=async()=>{const id=Number(btn.getAttribute('data-activity-group-id')||0);if(!id)return;const group=groupMap[id]||{id,name:btn.textContent||'Group'};state.tab='groups';state.screen='app';state.currentGroup=group;state.toolbarTitle=group.name||group.title||'Group';render();await showGroup(group,'updates')});
     document.querySelectorAll('[data-activity-like]').forEach(btn=>btn.onclick=async()=>{
       const id=btn.dataset.activityLike;if(!id)return;
       const liked=btn.dataset.liked==='1';

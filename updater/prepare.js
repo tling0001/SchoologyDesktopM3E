@@ -1,0 +1,1 @@
+const fs=require('fs'),path=require('path'),source=path.resolve(__dirname,'../node_modules/@m3e/web/dist/all.js'),target=path.join(__dirname,'vendor','m3e-all.js');if(!fs.existsSync(source))throw new Error('Missing @m3e/web bundle: '+source);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(source,target);console.log('Prepared M3E updater UI bundle.');

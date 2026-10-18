@@ -1,0 +1,18 @@
+appId: com.schoology.app.updater
+productName: Schoology Updater
+asar: true
+directories:
+  app: updater
+  output: updater/dist
+files:
+  - main.js
+  - package.json
+  - ui.html
+  - ui.js
+  - vendor/m3e-all.js
+win:
+  target:
+    - portable
+  artifactName: SchoologyUpdater.exe
+portable:
+  artifactName: SchoologyUpdater.exe
