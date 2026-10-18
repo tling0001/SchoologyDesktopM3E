@@ -556,7 +556,7 @@ function syncToolbar(){
   }
   const title=bar.querySelector('.toolbarTitle');if(title)title.textContent=state.toolbarTitle||'Home';bar.classList.toggle('toolbarAccountInfo',state.embeddedTheme==='account');bar.classList.toggle('toolbarLti',state.embeddedTheme==='lti');
   const barActions=bar.querySelectorAll('[data-toolbar-action]');barActions.forEach(el=>el.remove());
-  if(state.embeddedTitle && state.embeddedTheme!=='quiz'){
+  if(state.embeddedTitle && state.embeddedTheme!=='quiz' && state.embeddedTheme!=='school-profile'){
     const reload=document.createElement('m3e-icon-button');reload.id='embeddedReload';reload.setAttribute('slot','trailing');reload.setAttribute('data-toolbar-action','');reload.setAttribute('aria-label','Reload');reload.innerHTML=`<span class="m3eOriginalIcon">${originalM3Icon('refresh')}</span>`;reload.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');try{w?.reload()}catch{}});bar.appendChild(reload);
     if(state.embeddedCanOpenExternal){const open=document.createElement('m3e-icon-button');open.id='embeddedOpenBrowser';open.setAttribute('slot','trailing');open.setAttribute('data-toolbar-action','');open.setAttribute('aria-label','Open in browser');open.title='Open in browser';open.innerHTML=`<span class="m3eOriginalIcon">${officialOrAssetIcon('ic_external_tool.png','')}</span>`;open.addEventListener('click',()=>{const w=document.getElementById('schoologyWebview');const u=normalizeSchoologyWebUrl(w?.getURL?.()||'');if(u)A.openExternal(u).catch(e=>{console.warn('External browser failed:',e);showEmbeddedWeb(u,state.embeddedTitle||'Link',{allowBrowser:false})})});bar.appendChild(open)}
   }
@@ -1100,16 +1100,16 @@ const LOCAL_ATTACHMENT_ICONS={"attachment_document_icon.png":"data:image/png;bas
 function localAttachmentIcon(name){return LOCAL_ATTACHMENT_ICONS[name]||''}
 function renderAttachments(a,submissionContext=null){
   if(!a)return '';
-  const out=[];
+  const rows=[],media=[];
   const addFile=(f)=>{
     const url=f?.resolveDownloadUrl||f?.resolve_download_url||f?.converted_download_path||f?.convertedDownloadPath||f?.download_path||f?.downloadPath||f?.fileDownloadURL||f?.download_url||f?.downloadUrl||f?.url;
     if(!url)return;
     const title=(f.title||f.fileTitle||f.filename||f.fileName||'File').trim();
     const mime=f.filemime||f.fileMIME||f.converted_filemime||f.convertedFileMime||'application/octet-stream';
-    const ctx=submissionContext&&f?.id?` data-submission-file-id="${esc(f.id)}" data-submission-revision-id="${esc(submissionContext.revisionId||'')}" data-submission-submission-id="${esc(submissionContext.submissionId||'')}" data-submission-section-id="${esc(submissionContext.sectionId||'')}" data-submission-grade-item-id="${esc(submissionContext.gradeItemId||'')}" data-submission-user-id="${esc(submissionContext.userId||'')}"`:'';
-    out.push(`<button class="activityAttachment fileAttachment" data-download-url="${esc(url)}" data-download-name="${esc(title)}" data-download-mime="${esc(mime)}"${ctx}><span class="attachmentFileIcon"><img src="${localAttachmentIcon(mimeIconForFilename(title,mime))}" alt=""></span><span class="attachmentFileText"><b>${esc(title)}</b><small>${esc((mime||'File').split('/').pop().toUpperCase())}</small></span><span class="attachmentDownloadIcon"><img src="${localAttachmentIcon('ic_action_download.png')}" alt=""></span></button>`);
+    const ctx=submissionContext&&f?.id?' data-submission-file-id="'+esc(f.id)+'" data-submission-revision-id="'+esc(submissionContext.revisionId||'')+'" data-submission-submission-id="'+esc(submissionContext.submissionId||'')+'" data-submission-section-id="'+esc(submissionContext.sectionId||'')+'" data-submission-grade-item-id="'+esc(submissionContext.gradeItemId||'')+'" data-submission-user-id="'+esc(submissionContext.userId||'')+'"':'';
+    rows.push('<m3e-list-action class="attachmentSegmentedItem fileAttachment" tabindex="0" data-download-url="'+esc(url)+'" data-download-name="'+esc(title)+'" data-download-mime="'+esc(mime)+'"'+ctx+'><span slot="leading" class="attachmentFileIcon"><img src="'+localAttachmentIcon(mimeIconForFilename(title,mime))+'" alt=""></span><span class="attachmentFileText"><b>'+esc(title)+'</b><small>'+esc((mime||'File').split('/').pop().toUpperCase())+'</small></span><span slot="trailing" class="attachmentDownloadIcon"><img src="'+localAttachmentIcon('ic_action_download.png')+'" alt=""></span></m3e-list-action>');
   };
-  const addLink=(url,title)=>{if(url)out.push(`<button class="activityAttachment" data-open-url="${esc(url)}">${esc(title||url)}</button>`)};
+  const addLink=(url,title)=>{if(url)rows.push('<m3e-list-action class="attachmentSegmentedItem" tabindex="0" data-open-url="'+esc(url)+'"><span slot="leading" class="m3eOriginalIcon">'+originalM3Icon('link')+'</span><span>'+esc(title||url)+'</span><span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>')};
   const walk=(v)=>{
     if(!v)return;
     if(Array.isArray(v)){v.forEach(walk);return}
@@ -1119,12 +1119,13 @@ function renderAttachments(a,submissionContext=null){
     const type=String(v.type||v.attachmentType||'').toLowerCase();
     const title=v.title||v.fileTitle||v.fileName||v.linkTitle||v.videoTitle||'Attachment';
     if(type==='file'||v.download_path||v.downloadPath||v.converted_download_path||v.convertedDownloadPath||v.resolveDownloadUrl||v.fileDownloadURL){addFile(v)}
-    else if(v.thumbnail||v.fileThumbnailURL||v.videoThumbnailURL){const thumb=v.thumbnail||v.fileThumbnailURL||v.videoThumbnailURL;out.push(`<img class="activityMediaImage authenticatedMediaImage" data-media-image-url="${esc(normalizeImageUrl(thumb))}" alt="${esc(title)}" loading="lazy" style="display:none">`)}
+    else if(v.thumbnail||v.fileThumbnailURL||v.videoThumbnailURL){const thumb=v.thumbnail||v.fileThumbnailURL||v.videoThumbnailURL;media.push('<img class="activityMediaImage authenticatedMediaImage" data-media-image-url="'+esc(normalizeImageUrl(thumb))+'" alt="'+esc(title)+'" loading="lazy" style="display:none">')}
     if(type!=='file')addLink(v.linkURL||v.linkUrl||((type==='link'||type==='web_content')?v.url:null),title);
     for(const k of ['attachment','file','link','video','embed','links','videos'])if(v[k])walk(v[k]);
   };
   walk(a);
-  return out.length?`<div class="activityMedia">${out.join('')}</div>`:'';
+  if(!rows.length&&!media.length)return '';
+  return '<div class="activityMedia">'+(rows.length?'<m3e-action-list variant="segmented" class="attachmentSegmentedList">'+rows.join('')+'</m3e-action-list>':'')+media.join('')+'</div>';
 }
 
 async function hydrateMediaImages(root=document){
@@ -1758,7 +1759,7 @@ async function renderEventComments(el,response,eventId){
   const attachments=renderAttachments(node.attachments||node.attachment||{}),deleted=Number(node.status??1)===0;
   const avatarMarkup=avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>';
   const replyMarkup=!deleted&&depth===0?'<button data-event-comment-reply="'+esc(commentId)+'">Reply</button>':'';
-  return '<article class="androidCommentRow" style="padding-left:'+(12+Math.min(depth,8)*15)+'px"><div class="androidCommentAvatar">'+avatarMarkup+'</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="'+esc(uid)+'">'+esc(name)+'</button><div class="commentBodyHtml '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div><div class="commentCreated">'+esc(created)+'</div>'+attachments+'<div class="androidCommentActions">'+replyMarkup+'<button data-event-comment-like="'+esc(commentId)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button disabled>♥ '+likes+'</button></div></div></article>';
+  return '<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:'+Math.min(depth,8)+'"><div class="androidCommentAvatar">'+avatarMarkup+'</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="'+esc(uid)+'">'+esc(name)+'</button><div class="commentBodyHtml '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div><div class="commentCreated">'+esc(created)+'</div>'+attachments+'<div class="androidCommentActions">'+replyMarkup+'<button data-event-comment-like="'+esc(commentId)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button disabled>♥ '+likes+'</button></div></div></m3e-card>';
  }).join('');
  el.innerHTML='<div class="commentsPage officialComments"><div class="commentsList commentsAndroidList">'+(cards||'<div class="androidEmptyState">No comments yet.</div>')+'</div></div>';
  await hydrateMediaImages(el);
@@ -1843,7 +1844,7 @@ async function openSchoolProfile(schoolId,title='School'){
       const items=response?.update||response?.updates||response?.update_list||[];
       const ids=[...new Set(items.map(u=>u.user_id||u.uid||u.author_id||u.authorId).filter(Boolean).map(Number))],users={};
       await Promise.all(ids.map(async id=>{try{const result=await A.api({path:`users/${id}`,params:{}});users[id]=result?.user||result}catch{}}));
-      content.innerHTML=items.length?`<div class="schoolProfileUpdates">${items.map(item=>{const id=item.user_id||item.uid||item.author_id||item.authorId,user=users[Number(id)]||{},name=user.name_display||user.name||item.display_name||item.user_name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||item.picture_url||item.pictureUrl||''),initials=String(name).trim().split(/\\s+/).slice(0,2).map(v=>v.charAt(0)).join('').toUpperCase()||'S';return `<article class="schoolProfileUpdate"><div class="schoolProfileUpdateAuthorRow"><span class="schoolProfileUpdateAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="">`:`<span>${esc(initials)}</span>`}</span><button type="button" class="schoolProfileUpdateAuthor" data-school-profile-author-id="${esc(id||'')}">${esc(name)}</button></div><div class="schoolProfileUpdateBody">${item.body||item.message||''}</div>${renderAttachments(item.attachments||item.attachment||item.files||{})}<small>${esc(formatSchoologyDate(item.created||item.timestamp||item.last_updated||''))}</small></article>`}).join('')}</div>`:'<div class="empty">No updates.</div>';
+      content.innerHTML=items.length?`<div class="schoolProfileUpdates">${items.map(item=>{const id=item.user_id||item.uid||item.author_id||item.authorId,user=users[Number(id)]||{},name=user.name_display||user.name||item.display_name||item.user_name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||item.picture_url||item.pictureUrl||''),initials=String(name).trim().split(/\\s+/).slice(0,2).map(v=>v.charAt(0)).join('').toUpperCase()||'S';return `<m3e-card variant="filled" class="schoolProfileUpdate"><div class="schoolProfileUpdateAuthorRow"><span class="schoolProfileUpdateAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="">`:`<span>${esc(initials)}</span>`}</span><button type="button" class="schoolProfileUpdateAuthor" data-school-profile-author-id="${esc(id||'')}">${esc(name)}</button></div><div class="schoolProfileUpdateBody">${item.body||item.message||''}</div>${renderAttachments(item.attachments||item.attachment||item.files||{})}<small>${esc(formatSchoologyDate(item.created||item.timestamp||item.last_updated||''))}</small></m3e-card>`}).join('')}</div>`:'<div class="empty">No updates.</div>';
       await hydrateMediaImages(content);content.querySelectorAll('[data-school-profile-author-id]').forEach(button=>button.onclick=()=>{if(button.dataset.schoolProfileAuthorId)openProfileById(button.dataset.schoolProfileAuthorId,button.textContent||'Profile')});return;
      }
      if(tab==='upcoming'){

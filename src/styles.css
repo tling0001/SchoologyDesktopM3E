@@ -3176,3 +3176,49 @@ m3e-fab#homeCreatePlus m3e-fab-menu-trigger{display:contents}
 
 /* Recent Activity group context and group-tab loading. */
 .activityHeader{min-width:0;flex-wrap:wrap}.activityContextArrow{display:inline-flex;align-items:center;justify-content:center;color:var(--md-sys-color-on-surface-variant,#687887);font-size:22px;line-height:1;margin:0 1px;flex:0 0 auto}.activityGroupLink{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;background:transparent;color:var(--md-sys-color-primary,#5f8fc4);font:inherit;font-size:14px;font-weight:500;padding:4px 2px;cursor:pointer;text-align:left}.activityGroupLink:hover{text-decoration:underline}.groupTabLoading{min-height:140px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--md-sys-color-on-surface-variant,#687887)}.m3eRoot .materialList{border-radius:12px;overflow:hidden}
+
+
+/* v151: school pages fill the space below the app bar and use filled update cards. */
+.schoolProfileNativePage{padding:0!important;width:100%!important;min-width:0!important;max-width:none!important}
+.schoolProfileLayout{width:100%!important;max-width:none!important;margin:0!important}
+.schoolProfileMainPane{min-width:0!important;box-sizing:border-box!important}
+@media(min-width:801px){.schoolProfileTabs [data-school-profile-tab="upcoming"]{display:none!important}}
+@media(max-width:800px){.schoolProfileTabs [data-school-profile-tab="upcoming"]{display:revert!important}}
+.schoolProfileUpdates{display:flex!important;flex-direction:column!important;gap:12px!important;padding:16px!important;min-width:0!important;box-sizing:border-box!important}
+.schoolProfileUpdate{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;margin:0!important;padding:16px!important;border:1px solid var(--md-sys-color-outline-variant,#d9dee2)!important;border-radius:var(--m3e-shape-corner-large,16px)!important;background:var(--md-sys-color-surface-container,#f3f5f7)!important;color:var(--md-sys-color-on-surface,#1b1b1f)!important}
+.schoolProfileUpdateBody{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.schoolProfileUpdateBody img,.schoolProfileUpdateBody video,.schoolProfileUpdateBody iframe{max-width:100%!important;height:auto!important;box-sizing:border-box!important}
+.schoolProfileUpdate .activityMedia{max-width:100%!important;min-width:0!important;overflow:hidden!important}
+.schoolProfileUpdate .activityMediaImage{display:block;max-width:100%!important;width:auto!important;height:auto!important;max-height:420px!important;object-fit:contain!important}
+
+/* Course materials mirror Upcoming's inset list layout. Course app rows have no added outer margins. */
+#sectionProfileContent .materialList{display:block!important;width:calc(100% - 32px)!important;max-width:calc(100% - 32px)!important;margin:12px 16px 16px!important;padding:0!important;box-sizing:border-box!important}
+#sectionProfileContent .materialList m3e-list-action{margin:0!important}
+.courseAppsSideContent .courseAppList{margin:0!important;padding:0!important;gap:0!important;row-gap:0!important;--m3e-segmented-list-segment-gap:0px!important}
+.courseAppsSideContent .courseAppList>*{margin-block:0!important}
+.courseAppsSideContent .courseAppList m3e-list-action{margin-block:0!important}
+
+/* Portrait course pages scroll at the shell viewport instead of inside a fixed-height tab panel. */
+@media(max-width:800px){
+  .m3eShellMain>#content:has(.coursePortraitLayout){height:0!important;min-height:0!important;overflow:auto!important;overscroll-behavior:contain!important}
+  .coursePortraitLayout{height:auto!important;min-height:100%!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane{height:auto!important;min-height:0!important;flex:0 0 auto!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;flex:none!important;overflow:visible!important}
+  .coursePortraitLayout>.courseMainPane .sectionProfileTabs{flex:0 0 auto!important}
+  .coursePortraitLayout .materialList{margin:12px 16px 16px!important;width:calc(100% - 32px)!important}
+}
+
+/* File/link attachments are M3E segmented items; comment cards always fill their parent width. */
+.attachmentSegmentedList{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:8px 0!important;box-sizing:border-box!important;--m3e-segmented-list-segment-gap:4px!important}
+.attachmentSegmentedList m3e-list-action{display:flex!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin:0!important}
+.attachmentSegmentedItem .attachmentFileText{display:flex!important;flex:1 1 auto!important;min-width:0!important;flex-direction:column!important;overflow:hidden!important}
+.attachmentSegmentedItem .attachmentFileText b{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.attachmentSegmentedItem .attachmentFileIcon{flex:0 0 38px!important}
+.attachmentSegmentedItem .attachmentDownloadIcon{flex:0 0 28px!important}
+m3e-card.androidCommentCard{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin:0 0 10px!important;padding:12px!important;overflow:hidden!important}
+m3e-card.androidCommentCard[style*="--comment-depth"]{margin-left:calc(var(--comment-depth,0) * 12px)!important;width:calc(100% - var(--comment-depth,0) * 12px)!important}
+m3e-card.androidCommentCard .androidCommentAvatar{flex:0 0 48px!important;min-width:48px!important}
+m3e-card.androidCommentCard .androidCommentContent{display:block!important;flex:1 1 0!important;width:0!important;max-width:100%!important;min-width:0!important;padding-right:0!important;overflow-wrap:anywhere!important}
+.commentsAndroidList{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:12px 16px 24px!important}
+.commentsAndroidList>m3e-card.androidCommentCard{align-self:stretch!important}
+.androidCommentCard .commentBodyHtml img,.androidCommentCard .activityMedia img{max-width:100%!important;height:auto!important}
