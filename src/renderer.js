@@ -304,13 +304,31 @@ function wireM3eSplitPaneTracks(root=document){
   root.querySelectorAll?.("m3e-split-pane").forEach(p=>{
     if(p.__schoologySplitTrackBound)return;
     p.__schoologySplitTrackBound=true;
+    const key=p.getAttribute("data-persist-key");
+    const storageKey=key?`schoology-m3e-split-pane:${key}`:null;
     const sync=()=>{
       const v=Number(p.value);
       if(Number.isFinite(v))p.style.setProperty("--schoology-split-position",`${Math.max(0,Math.min(100,v))}%`);
     };
-    p.addEventListener("input",sync);
-    p.addEventListener("change",sync);
-    customElements.whenDefined("m3e-split-pane").then(sync).catch(()=>{});
+    const restore=()=>{
+      if(!storageKey)return;
+      try{
+        const raw=localStorage.getItem(storageKey);
+        if(raw===null)return;
+        const saved=Number(raw);
+        if(!Number.isFinite(saved))return;
+        const min=Number(p.getAttribute("min")),max=Number(p.getAttribute("max"));
+        const bounded=Math.max(Number.isFinite(min)?min:0,Math.min(Number.isFinite(max)?max:100,saved));
+        p.value=bounded;p.setAttribute("value",String(bounded));
+      }catch{}
+    };
+    const save=()=>{
+      sync();if(!storageKey)return;
+      const value=Number(p.value);
+      if(Number.isFinite(value))try{localStorage.setItem(storageKey,String(value))}catch{}
+    };
+    p.addEventListener("input",save);p.addEventListener("change",save);
+    customElements.whenDefined("m3e-split-pane").then(()=>{restore();sync()}).catch(()=>{});
   });
 }
 
@@ -642,7 +660,7 @@ function navigateBack(){
   if(state.embeddedTitle){
     const ret=state.embeddedReturn;
     state.embeddedTitle=null; state.embeddedTheme=''; state.embeddedReturn=null;
-    if(ret){if(ret.group){state.currentGroup=ret.group;state.groupTab=ret.groupTab||'updates';state.tab='groups';state.toolbarTitle=ret.group.name||ret.title||'Group';showGroup(ret.group,state.groupTab);return;}state.tab=ret.tab;state.homeTab=ret.homeTab||state.homeTab;state.toolbarTitle=ret.title||'Settings';state.courseView=null;state.selectedCourse=null;state.currentGroup=null;state.profileUser=null;render();loadTab();return;}
+    if(ret){if(ret.group){state.currentGroup=ret.group;state.groupTab=ret.groupTab||'updates';state.tab='groups';state.toolbarTitle=ret.group.name||ret.title||'Group';showGroup(ret.group,state.groupTab);return;}if(ret.course){state.tab=ret.tab||'courses';state.homeTab=ret.homeTab||state.homeTab;state.currentGroup=null;state.selectedCourse=ret.course;state.courseView=ret.courseView||'course';state.toolbarTitle=ret.title||courseTitleOf(ret.course)||'Course';showCourse(ret.course,ret.courseTab||'materials');return;}state.tab=ret.tab||'home';state.homeTab=ret.homeTab||state.homeTab;state.homeUpcomingReturn=!!ret.homeUpcomingReturn;state.toolbarTitle=ret.title||'Home';state.courseView=null;state.selectedCourse=null;state.currentGroup=null;state.profileUser=null;render();loadTab();return;}
     syncToolbar();
     if(state.selectedCourse){showCourse(state.selectedCourse,state.courseTab||'materials');}
     else if(state.currentGroup){showGroup(state.currentGroup,state.groupTab||'updates');}
@@ -715,8 +733,8 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
  const courseTabsMarkup=tabs=>tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('');
- const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" value="20" min="5" max="45" step="1" label="Resize course apps and content">
+ const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" data-persist-key="course-${esc(course.id||course.section_id||course.sectionId||'unknown')}-outer" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="course-${esc(course.id||course.section_id||course.sectionId||'unknown')}-apps" value="20" min="5" max="45" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
@@ -872,7 +890,7 @@ async function showAssignment(sectionId,assignmentId){
     state.assignmentCanSubmit=canSubmit; state.assignmentIsTeacher=isTeacher; state.assignmentAllowComments=allowComments; state.assignmentData={...at,__gradeItemId:resolvedGradeItemId}; state.assignmentEnrollmentId=myEnrollment.id||null;
     const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs assignmentTabsM3e"><m3e-tab class="assignmentTab" data-assignment-tab="info" selected>Info</m3e-tab>${allowComments?`<m3e-tab class="assignmentTab" data-assignment-tab="comments">Comments</m3e-tab>`:''}${!state.assignmentLandscape&&canSubmit?`<m3e-tab class="assignmentTab" data-assignment-tab="submit">${isTeacher?'Grade Submissions':'Submissions'}</m3e-tab>`:''}</m3e-tabs>`;
     if(state.assignmentLandscape&&canSubmit){
-      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></m3e-split-pane></section>`;
+      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" data-persist-key="assignment-${esc(sectionId)}-${esc(assignmentId)}" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></m3e-split-pane></section>`;
     }else{
       c.innerHTML=`<section class="assignmentAndroidPage"><div class="assignmentTabs">${tabs}</div><div id="assignmentTabContent" class="assignmentTabContent"></div></section>`;
     }
@@ -921,7 +939,7 @@ async function openAssignmentComments(sectionId,assignmentId,assignment){
       const cid=node.comment_id??node.id??'';
       const att=renderAttachments(node.attachments||node.attachment||{});
       const deleted=Number(node.status??1)===0;
-      return `<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:${Math.min(depth,8)};"><div class="androidCommentAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>'}</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="${esc(uid)}">${esc(name)}</button><div class="commentBodyHtml ${deleted?'commentDeleted':''}">${deleted?'Comment deleted':body}</div><div class="commentCreated">${esc(created)}</div>${att}<div class="androidCommentActions">${!deleted&&depth===0?`<button data-comment-reply="${esc(cid)}">Reply</button>`:''}<button data-comment-like="${esc(cid)}" data-liked="${liked?'1':'0'}">${liked?'Unlike':'Like'}</button><button disabled>♥ ${likes}</button></div></div></m3e-card>`;
+      return `<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:${Math.min(depth,8)};"><div class="androidCommentLayout"><div class="androidCommentAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>'}</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="${esc(uid)}">${esc(name)}</button><div class="commentBodyHtml ${deleted?'commentDeleted':''}">${deleted?'Comment deleted':body}</div><div class="commentCreated">${esc(created)}</div>${att}<div class="androidCommentActions">${!deleted&&depth===0?`<button data-comment-reply="${esc(cid)}">Reply</button>`:''}<button data-comment-like="${esc(cid)}" data-liked="${liked?'1':'0'}">${liked?'Unlike':'Like'}</button><button disabled>♥ ${likes}</button></div></div></div></m3e-card>`;
     }).join('');
     c.innerHTML=`<div class="commentsAndroidList">${cards||'<div class="androidEmptyState">No comments yet.</div>'}</div>`;
     await hydrateMediaImages(c);
@@ -1759,7 +1777,7 @@ async function renderEventComments(el,response,eventId){
   const attachments=renderAttachments(node.attachments||node.attachment||{}),deleted=Number(node.status??1)===0;
   const avatarMarkup=avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>';
   const replyMarkup=!deleted&&depth===0?'<button data-event-comment-reply="'+esc(commentId)+'">Reply</button>':'';
-  return '<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:'+Math.min(depth,8)+'"><div class="androidCommentAvatar">'+avatarMarkup+'</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="'+esc(uid)+'">'+esc(name)+'</button><div class="commentBodyHtml '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div><div class="commentCreated">'+esc(created)+'</div>'+attachments+'<div class="androidCommentActions">'+replyMarkup+'<button data-event-comment-like="'+esc(commentId)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button disabled>♥ '+likes+'</button></div></div></m3e-card>';
+  return '<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:'+Math.min(depth,8)+'"><div class="androidCommentLayout"><div class="androidCommentAvatar">'+avatarMarkup+'</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="'+esc(uid)+'">'+esc(name)+'</button><div class="commentBodyHtml '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div><div class="commentCreated">'+esc(created)+'</div>'+attachments+'<div class="androidCommentActions">'+replyMarkup+'<button data-event-comment-like="'+esc(commentId)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button disabled>♥ '+likes+'</button></div></div></div></m3e-card>';
  }).join('');
  el.innerHTML='<div class="commentsPage officialComments"><div class="commentsList commentsAndroidList">'+(cards||'<div class="androidEmptyState">No comments yet.</div>')+'</div></div>';
  await hydrateMediaImages(el);
@@ -1821,7 +1839,7 @@ function wireSchoolProfileUpcoming(root,events,schoolId){
 }
 async function openSchoolProfile(schoolId,title='School'){
   const c=document.getElementById('content');if(!c)return;
-  state.embeddedTitle=title;state.embeddedTheme='school-profile';state.embeddedCanOpenExternal=false;state.embeddedReturn={tab:state.tab,title:state.toolbarTitle,group:state.currentGroup,groupTab:state.groupTab};state.toolbarTitle=title;state.schoolProfile={schoolId:Number(schoolId),tab:'updates',events:[]};syncToolbar();
+  state.embeddedTitle=title;state.embeddedTheme='school-profile';state.embeddedCanOpenExternal=false;state.embeddedReturn={tab:state.tab,title:state.toolbarTitle,group:state.currentGroup,groupTab:state.groupTab,course:state.selectedCourse,courseTab:state.courseTab,courseView:state.courseView,homeTab:state.homeTab,homeUpcomingReturn:state.homeUpcomingReturn};state.toolbarTitle=title;state.schoolProfile={schoolId:Number(schoolId),tab:'updates',events:[]};syncToolbar();
   c.innerHTML='<section class="schoolProfileNativePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading school…</span></div></section>';
   try{
    const x=await A.api({path:`schools/${schoolId}`,params:{}}),school=x?.school||x||{},schoolTitle=school.title||school.name||title;
@@ -1883,7 +1901,7 @@ async function showGroup(group,activeTab='updates'){
   const groupTabsMarkup=`<div class="groupTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs groupTabsM3e">${['updates','upcoming','discussions','albums','resources'].map((id)=>`<m3e-tab class="groupTab ${id==='upcoming'?'groupUpcomingTab':''}" data-group-tab="${id}" ${activeTab===id?'selected':''}>${({updates:'Updates',upcoming:'Upcoming',discussions:'Discussions',albums:'Albums',resources:'Resources'})[id]}</m3e-tab>`).join('')}</m3e-tabs></div>`;
   const groupMain=`<section slot="start" class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img src="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
   const groupUpcoming=`<aside slot="end" id="groupUpcomingPane" class="groupUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="groupUpcomingContent"></div></aside>`;
-  c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
+  c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" data-persist-key="group-${esc(gid)}" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
   const gc=document.getElementById('groupTabContent');
   const groupSchoolButton=document.querySelector('[data-group-school-id]');if(groupSchoolButton)groupSchoolButton.onclick=()=>{const id=Number(groupSchoolButton.getAttribute('data-group-school-id')||0);if(id)openSchoolProfile(id,groupSchoolButton.textContent||'School')};
   const loadGroupUpcoming=async()=>{const up=document.getElementById('groupUpcomingContent');if(!up)return;try{const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));up.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';up.querySelectorAll('[data-course-upcoming-id]').forEach(b=>b.onclick=()=>{const e=a.find(v=>String(v.id||'')===String(b.dataset.courseUpcomingId));if(!e)return;const aid=e.assignment_id??e.assignmentId??e.assignment?.id;if(String(e.type||'').toLowerCase()==='assignment'&&aid){showAssignment(gid,aid);}else if(['assessment','assessment_v2','managed_assessment','quiz'].includes(String(e.type||'').toLowerCase())){const id=aid??e.id;(async()=>{await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,e.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})})()}else if(String(e.type||'').toLowerCase()==='event'&&e.id){openWithPressTransition(b,()=>showEventNative('groups',gid,e.id,e.title||'Event'));}})}catch(e){up.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}};
@@ -2128,7 +2146,7 @@ async function loadTab(){
     const landscape=window.matchMedia('(min-width: 801px)').matches;
     if(landscape){
       const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs homeTabsM3e">${`<m3e-tab data-home-tab="recent" ${state.homeTab==='recent'?'selected':''}>Recent Activity</m3e-tab>`}${state.courseDashboardEnabled?`<m3e-tab data-home-tab="dashboard" ${state.homeTab==='dashboard'?'selected':''}>Course Dashboard</m3e-tab>`:''}</m3e-tabs>`;
-      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" orientation="auto" value="75" min="20" max="90" step="1" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
+      c.innerHTML=`<m3e-split-pane class="homeLandscapeSplitM3e" data-persist-key="home" orientation="auto" value="75" min="20" max="90" step="1" label="Resize Home panes"><section slot="start" class="homeRightPane"><div class="homeTabs">${tabs}</div><section id="homeTabContent" class="activity"></section></section><section slot="end" id="homeUpcomingPane" class="homeUpcomingPane"></section></m3e-split-pane>`;
       document.querySelectorAll('[data-home-tab]').forEach(b=>b.onclick=()=>{state.homeTab=b.dataset.homeTab;syncM3eTabSelection(document.getElementById('content'),'homeTab',state.homeTab);loadHomeTab()});
       await loadHomeUpcomingPane();
       await loadHomeTab();
@@ -2222,7 +2240,7 @@ async function loadTab(){
       const selectedKey=formatApiDate(selected),days=monthStart.getDay(),rows=Math.ceil((days+monthEnd.getDate())/7),cells=[];
       for(let i=0;i<rows*7;i++){const n=i-days+1,inMonth=n>=1&&n<=monthEnd.getDate(),d=inMonth?new Date(month.getFullYear(),month.getMonth(),n):null,key=d?formatApiDate(d):'',evs=key?(byDay[key]||[]):[];cells.push(`<button class="calendarDay ${key===selectedKey?'selected':''} ${inMonth?'':'outside'}" data-calendar-day="${key}"><b>${inMonth?n:''}</b>${evs.length?'<i class="calendarEventMarker" aria-hidden="true"></i>':''}</button>`)}
       const calLandscape=currentWindowLayout()==='landscape';
-      pager.innerHTML=`<section class="calendarAndroidPage"><m3e-split-pane orientation="auto" class="calendarMainSplit" value="${calLandscape?'72':'64'}" min="35" max="85" step="1" label="Resize calendar and upcoming"><section slot="start" class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></section><section slot="end" class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-action-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section></m3e-split-pane><m3e-action-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section>`;
+      pager.innerHTML=`<section class="calendarAndroidPage"><m3e-split-pane orientation="auto" class="calendarMainSplit" data-persist-key="calendar" value="${calLandscape?'72':'64'}" min="35" max="85" step="1" label="Resize calendar and upcoming"><section slot="start" class="calendarMonthWrap"><m3e-calendar id="m3eSchoologyCalendar" date="${esc(selected.toISOString())}" start-at="${esc(month.toISOString())}"></m3e-calendar></section><section slot="end" class="calendarLandscapeUpcoming"><div class="calendarUpcomingHeader">Upcoming</div><m3e-action-list variant="segmented" class="calendarEventList" id="calendarUpcomingAll">${renderCalendarRows(upcomingNow())||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section></m3e-split-pane><m3e-action-list variant="segmented" id="calendarEventList" class="calendarEventList calendarSelectedDayList">${renderCalendarRows(byDay[selectedKey]||[])||'<m3e-list-action disabled>No upcoming events</m3e-list-action>'}</m3e-action-list></section>`;
       const m3cal=document.getElementById('m3eSchoologyCalendar');
       m3cal?.addEventListener('change',()=>{const d=m3cal.date;if(!(d instanceof Date)||Number.isNaN(d.getTime()))return;state.calendarSelectedDate=d;const key=formatApiDate(d);const list=document.getElementById('calendarEventList');if(list)list.innerHTML=renderCalendarRows(byDay[key]||[])||'<m3e-list-action disabled>No upcoming events</m3e-list-action>';bindEventRows(arr)});
       bindEventRows([...upcomingNow(),...arr]);
@@ -2325,14 +2343,10 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
       document.querySelectorAll('#themeMotion m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({motion:seg.getAttribute('value')||''})));
     }else c.innerHTML=`<section class="settingsPage">
       <div class="settingsSection">
-        <h2>Notification Settings</h2>
+        <h2>Desktop Notifications</h2>
         <m3e-list variant="segmented" class="settingsList">
           <m3e-list-item>Schoology notifications<span slot="supporting-text">Show a desktop notification when new activity arrives</span><m3e-switch slot="trailing" id="desktopNotificationsToggle" ${state.desktopNotifications?'checked':''} aria-label="Schoology notifications"></m3e-switch></m3e-list-item>
           <m3e-list-item>Notification sound<span slot="supporting-text">Play the system notification sound for new activity</span><m3e-switch slot="trailing" id="notificationSoundToggle" ${state.notificationSound?'checked':''} ${state.desktopNotifications?'':'disabled'} aria-label="Notification sound"></m3e-switch></m3e-list-item>
-          <m3e-list-item><span slot="leading"><span class="m3eOriginalIcon">${originalM3Icon("notifications")}</span></span>In-app notifications<span slot="supporting-text" id="notifSummary">Enabled</span><m3e-switch slot="trailing" id="notifToggle" checked aria-label="In-app notifications"></m3e-switch></m3e-list-item>
-          <m3e-list-action id="notificationRingtone">Ringtone<span slot="supporting-text">Set Notification Ringtone</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
-          <m3e-list-item>Vibrate<span slot="supporting-text">Vibrate on incoming notifications</span><m3e-switch slot="trailing" id="vibrateToggle" checked aria-label="Vibrate"></m3e-switch></m3e-list-item>
-          <m3e-list-item>Phone LED<span slot="supporting-text">Flash LED on notifications</span><m3e-switch slot="trailing" id="ledToggle" checked aria-label="Phone LED"></m3e-switch></m3e-list-item>
         </m3e-list>
       </div>
       <div class="settingsSection"><h2>Link Handling</h2><m3e-list variant="segmented" class="settingsList">
@@ -2346,9 +2360,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.149')}</div></section>`;
-    document.getElementById('notifToggle')?.addEventListener('change',e=>{document.getElementById('notifSummary').textContent=e.target.checked?'Enabled':'Disabled'});
-    document.getElementById('notificationRingtone')?.addEventListener('click',()=>showAppDialog('Notification Ringtone','Ringtone selection is not available on desktop.'));
+      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.152')}</div></section>`;
     document.getElementById('setupChromeLinkHandler')?.addEventListener('click',async()=>{try{state.openSchoologyLinks=await A.setOpenSchoologyLinks?.(true)!==false;const error=await A.openChromeExtensionFolder?.();if(error)throw new Error(error);showAppDialog('Chrome link handler','In Chrome, open chrome://extensions, enable Developer mode, choose Load unpacked, and select the chrome-link-handler folder that was opened. Supported Schoology links will now open in this app.')}catch(err){showAppDialog('Unable to open Chrome link handler folder',err.message||String(err))}});
     document.getElementById('desktopNotificationsToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.desktopNotifications=await A.setDesktopNotifications?.(next)!==false;const sound=document.getElementById('notificationSoundToggle');if(sound)sound.disabled=!state.desktopNotifications}catch(err){e.target.checked=state.desktopNotifications;showAppDialog('Unable to update notifications',err.message||String(err))}});
     document.getElementById('notificationSoundToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.notificationSound=await A.setNotificationSound?.(next)===true}catch(err){e.target.checked=state.notificationSound;showAppDialog('Unable to update notification sound',err.message||String(err))}});

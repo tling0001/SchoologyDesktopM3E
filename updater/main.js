@@ -17,7 +17,7 @@ function updateUi(data) { if (win && !win.isDestroyed()) win.webContents.execute
 function status(value) { updateUi({ status: value }); }
 function step(id, state, text, percent) { currentStep = id; updateUi({ id, state, text, percent }); }
 function createWindow() {
-  win = new BrowserWindow({ width: 520, height: 490, resizable: false, fullscreenable: false, minimizable: false, maximizable: false, alwaysOnTop: true, center: true, title: 'Schoology Update', backgroundColor: payload.darkTheme ? '#17191c' : '#f5f8fc', webPreferences: { contextIsolation: true, nodeIntegration: false } });
+  win = new BrowserWindow({ width: 520, height: 490, resizable: false, fullscreenable: false, minimizable: false, maximizable: false, alwaysOnTop: true, center: true, title: 'Schoology Update', icon: path.join(__dirname, 'assets', 'ic_launcher_256.png'), backgroundColor: payload.darkTheme ? '#17191c' : '#f5f8fc', webPreferences: { contextIsolation: true, nodeIntegration: false } });
   win.removeMenu();
   win.on('close', event => { if (!completed && !cancelled) { event.preventDefault(); cancelled = true; try { activeRequest && activeRequest.destroy(); } catch {} for (const child of children) try { child.kill(); } catch {} app.quit(); } });
   win.webContents.on('console-message', (_, level, message) => { if (message === 'schoology-updater-cancel') { cancelled = true; try { activeRequest && activeRequest.destroy(); } catch {} for (const child of children) try { child.kill(); } catch {} app.quit(); } });

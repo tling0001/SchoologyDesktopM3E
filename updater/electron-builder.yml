@@ -4,12 +4,14 @@ asar: true
 directories:
   app: updater
   output: updater/dist
+icon: assets/ic_launcher_256.ico
 files:
   - main.js
   - package.json
   - ui.html
   - ui.js
   - vendor/m3e-all.js
+  - assets/ic_launcher_256.png
 win:
   target:
     - portable

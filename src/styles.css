@@ -3185,7 +3185,7 @@ m3e-fab#homeCreatePlus m3e-fab-menu-trigger{display:contents}
 @media(min-width:801px){.schoolProfileTabs [data-school-profile-tab="upcoming"]{display:none!important}}
 @media(max-width:800px){.schoolProfileTabs [data-school-profile-tab="upcoming"]{display:revert!important}}
 .schoolProfileUpdates{display:flex!important;flex-direction:column!important;gap:12px!important;padding:16px!important;min-width:0!important;box-sizing:border-box!important}
-.schoolProfileUpdate{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;margin:0!important;padding:16px!important;border:1px solid var(--md-sys-color-outline-variant,#d9dee2)!important;border-radius:var(--m3e-shape-corner-large,16px)!important;background:var(--md-sys-color-surface-container,#f3f5f7)!important;color:var(--md-sys-color-on-surface,#1b1b1f)!important}
+.schoolProfileUpdate{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:var(--md-sys-color-on-surface,#1b1b1f)!important}
 .schoolProfileUpdateBody{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;word-break:break-word!important}
 .schoolProfileUpdateBody img,.schoolProfileUpdateBody video,.schoolProfileUpdateBody iframe{max-width:100%!important;height:auto!important;box-sizing:border-box!important}
 .schoolProfileUpdate .activityMedia{max-width:100%!important;min-width:0!important;overflow:hidden!important}
@@ -3193,10 +3193,11 @@ m3e-fab#homeCreatePlus m3e-fab-menu-trigger{display:contents}
 
 /* Course materials mirror Upcoming's inset list layout. Course app rows have no added outer margins. */
 #sectionProfileContent .materialList{display:block!important;width:calc(100% - 32px)!important;max-width:calc(100% - 32px)!important;margin:12px 16px 16px!important;padding:0!important;box-sizing:border-box!important}
+#sectionProfileContent .materialList{display:flex!important;flex-direction:column!important;gap:initial!important;row-gap:5px!important;column-gap:initial!important;--m3e-segmented-list-segment-gap:5px!important}
 #sectionProfileContent .materialList m3e-list-action{margin:0!important}
-.courseAppsSideContent .courseAppList{margin:0!important;padding:0!important;gap:0!important;row-gap:0!important;--m3e-segmented-list-segment-gap:0px!important}
-.courseAppsSideContent .courseAppList>*{margin-block:0!important}
-.courseAppsSideContent .courseAppList m3e-list-action{margin-block:0!important}
+.courseAppsSideContent .courseAppList,.courseMainPane .courseAppList{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;padding:0!important;gap:0!important;row-gap:0!important;column-gap:0!important;--m3e-segmented-list-segment-gap:0px!important}
+.courseAppsSideContent .courseAppList>* ,.courseMainPane .courseAppList>*{margin:0!important;margin-block:0!important}
+.courseAppsSideContent .courseAppList m3e-list-action,.courseMainPane .courseAppList m3e-list-action{margin:0!important;margin-block:0!important;margin-top:0!important;margin-bottom:0!important}
 
 /* Portrait course pages scroll at the shell viewport instead of inside a fixed-height tab panel. */
 @media(max-width:800px){
@@ -3222,3 +3223,16 @@ m3e-card.androidCommentCard .androidCommentContent{display:block!important;flex:
 .commentsAndroidList{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:12px 16px 24px!important}
 .commentsAndroidList>m3e-card.androidCommentCard{align-self:stretch!important}
 .androidCommentCard .commentBodyHtml img,.androidCommentCard .activityMedia img{max-width:100%!important;height:auto!important}
+
+
+/* v152: M3E filled comment cards need a real flex row inside the card slot.
+   A zero-width slotted content block makes every character wrap vertically. */
+m3e-card.androidCommentCard{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;padding:12px!important;margin:0 0 10px!important}
+m3e-card.androidCommentCard .androidCommentLayout{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+m3e-card.androidCommentCard .androidCommentAvatar{position:static!important;float:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 48px!important;width:48px!important;min-width:48px!important;height:48px!important;margin:0!important}
+m3e-card.androidCommentCard .androidCommentAvatar img,m3e-card.androidCommentCard .androidCommentAvatar .commentAvatar{display:block!important;width:48px!important;height:48px!important;min-width:48px!important;max-width:48px!important;object-fit:cover!important;border-radius:50%!important}
+m3e-card.androidCommentCard .androidCommentContent{display:block!important;flex:1 1 0%!important;width:auto!important;max-width:100%!important;min-width:0!important;padding:0!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+m3e-card.androidCommentCard .commentUserName{display:block!important;max-width:100%!important;min-height:20px!important;line-height:20px!important;margin:0 0 4px!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+m3e-card.androidCommentCard .commentBodyHtml,m3e-card.androidCommentCard .commentCreated,m3e-card.androidCommentCard .androidCommentActions{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+m3e-card.androidCommentCard .androidCommentActions{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:2px!important;height:auto!important;min-height:32px!important;margin:8px 0 0!important}
+m3e-card.androidCommentCard .androidCommentActions button{flex:0 0 auto!important;white-space:nowrap!important}
