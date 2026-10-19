@@ -16,8 +16,6 @@ contextBridge.exposeInMainWorld('schoology',{
   authState:()=>ipcRenderer.invoke('auth-state'),
   getThemeSettings:()=>ipcRenderer.invoke('get-theme-settings'),
   setThemeSettings:value=>ipcRenderer.invoke('set-theme-settings',value),
-  getSplitPaneSettings:()=>ipcRenderer.invoke('get-split-pane-settings'),
-  setSplitPaneSetting:(key,value)=>ipcRenderer.invoke('set-split-pane-setting',key,value),
   getAppVersion:()=>ipcRenderer.invoke('app-version'),
   getOpenSchoologyLinks:()=>ipcRenderer.invoke('get-open-schoology-links'),
   setOpenSchoologyLinks:enabled=>ipcRenderer.invoke('set-open-schoology-links',enabled),

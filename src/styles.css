@@ -3319,3 +3319,40 @@ m3e-card.androidCommentCard .androidCommentLayout{padding:12px 14px!important;bo
 .m3eShell button:not(:disabled),.m3eLogin button:not(:disabled),.m3eQrScreen button:not(:disabled){color:var(--md-sys-color-on-surface,#1b1b1f)}
 html[data-theme-effective="dark"] .m3eShell button:not(:disabled),html[data-theme-effective="dark"] .m3eLogin button:not(:disabled),html[data-theme-effective="dark"] .m3eQrScreen button:not(:disabled){color:var(--md-sys-color-on-surface,#f2f0f7)}
 @media(max-width:800px){.textSubmissionM3eDialog{width:calc(100vw - 24px)!important;min-width:calc(100vw - 24px)!important;--m3e-dialog-max-width:calc(100vw - 24px)!important}}
+
+/* v156: let M3E own split-pane sizing; remove inline-size containment from slotted panes. */
+m3e-split-pane.assignmentLandscapeSplit>*,m3e-split-pane.courseOuterSplit>*,m3e-split-pane.courseInnerSplit>*,
+m3e-split-pane.calendarMainSplit>*,m3e-split-pane.homeLandscapeSplitM3e>*,m3e-split-pane.groupOuterSplit>*{
+ position:static!important;z-index:auto!important;width:100%!important;flex:0 1 auto!important;
+ flex-shrink:1!important;contain:none!important;overflow:hidden!important;min-width:0!important;min-height:0!important;
+}
+.courseOuterSplit>.courseInnerSplit[slot="start"],.courseOuterSplit>.courseUpcomingPane[slot="end"],
+.courseInnerSplit>.courseAppsSidePane[slot="start"],.courseInnerSplit>.courseMainPane[slot="end"],
+.groupOuterSplit>.groupMainPane[slot="start"],.groupOuterSplit>.groupUpcomingPane[slot="end"]{
+ width:100%!important;contain:none!important;z-index:auto!important;flex:0 1 auto!important;min-width:0!important;
+}
+.courseAppsSideContent .courseAppList,.courseMainPane .courseAppList{padding:8px 0 0!important;box-sizing:border-box!important}
+.courseAppsSideContent{min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+.courseMainPane .sectionProfileContent{min-height:0!important;overflow:auto!important}
+@media(max-width:800px){
+ .courseLandscapePage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+ .coursePortraitLayout{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important}
+ .coursePortraitLayout>.courseMainPane{min-height:100%!important;height:auto!important;overflow:visible!important;flex:0 0 auto!important}
+ .coursePortraitLayout>.courseMainPane .sectionProfileContent{height:auto!important;min-height:0!important;overflow:visible!important;flex:none!important}
+ .coursePortraitLayout .courseAppList{padding-top:8px!important}
+}
+.m3eShell .activityBody a,.m3eShell .schoolProfileUpdateBody a,.m3eShell .schoolProfileUpdate a,
+.m3eShell .assignmentDescription a,.m3eShell .commentBodyHtml a,.m3eShell .discussionBody a,
+.m3eShell .messageThreadBody a,.m3eShell .notificationBodyRich a,.m3eShell .groupFullUpdate a{
+ color:var(--md-sys-color-primary,#2e66a3)!important;text-decoration:underline!important;
+}
+.m3eShell [data-course-school-id],.m3eShell .courseSchoolButton,.m3eShell .courseSchoolName{color:var(--md-sys-color-primary,#2e66a3)!important}
+.m3eShell .messageAttachments{margin:8px 0 0!important;padding:0!important;width:100%!important;box-sizing:border-box!important}
+.m3eShell .messageAttachments .attachmentSegmentedList{margin:0!important}
+.m3eShell .messageThreadCard .messageThreadBody{margin:8px 14px!important}
+.m3eShell .messageThreadCard .messageAttachments{margin:8px 14px 14px!important;width:calc(100% - 28px)!important}
+.m3eShell .groupDiscussionCommentCard .androidCommentLayout{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:12px!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:12px 14px!important}
+.m3eShell .groupDiscussionCommentCard .androidCommentAvatar{flex:0 0 48px!important;width:48px!important;min-width:48px!important;height:48px!important}
+.m3eShell .groupDiscussionCommentCard .androidCommentContent{display:block!important;flex:1 1 0!important;width:auto!important;min-width:0!important;padding:0!important}
+.m3eShell .groupDiscussionCommentCard .commentUserName{display:block!important;margin:0 0 4px!important;min-height:20px!important;line-height:20px!important;text-align:left!important}
+.m3eShell .m3eDrawer m3e-divider{--m3e-divider-color:var(--md-sys-color-outline-variant,#79747e)!important}
