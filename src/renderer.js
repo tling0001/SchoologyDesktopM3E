@@ -629,7 +629,7 @@ function syncToolbar(){
   if(state.assignmentView&&state.assignmentLandscape&&!state.assignmentSubpage&&(state.assignmentTab==='info'||state.assignmentTab==='comments')){
     if(state.assignmentAllowComments||state.assignmentCanSubmit){
       slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Assignment actions" title="Assignment actions"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
-      document.getElementById('assignmentPlus')?.addEventListener('click',showAssignmentActionMenu,{once:true});
+      document.getElementById('assignmentPlus')?.addEventListener('click',()=>{if(state.assignmentCanSubmit)showAssignmentActionMenu();else openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0')});
     }
   }else if(state.assignmentView&&state.assignmentTab==='comments'&&!state.assignmentSubpage){
     slot.innerHTML=`<m3e-fab id="assignmentPlus" variant="primary-container" aria-label="Post comment" title="Post comment"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
@@ -761,8 +761,8 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
  state.courseTab=effectiveTab;
  const courseTabsMarkup=tabs=>tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('');
- const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" data-persist-key="course-${esc(course.id||course.section_id||course.sectionId||'unknown')}-outer" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="course-${esc(course.id||course.section_id||course.sectionId||'unknown')}-apps" value="20" min="5" max="45" step="1" label="Resize course apps and content">
+ const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" data-persist-key="courses-outer" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="courses-apps" value="20" min="5" max="45" step="1" label="Resize course apps and content">
      <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
@@ -862,21 +862,24 @@ function showAssignmentAttachmentDialog(attachments){
   const items=(Array.isArray(attachments)?attachments:collectAssignmentAttachments(attachments)).slice(0,50);
   if(!items.length)return;
   document.getElementById('assignmentAttachmentDialog')?.remove();
-  const dialog=document.createElement('div');dialog.id='assignmentAttachmentDialog';dialog.className='assignmentAttachmentDialogOverlay';
-  dialog.innerHTML=`<m3e-dialog open class="assignmentAttachmentDialog" disable-close><span slot="header">Attachments</span><div class="assignmentAttachmentList">${items.map((item,index)=>{
+  const wrapper=document.createElement('div');wrapper.id='assignmentAttachmentDialog';wrapper.className='assignmentAttachmentDialogOverlay';
+  wrapper.innerHTML=`<m3e-dialog open class="assignmentAttachmentDialog" disable-close><span slot="header">Attachments</span><div class="assignmentAttachmentList">${items.map((item,index)=>{
     const title=String(item.title||item.fileTitle||item.filename||item.fileName||item.linkTitle||item.videoTitle||item.name||item.tool_name||'Attachment');
     const mime=item.filemime||item.fileMIME||item.mime||'';
     const iconName=item.kind==='link'||item.kind==='video'||item.kind==='embed'||item.kind==='external_tool'?'attachment_link_icon.png':mimeIconForFilename(title,mime);
     const icon=localAttachmentIcon(iconName)||localAttachmentIcon('attachment_document_icon.png');
     return `<button type="button" class="assignmentAttachmentRow" data-assignment-attachment-index="${index}"><span class="assignmentAttachmentIcon" aria-hidden="true"><img src="${esc(icon)}" alt=""></span><span class="assignmentAttachmentName">${esc(title)}</span></button>`;
-  }).join('')}</div><div slot="actions" end class="assignmentAttachmentActions"><m3e-button id="assignmentAttachmentCancel" variant="text">Cancel</m3e-button></div></m3e-dialog>`;
-  document.body.appendChild(dialog);
-  dialog.querySelector('#assignmentAttachmentCancel')?.addEventListener('click',()=>dialog.remove());
-  dialog.querySelectorAll('[data-assignment-attachment-index]').forEach(button=>button.addEventListener('click',async()=>{
+  }).join('')}</div><div slot="actions" end class="assignmentAttachmentActions"><m3e-button id="assignmentAttachmentClose" variant="filled">Close</m3e-button></div></m3e-dialog>`;
+  document.body.appendChild(wrapper);
+  const dialog=wrapper.querySelector('m3e-dialog');let closing=false;
+  dialog?.addEventListener('closed',()=>setTimeout(()=>wrapper.remove(),260),{once:true});
+  const close=()=>{if(closing)return;closing=true;try{if(typeof dialog?.hide==='function')dialog.hide();else if(dialog)dialog.open=false}catch{if(dialog)dialog.open=false}setTimeout(()=>wrapper.remove(),260)};
+  wrapper.querySelector('#assignmentAttachmentClose')?.addEventListener('click',close);
+  wrapper.querySelectorAll('[data-assignment-attachment-index]').forEach(button=>button.addEventListener('click',async()=>{
     const item=items[Number(button.dataset.assignmentAttachmentIndex)];
     if(item)await openAssignmentAttachmentItem(item,button,dialog);
   }));
-  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.remove()});
+  wrapper.addEventListener('click',event=>{if(event.target===wrapper)close()});
 }
 async function showAssignment(sectionId,assignmentId){
   const c=document.getElementById('content'); if(!c)return;
@@ -1801,7 +1804,7 @@ function renderOverallGrade(sec){
  const display=getFinalGradeDisplay(sec);
  const final=display.final;
  const comment=typeof final.comment==='string'?final.comment:(final.comment?.comment||final.comment?.body||'');
- return `<div class="gradeOverallCard"><div class="label">Overall Grade</div><div class="value">${esc(display.value)}</div>${comment?`<div class="gradeOverallTeacherComment"><b>Teacher Comment</b><div>${comment}</div></div>`:''}</div>`;
+ return `<m3e-card variant="filled" class="gradeOverallCard"><m3e-heading variant="label" size="large">Overall Grade</m3e-heading><m3e-heading variant="headline" size="large" class="gradeOverallValue">${esc(display.value)}</m3e-heading>${comment?`<m3e-divider></m3e-divider><m3e-heading variant="label" size="medium">Teacher Comment</m3e-heading><p class="gradeOverallTeacherComment">${comment}</p>`:''}</m3e-card>`;
 }
 function renderGradePeriods(rows,periods,categories){
  const ps=periods?.grading_period||periods?.period||[];const cs=categories?.grading_category||categories?.category||[];
@@ -1822,10 +1825,10 @@ function renderGradePeriods(rows,periods,categories){
    const list=pg[cid],meta=cs.find?.(x=>String(x.id)===cid)||{};
    inner.push(`<m3e-expansion-panel class="gradeCategoryInner" open><span slot="header">${esc(meta.title||meta.name||cmap[cid]||'Category')}${meta.weight!=null?` <small>${esc(meta.weight)}%</small>`:''}</span><m3e-list variant="segmented" class="gradeItemList">${list.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''))).map(a=>{const g=a.gradeData||{};const raw=g.grade??g.calculated_grade??g.score??'—';const max=a.max_points??a.maxPoints??g.max_points??g.maxPoints;const value=(raw!=='—'&&max!=null&&String(max)!=='')?`${raw}/${max}`:raw;const comment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');return `<m3e-list-action class="gradeAssignmentRow" data-grade-assignment="${esc(a.id||'')}" data-grade-type="${esc(a.type||a.template_type||a.type_name||'assignment')}"><span class="gradeAssignmentTitle">${esc(a.title||a.assignment_title||'Assignment')}</span><span slot="supporting-text">${comment?esc(comment):''}</span><span slot="trailing">${esc(value)}</span></m3e-list-action>`}).join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</m3e-list></m3e-expansion-panel>`);
   });
-  periodsHtml.push(`<m3e-expansion-panel class="gradePeriodOuter" open><span slot="header">${esc(periodTitle)}</span><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-expansion-panel>`);
+  periodsHtml.push(`<m3e-card variant="outlined" class="gradePeriodCard"><m3e-heading variant="title" size="large" class="gradePeriodTitle">${esc(periodTitle)}</m3e-heading><div class="gradePeriodInnerPanels">${inner.join('')||'<m3e-list-item>No graded items.</m3e-list-item>'}</div></m3e-card>`);
  });
- if(!periodsHtml.length)return '<div class="empty"><h2>No grades</h2></div>';
- return `<m3e-accordion class="gradesAccordion" multi><m3e-expansion-panel class="gradesPeriodsOuter" open><span slot="header">Grades</span><div class="gradesPeriodsBody">${periodsHtml.join('')}</div></m3e-expansion-panel></m3e-accordion>`;
+ if(!periodsHtml.length)return '<m3e-card variant="outlined" class="gradeEmptyCard"><m3e-heading variant="title" size="large">No grades</m3e-heading></m3e-card>';
+ return `<div class="gradesPeriodsStack">${periodsHtml.join('')}</div>`;
 }
 
 function renderGrades(rows){return renderGradePeriods(rows,{grading_period:[]},{grading_category:[]});}
