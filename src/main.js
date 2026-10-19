@@ -62,6 +62,14 @@ app.on('second-instance',(_event,argv)=>{const url=extractSchoologyDeepLink(argv
 app.on('open-url',(event,url)=>{event.preventDefault();deliverSchoologyDeepLink(url)});
 const windowChromeSettingsFile=path.join(stableUserData,'window-chrome.json');
 const appSettingsFile=path.join(stableUserData,'app-settings.json');
+const themeSettingsFile=path.join(stableUserData,'theme-settings.json');
+const splitPaneSettingsFile=path.join(stableUserData,'split-pane-settings.json');
+const DEFAULT_THEME_SETTINGS={color:'#7ea9d8',variant:'tonal-spot',scheme:'auto',contrast:'standard',motion:'expressive',colorVersion:2};
+function readThemeSettings(){try{const value=JSON.parse(fs.readFileSync(themeSettingsFile,'utf8'));return {...DEFAULT_THEME_SETTINGS,...(value&&typeof value==='object'?value:{})}}catch{return {...DEFAULT_THEME_SETTINGS}}}
+function readSplitPaneSettings(){try{const value=JSON.parse(fs.readFileSync(splitPaneSettingsFile,'utf8'));return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}}
+function writeJsonSettings(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(value,null,2),'utf8');fs.renameSync(tmp,file)}
+function saveThemeSettings(value){const next={...DEFAULT_THEME_SETTINGS,...(value&&typeof value==='object'?value:{}),colorVersion:2};writeJsonSettings(themeSettingsFile,next);return next}
+function saveSplitPaneSetting(key,value){if(typeof key!=='string'||!key||key.length>160)throw new Error('Invalid split-pane setting key');const number=Number(value);if(!Number.isFinite(number))throw new Error('Invalid split-pane size');const settings=readSplitPaneSettings();settings[key]=Math.max(0,Math.min(100,number));writeJsonSettings(splitPaneSettingsFile,settings);return settings[key]}
 const notificationSeenFile=path.join(stableUserData,'notification-seen.json');
 function readAppSettings(){try{const value=JSON.parse(fs.readFileSync(appSettingsFile,'utf8'))||{};return {openSchoologyLinks:value.openSchoologyLinks!==false,desktopNotifications:value.desktopNotifications!==false,notificationSound:value.notificationSound===true}}catch{return {openSchoologyLinks:true,desktopNotifications:true,notificationSound:false}}}
 function saveAppSettings(patch){const settings={...readAppSettings(),...(patch||{})};fs.mkdirSync(path.dirname(appSettingsFile),{recursive:true});fs.writeFileSync(appSettingsFile,JSON.stringify(settings,null,2),'utf8');return settings}
@@ -761,6 +769,10 @@ app.whenReady().then(()=>{
   try{app.setAsDefaultProtocolClient('schoology')}catch(e){console.error('Could not register Schoology URL protocol:',e.message)}
   ipcMain.handle('renderer-deep-link-ready',()=>{rendererDeepLinkReady=true;setImmediate(flushPendingSchoologyDeepLink);return true});
   ipcMain.handle('app-version',()=>app.getVersion());
+  ipcMain.handle('get-theme-settings',()=>({settings:readThemeSettings(),saved:fs.existsSync(themeSettingsFile)}));
+  ipcMain.handle('set-theme-settings',(_,value)=>saveThemeSettings(value));
+  ipcMain.handle('get-split-pane-settings',()=>readSplitPaneSettings());
+  ipcMain.handle('set-split-pane-setting',(_,key,value)=>saveSplitPaneSetting(key,value));
   ipcMain.handle('get-open-schoology-links',()=>readAppSettings().openSchoologyLinks);
   ipcMain.handle('set-open-schoology-links',(_,enabled)=>saveAppSettings({openSchoologyLinks:!!enabled}).openSchoologyLinks);
   ipcMain.handle('get-desktop-notifications',()=>readAppSettings().desktopNotifications);

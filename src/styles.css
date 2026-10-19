@@ -3284,3 +3284,38 @@ m3e-card.androidCommentCard .androidCommentLayout{padding:12px 14px!important;bo
 .themeSettingsDialogOverlay{background:rgba(0,0,0,.32)!important}
 .m3eDrawer m3e-divider{display:block!important;margin:8px 8px!important;--m3e-divider-color:rgba(255,255,255,.24)!important}
 @media(max-width:800px){.textSubmissionM3eDialog{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)!important}.textSubmissionDialogBody{padding:8px 16px!important}.schoolProfileUpdates{padding:8px!important}.schoolProfileUpdateContent{padding:12px!important}}
+
+/* v155: stable layout persistence, functional split handles, and consistent M3E spacing/contrast. */
+m3e-split-pane.courseOuterSplit>*,m3e-split-pane.courseInnerSplit>*,m3e-split-pane.assignmentLandscapeSplit>*,
+m3e-split-pane.calendarMainSplit>*,m3e-split-pane.homeLandscapeSplitM3e>*,m3e-split-pane.groupOuterSplit>*{
+  width:auto!important;contain:none!important;flex-shrink:1!important;
+}
+.courseInnerSplit>.courseAppsSidePane,.courseInnerSplit>.courseMainPane,
+.courseOuterSplit>#courseUpcomingPane,.courseOuterSplit>.courseUpcomingPane{
+  width:auto!important;contain:none!important;min-width:0!important;min-height:0!important;
+}
+m3e-icon-button,.m3eShell m3e-icon-button,.m3eLoginAppBar m3e-icon-button,.m3eQrAppBar m3e-icon-button{
+  color:var(--md-sys-color-on-surface,#1b1b1f)!important;
+  --m3e-icon-button-icon-color:var(--md-sys-color-on-surface,#1b1b1f)!important;
+  --m3e-icon-button-color:var(--md-sys-color-on-surface,#1b1b1f)!important;
+}
+m3e-icon-button .m3eOriginalIcon,m3e-icon-button .m3eOriginalIcon svg{color:inherit!important}
+.m3eDrawer m3e-divider{display:block!important;margin:8px 12px!important;--m3e-divider-color:var(--md-sys-color-outline-variant,#79747e)!important}
+.themeSettingsDialogTheme.m3eRoot{background:transparent!important;box-shadow:none!important;--m3e-dialog-scrim-color:transparent!important;--m3e-dialog-scrim-opacity:0%!important}
+.themeSettingsDialog{--m3e-dialog-scrim-color:transparent!important;--m3e-dialog-scrim-opacity:0%!important}
+.themeSettingsActions{display:flex!important;align-items:center!important;gap:8px!important}
+.themeSettingsActions m3e-button{min-width:84px!important}
+.commentsPage.officialComments,.commentsList{margin:0!important;padding:0!important}
+m3e-card.androidCommentCard{margin:0 0 8px!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+m3e-card.androidCommentCard .androidCommentLayout{padding:12px 14px!important;box-sizing:border-box!important}
+.textSubmissionM3eDialog{width:min(720px,calc(100vw - 32px))!important;min-width:min(640px,calc(100vw - 32px))!important;--m3e-dialog-max-width:min(720px,calc(100vw - 32px))!important}
+.textSubmissionDialogTheme{width:100%!important;height:100%!important;background:transparent!important;box-shadow:none!important}
+.activityMedia{box-sizing:border-box!important;max-width:100%!important;min-width:0!important}
+.activityAttachment,.attachmentSegmentedList{box-sizing:border-box!important;max-width:100%!important;min-width:0!important}
+.m3e-card:not(.schoolProfileUpdate):not(.profileUpdateCard):not(.androidCommentCard):not(.assignmentInfoCard) .activityMedia{margin:8px 14px!important;width:calc(100% - 28px)!important;padding:0!important}
+.messageThreadCard .activityMedia{margin:0 16px 16px!important;width:calc(100% - 32px)!important;padding:0!important}
+.androidCommentCard .activityMedia{margin:8px 0!important;width:100%!important;padding:0!important}
+.schoolProfileUpdateContent,.profileUpdateCardContent{padding:12px 14px!important;box-sizing:border-box!important}
+.m3eShell button:not(:disabled),.m3eLogin button:not(:disabled),.m3eQrScreen button:not(:disabled){color:var(--md-sys-color-on-surface,#1b1b1f)}
+html[data-theme-effective="dark"] .m3eShell button:not(:disabled),html[data-theme-effective="dark"] .m3eLogin button:not(:disabled),html[data-theme-effective="dark"] .m3eQrScreen button:not(:disabled){color:var(--md-sys-color-on-surface,#f2f0f7)}
+@media(max-width:800px){.textSubmissionM3eDialog{width:calc(100vw - 24px)!important;min-width:calc(100vw - 24px)!important;--m3e-dialog-max-width:calc(100vw - 24px)!important}}
