@@ -3377,3 +3377,47 @@ html[data-theme-effective="dark"] .m3eShell button:not(:disabled),html[data-them
 @media(min-width:801px){.schoolProfileNativePage{height:100%!important;min-height:0!important;overflow:hidden!important}.schoolProfileLayout{height:100%!important;min-height:0!important}.schoolProfileMainPane{height:100%!important;overflow:hidden!important}.schoolProfileTabContent{flex:1 1 0!important;min-height:0!important;overflow:auto!important}.schoolProfileUpcomingPane{display:flex!important}}
 @media(max-width:800px){.schoolProfileNativePage{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileLayout{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileLayout>[slot="end"]{display:none!important}.schoolProfileMainPane{width:100%!important;min-height:0!important;overflow:visible!important}.schoolProfileTabContent{overflow:visible!important}}
 :root[data-theme-effective="dark"] .gradeOverallCard,:root[data-theme-effective="dark"] .submissionHeaderCard{background:var(--md-sys-color-surface-container-high)!important;color:var(--md-sys-color-on-surface)!important}
+
+/* v160: align split-pane headers with Schoology's M3E tab bar. */
+.assignmentPaneHeader,.schoolProfileUpcomingPane>.homePaneHeader{display:flex!important;align-items:center!important;height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;box-sizing:border-box!important;margin:0!important;padding:0 16px!important;background:#002137!important;color:#fff!important;border:0!important;border-radius:0!important;font-size:14px!important;font-weight:500!important;line-height:20px!important}
+.assignmentInfoPane .assignmentTabsM3e,.schoolProfileMainPane .schoolProfileTabs{height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;background:#002137!important;color:#fff!important}
+.assignmentSubmissionsPane{min-width:0!important;min-height:0!important;background:var(--md-sys-color-surface)!important}
+.assignmentSubmissionsContent{padding:0!important}
+@media(max-width:800px){.assignmentPaneHeader{display:none!important}}
+/* Match the custom split-track color used by the other M3E split panes. */
+.schoolProfileLayout{--m3e-split-pane-drag-handle-container-width:24px!important;--m3e-split-pane-drag-handle-width:4px!important;--m3e-split-pane-drag-handle-height:48px!important;--m3e-split-pane-drag-handle-pressed-width:6px!important;--m3e-split-pane-drag-handle-pressed-height:48px!important;background:transparent!important;position:relative!important}
+.schoolProfileLayout::before{content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;background:var(--md-sys-color-primary-container)!important;border-radius:0!important;left:calc(var(--schoology-split-position,73%) - 12px)!important;top:0!important;bottom:0!important;width:24px!important;height:auto!important}
+.schoolProfileLayout>*{position:relative!important;z-index:1!important;min-width:0!important;min-height:0!important}
+/* Normalize card spacing around comments to match assignment info cards. */
+.assignmentInfoCard,.androidCommentCard,.groupDiscussionCard{margin:12px 16px!important}
+.commentsAndroidList{padding:12px 16px 24px!important;gap:0!important}
+.commentsAndroidList>m3e-card.androidCommentCard{margin:0 0 12px!important;width:100%!important;max-width:100%!important}
+m3e-card.androidCommentCard[style*="--comment-depth"]{margin-left:0!important;margin-right:0!important;width:100%!important}
+/* One filled overall-grade card, followed by unboxed periods and standard M3E grade lists. */
+.gradeOverallCard{background:var(--md-sys-color-surface,#fff)!important;--m3e-filled-card-container-color:var(--md-sys-color-surface,#fff)!important;border:0!important;box-shadow:none!important}
+.gradePeriodSection{display:block!important;margin:0!important;padding:16px!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important}
+.gradePeriodSection>.gradePeriodTitle{display:block!important;margin:0 0 8px!important}
+.gradePeriodSection>m3e-divider{display:block!important;margin:0 0 4px!important}
+.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.gradeCategoryInner{margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;--m3e-expansion-panel-container-color:transparent}
+.gradeCategoryInner [slot="header"]{padding:12px 0!important;font-weight:500!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important}
+.gradeCategoryInner .gradeItemList,.gradeCategoryInner .gradeItemList m3e-list-action,.gradeCategoryInner .gradeItemList m3e-list-item{margin:0!important;padding-inline:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;--m3e-list-item-container-color:transparent!important}
+.gradeCategoryInner m3e-list-action,.gradeCategoryInner m3e-list-item{min-height:56px!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important}
+.gradeCategoryInner m3e-list-action:last-child{border-bottom:0!important}
+/* Resources now use M3E expansion panels, action lists, and list items. */
+.resourcesAndroidPage{height:100%!important;min-height:0!important;overflow:auto!important;padding:8px 16px 24px!important;background:var(--md-sys-color-surface)!important;color:var(--md-sys-color-on-surface)!important}
+.resourceCategoryList{display:flex!important;flex-direction:column!important;gap:8px!important;max-width:100%!important}
+.resourceCategory{display:block!important;margin:0!important;padding:0!important;border:1px solid var(--md-sys-color-outline-variant)!important;border-radius:12px!important;overflow:hidden!important;background:var(--md-sys-color-surface)!important;--m3e-expansion-panel-container-color:var(--md-sys-color-surface)!important}
+.resourceCategoryHeader{display:flex!important;align-items:center!important;gap:12px!important;min-height:56px!important;padding:8px 16px!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important;font-size:16px!important;font-weight:500!important}
+.resourceCategoryHeader img{width:32px!important;height:32px!important;object-fit:contain!important;margin:0!important}
+.resourceCategoryChildren{display:block!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;--m3e-segmented-list-segment-gap:0}
+.resourceCollectionRow{display:flex!important;align-items:center!important;min-height:56px!important;padding:8px 16px!important;border:0!important;border-top:1px solid var(--md-sys-color-outline-variant)!important;border-radius:0!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important;text-align:left!important;cursor:pointer!important}
+.resourceCollectionRow>span:not([slot]){flex:1!important;min-width:0!important;overflow-wrap:anywhere!important}
+.resourceM3eIcon{display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;flex:0 0 40px!important}
+.resourceM3eIcon img{width:32px!important;height:32px!important;object-fit:contain!important}
+.resourceAppLogo,.resourceAppFallback{max-width:32px!important;max-height:32px!important}
+.resourceEmpty{padding:16px!important;color:var(--md-sys-color-on-surface-variant)!important}
+.messageThreadCard .messageAttachments{display:block!important;width:auto!important;max-width:none!important;margin:8px 14px 14px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.messageThreadCard .messageAttachments .messageAttachment{border:0!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important;border-radius:0!important;background:transparent!important;padding:12px 0!important;color:var(--md-sys-color-primary)!important}
+.messageThreadCard .messageAttachments .messageAttachment:last-child{border-bottom:0!important}
+:root[data-theme-effective="dark"] .gradeOverallCard{background:var(--md-sys-color-surface,#191b20)!important}
