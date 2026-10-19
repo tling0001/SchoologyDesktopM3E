@@ -3253,3 +3253,34 @@ m3e-card.androidCommentCard .androidCommentLayout{padding:4px 6px!important;box-
 .themeSettingsScroll m3e-filter-chip-set{width:100%!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important}
 .themeSettingsScroll m3e-segmented-button{max-width:100%!important}
 @media(max-width:800px){.schoolProfileSplit{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileSplit>[slot="start"]{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileSplit>[slot="end"]{display:none!important}.schoolProfileNativePage{height:auto!important;min-height:100%!important;overflow:visible!important}.themeSettingsDialogOverlay{padding:12px!important}.themeSettingsDialog{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)!important}.themeSettingsScroll{max-height:calc(100vh - 140px)!important;padding:8px 16px 16px!important}}
+
+/* v154: M3E dialogs, zero-gap list rows and inset filled update cards. */
+.deepLinkDownloadOverlay{position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:20px!important;box-sizing:border-box!important;background:rgba(0,0,0,.32)!important}
+.deepLinkDownloadTheme{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;background:transparent!important;box-shadow:none!important;pointer-events:none!important}
+.deepLinkDownloadDialog{display:block!important;width:min(440px,calc(100vw - 40px))!important;max-width:100%!important;pointer-events:auto!important}
+.deepLinkDownloadBody{padding:16px 24px 24px!important;display:flex!important;flex-direction:column!important;gap:18px!important}
+.textSubmissionDialogTheme{position:relative!important;background:transparent!important;box-shadow:none!important}
+.textSubmissionM3eDialog{width:min(560px,calc(100vw - 32px))!important;max-width:100%!important;max-height:calc(100vh - 32px)!important;overflow:auto!important}
+.textSubmissionDialogBody{display:flex!important;flex-direction:column!important;gap:12px!important;padding:12px 24px!important;box-sizing:border-box!important}
+.textSubmissionDialogBody textarea{display:block!important;width:100%!important;min-height:180px!important;resize:vertical!important;box-sizing:border-box!important;font:inherit!important;padding:12px!important}
+.textSubmissionDraft{display:flex!important;align-items:center!important;gap:8px!important;font-size:14px!important}
+.assignmentTabsM3e{display:block!important;width:100%!important;flex:0 0 auto!important}
+.assignmentLandscapePage m3e-split-pane.assignmentLandscapeSplit{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.assignmentLandscapeSplit>[slot="start"],.assignmentLandscapeSplit>[slot="end"]{min-width:0!important;min-height:0!important;overflow:hidden!important}
+.assignmentInfoPane>.assignmentTabsM3e{width:100%!important}
+.assignmentAttachmentsButton{--m3e-button-tonal-container-color:var(--md-sys-color-secondary-container)!important;--m3e-button-tonal-label-text-color:var(--md-sys-color-on-secondary-container)!important}
+.courseAppList,.gradeItemList{gap:0!important;row-gap:0!important;column-gap:0!important;--m3e-segmented-list-segment-gap:0px!important;margin:0!important;padding:0!important}
+.courseAppList>* ,.gradeItemList>*{margin:0!important;margin-block:0!important;margin-block-start:0!important;margin-block-end:0!important;padding-block-start:0!important;padding-block-end:0!important}
+.courseAppList m3e-list-action,.courseAppList m3e-list-item,.gradeItemList m3e-list-action,.gradeItemList m3e-list-item{margin:0!important;margin-block:0!important;padding-block:0!important}
+.schoolProfileUpdates{padding:8px!important;gap:8px!important}
+.schoolProfileUpdate{display:block!important;margin:0!important;padding:0!important;border:0!important;border-radius:var(--md-sys-shape-corner-large,16px)!important;background:var(--md-sys-color-surface-container)!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-card-filled-container-color:var(--md-sys-color-surface-container)!important;box-shadow:none!important}
+.schoolProfileUpdateContent{display:block!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;padding:12px 14px!important}
+.schoolProfileUpdateAuthorRow{margin-bottom:8px!important}
+m3e-card.androidCommentCard .androidCommentLayout{padding:12px 14px!important;box-sizing:border-box!important}
+.profileUpdateCard{display:block!important;width:calc(100% - 24px)!important;margin:8px 12px!important;--m3e-card-container-color:var(--md-sys-color-surface-container)!important;--m3e-card-filled-container-color:var(--md-sys-color-surface-container)!important}
+.profileUpdateCardContent{display:block!important;box-sizing:border-box!important;padding:12px 14px!important}
+.profileUpdateCardContent .activityBody{margin:8px 0!important;overflow-wrap:anywhere!important}
+.themeSettingsDialogTheme{background:transparent!important;box-shadow:none!important;outline:0!important}
+.themeSettingsDialogOverlay{background:rgba(0,0,0,.32)!important}
+.m3eDrawer m3e-divider{display:block!important;margin:8px 8px!important;--m3e-divider-color:rgba(255,255,255,.24)!important}
+@media(max-width:800px){.textSubmissionM3eDialog{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)!important}.textSubmissionDialogBody{padding:8px 16px!important}.schoolProfileUpdates{padding:8px!important}.schoolProfileUpdateContent{padding:12px!important}}
