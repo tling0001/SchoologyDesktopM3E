@@ -64,24 +64,26 @@ function showAppDialog(title,message,actions=[{label:'OK',action:null}]){
   return el;
 }
 function showThemeSettingsDialog(){
- document.getElementById('themeSettingsDialogOverlay')?.remove();const t=getThemeSettings();
- const wrap=document.createElement('div');wrap.id='themeSettingsDialogOverlay';wrap.className='themeSettingsDialogOverlay';
- wrap.innerHTML=m3eTheme(`<m3e-dialog open class="themeSettingsDialog" disable-close><span slot="header">Theme</span>
- <div class="themeSettingsScroll">
+ const existing=document.getElementById('themeSettingsDialog');if(existing){try{existing.hide?.()}catch{}existing.remove()}
+ const t=getThemeSettings(),host=document.querySelector('m3e-theme.m3eShellTheme')||document.querySelector('m3e-theme.m3eRoot')||document.body;
+ const dialog=document.createElement('m3e-dialog');dialog.id='themeSettingsDialog';dialog.className='themeSettingsDialog';dialog.setAttribute('disable-close','');
+ dialog.innerHTML=`<span slot="header">Theme</span><div class="themeSettingsScroll">
  <m3e-heading variant="label" size="large">Color</m3e-heading><input id="themeColor" type="color" aria-label="Color" value="${esc(t.color)}">
  <m3e-heading variant="label" size="large">Color variant</m3e-heading><m3e-filter-chip-set id="themeVariant" aria-label="Color variant">${['tonal-spot','vibrant','fidelity','expressive','monochrome','neutral','rainbow','fruit-salad'].map(v=>`<m3e-filter-chip value="${v}" ${t.variant===v?'selected':''}>${v.split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ')}</m3e-filter-chip>`).join('')}</m3e-filter-chip-set>
  <m3e-heading variant="label" size="large">Color scheme</m3e-heading><m3e-segmented-button id="themeScheme" aria-label="Color scheme"><m3e-button-segment value="light" ${t.scheme==='light'?'checked':''}><m3e-icon slot="icon" name="light_mode"></m3e-icon>Light</m3e-button-segment><m3e-button-segment value="auto" ${t.scheme==='auto'?'checked':''}><m3e-icon slot="icon" name="settings_brightness"></m3e-icon>System</m3e-button-segment><m3e-button-segment value="dark" ${t.scheme==='dark'?'checked':''}><m3e-icon slot="icon" name="dark_mode"></m3e-icon>Dark</m3e-button-segment></m3e-segmented-button>
  <m3e-heading variant="label" size="large">Contrast</m3e-heading><m3e-segmented-button id="themeContrast" aria-label="Contrast"><m3e-button-segment value="standard" ${t.contrast==='standard'?'checked':''}>Default</m3e-button-segment><m3e-button-segment value="medium" ${t.contrast==='medium'?'checked':''}>Medium</m3e-button-segment><m3e-button-segment value="high" ${t.contrast==='high'?'checked':''}>High</m3e-button-segment></m3e-segmented-button>
  <m3e-heading variant="label" size="large">Motion</m3e-heading><m3e-segmented-button id="themeMotion" aria-label="Motion"><m3e-button-segment value="standard" ${t.motion==='standard'?'checked':''}>Standard</m3e-button-segment><m3e-button-segment value="expressive" ${t.motion==='expressive'?'checked':''}>Expressive</m3e-button-segment></m3e-segmented-button>
- </div><div slot="actions" end class="themeSettingsActions"><m3e-button id="themeSettingsReset" variant="text">Reset to default</m3e-button><m3e-button id="themeSettingsClose" variant="filled">Close</m3e-button></div></m3e-dialog>`,'themeSettingsDialogTheme');
- document.body.appendChild(wrap);const dialog=wrap.querySelector('m3e-dialog');const close=()=>{if(!dialog){wrap.remove();return}if(typeof dialog.hide==='function'){Promise.resolve(dialog.hide()).then(()=>setTimeout(()=>wrap.remove(),240)).catch(()=>{dialog.open=false;setTimeout(()=>wrap.remove(),240)})}else{dialog.open=false;setTimeout(()=>wrap.remove(),240)}};wrap.querySelector('#themeSettingsClose')?.addEventListener('click',close);
+ </div><div slot="actions" end class="themeSettingsActions"><m3e-button id="themeSettingsReset" variant="text">Reset to default</m3e-button><m3e-button id="themeSettingsClose" variant="filled">Close</m3e-button></div>`;
+ host.appendChild(dialog);dialog.open=true;
+ const close=()=>{if(dialog.__schoologyClosing)return;dialog.__schoologyClosing=true;const remove=()=>dialog.remove();try{if(typeof dialog.hide==='function'){dialog.hide();setTimeout(remove,240)}else{dialog.open=false;setTimeout(remove,240)}}catch{dialog.open=false;setTimeout(remove,240)}};
+ dialog.querySelector('#themeSettingsClose')?.addEventListener('click',close);
  const updateTheme=patch=>{saveThemeSettings(patch);applyThemeToDocument()};
- wrap.querySelector('#themeSettingsReset')?.addEventListener('click',()=>{updateTheme(DEFAULT_THEME_SETTINGS);const color=wrap.querySelector('#themeColor');if(color)color.value=DEFAULT_THEME_SETTINGS.color;wrap.querySelectorAll('#themeVariant m3e-filter-chip').forEach(chip=>{const selected=chip.getAttribute('value')===DEFAULT_THEME_SETTINGS.variant;chip.toggleAttribute('selected',selected);chip.selected=selected});for(const id of ['themeScheme','themeContrast','themeMotion']){const key={themeScheme:'scheme',themeContrast:'contrast',themeMotion:'motion'}[id];wrap.querySelectorAll('#'+id+' m3e-button-segment').forEach(seg=>{const selected=seg.getAttribute('value')===DEFAULT_THEME_SETTINGS[key];seg.checked=selected;seg.toggleAttribute('checked',selected)})}});
- wrap.querySelector('#themeColor')?.addEventListener('input',e=>updateTheme({color:e.target.value}));
- wrap.querySelectorAll('#themeVariant m3e-filter-chip').forEach(chip=>chip.addEventListener('change',()=>updateTheme({variant:chip.getAttribute('value')||''})));
- wrap.querySelectorAll('#themeScheme m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({scheme:seg.getAttribute('value')||''})));
- wrap.querySelectorAll('#themeContrast m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({contrast:seg.getAttribute('value')||''})));
- wrap.querySelectorAll('#themeMotion m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({motion:seg.getAttribute('value')||''})));
+ dialog.querySelector('#themeSettingsReset')?.addEventListener('click',()=>{updateTheme(DEFAULT_THEME_SETTINGS);const color=dialog.querySelector('#themeColor');if(color)color.value=DEFAULT_THEME_SETTINGS.color;dialog.querySelectorAll('#themeVariant m3e-filter-chip').forEach(chip=>{const selected=chip.getAttribute('value')===DEFAULT_THEME_SETTINGS.variant;chip.toggleAttribute('selected',selected);chip.selected=selected});for(const id of ['themeScheme','themeContrast','themeMotion']){const key={themeScheme:'scheme',themeContrast:'contrast',themeMotion:'motion'}[id];dialog.querySelectorAll('#'+id+' m3e-button-segment').forEach(seg=>{const selected=seg.getAttribute('value')===DEFAULT_THEME_SETTINGS[key];seg.checked=selected;seg.toggleAttribute('checked',selected)})}});
+ dialog.querySelector('#themeColor')?.addEventListener('input',e=>updateTheme({color:e.target.value}));
+ dialog.querySelectorAll('#themeVariant m3e-filter-chip').forEach(chip=>chip.addEventListener('change',()=>updateTheme({variant:chip.getAttribute('value')||''})));
+ dialog.querySelectorAll('#themeScheme m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({scheme:seg.getAttribute('value')||''})));
+ dialog.querySelectorAll('#themeContrast m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({contrast:seg.getAttribute('value')||''})));
+ dialog.querySelectorAll('#themeMotion m3e-button-segment').forEach(seg=>seg.addEventListener('change',()=>seg.checked&&updateTheme({motion:seg.getAttribute('value')||''})));
 }
 function showUpdateDialog(u){
   showAppDialog('Update available',`Schoology Desktop Port v${u.version} is available. The update will download only after you choose Install update.`,[{label:'Later',action:null},{label:'Install update',action:async()=>{
@@ -916,7 +918,7 @@ async function showAssignment(sectionId,assignmentId){
     state.assignmentCanSubmit=canSubmit; state.assignmentIsTeacher=isTeacher; state.assignmentAllowComments=allowComments; state.assignmentData={...at,__gradeItemId:resolvedGradeItemId}; state.assignmentEnrollmentId=myEnrollment.id||null;
     const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs assignmentTabsM3e"><m3e-tab class="assignmentTab" data-assignment-tab="info" selected>Info</m3e-tab>${allowComments?`<m3e-tab class="assignmentTab" data-assignment-tab="comments">Comments</m3e-tab>`:''}${!state.assignmentLandscape&&canSubmit?`<m3e-tab class="assignmentTab" data-assignment-tab="submit">${isTeacher?'Grade Submissions':'Submissions'}</m3e-tab>`:''}</m3e-tabs>`;
     if(state.assignmentLandscape&&canSubmit){
-      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" data-persist-key="assignment-${esc(sectionId)}-${esc(assignmentId)}" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane">${tabs}<div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></m3e-split-pane></section>`;
+      c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" data-persist-key="assignment-${esc(sectionId)}-${esc(assignmentId)}" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane">${tabs}<div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></div></section>`;
     }else{
       c.innerHTML=`<section class="assignmentAndroidPage">${tabs}<div id="assignmentTabContent" class="assignmentTabContent"></div></section>`;
     }
@@ -928,7 +930,7 @@ async function showAssignment(sectionId,assignmentId){
       state.assignmentTab='info';state.assignmentSubpage=null;state.submissionMenu=false;syncToolbar();
       document.getElementById('viewAssignmentAttachments')?.addEventListener('click',()=>showAssignmentAttachmentDialog(attachments));
       hydrateMediaImages(el);
-      el.querySelectorAll('a[href]').forEach(a=>a.addEventListener('click',async ev=>{const href=a.href||a.getAttribute('href')||'';if(!href||href==='#')return;ev.preventDefault();ev.stopPropagation();try{if(await routeSchoologyLink(href))return;await A.prepareWebSession();showEmbeddedWeb(href,a.textContent?.trim()||'Link')}catch(e){alert('Unable to open assignment link: '+e.message)}}));
+      el.querySelectorAll('a[href]').forEach(a=>a.addEventListener('click',async ev=>{const href=a.href||a.getAttribute('href')||'';if(!href||href==='#')return;ev.preventDefault();ev.stopPropagation();try{if(await routeSchoologyLink(href))return;const error=await A.openExternal(href);if(error)throw new Error(error)}catch(e){alert('Unable to open assignment link: '+e.message)}}));
     };
     const select=async(id)=>{
       state.assignmentTab=id; state.submissionMenu=false;
@@ -1428,18 +1430,21 @@ async function showPageNative(realm,realmId,pageId,title='Page'){
  try{const x=await A.api({path:`${realm}/${realmId}/pages/${pageId}`,params:{}});const page=x?.page||x;const body=page?.body||page?.description||page?.content||'';const pageTitle=page?.title||title||'Page';c.innerHTML=`<section class="pageAndroid"><div class="pageAndroidHeader"><h1>${esc(pageTitle)}</h1></div><div class="pageAndroidBody">${body||'<span class="muted">No page content.</span>'}</div></section>`;c.querySelectorAll('a[href]').forEach(a=>a.addEventListener('click',async ev=>{const href=a.href||a.getAttribute('href')||'';if(/^https?:\/\//i.test(href)){ev.preventDefault();await showEmbeddedWeb(href,a.textContent?.trim()||'Link')}}));}catch(e){c.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`;}
 }
 async function showEmbeddedWeb(url,title,options={}){
- const c=document.getElementById('content');if(!c)return;try{await A.prepareWebSession()}catch(e){console.warn('Schoology web session preparation failed:',e)}
+ const c=document.getElementById('content');if(!c)return;
+ const externalLinks=typeof options.externalLinks==='boolean'?options.externalLinks:!(options.quiz||options.assessment||options.accountInfo);
+ if(!options.quiz&&!options.assessment&&!options.accountInfo&&options.openInitialExternalInBrowser!==false){try{const initial=new URL(String(url||''));const h=initial.hostname.toLowerCase();const schoolHost=h==='lms.lausd.net'||h==='schoology.com'||h.endsWith('.schoology.com');if(['http:','https:'].includes(initial.protocol)&&!schoolHost){const handled=await routeSchoologyLink(initial.href);if(handled)return;const result=await A.openExternal(initial.href);if(result)showAppDialog('Unable to open link',result);return;}}catch(error){if(error instanceof TypeError){/* Relative or non-HTTP destinations continue into the webview. */}else{showAppDialog('Unable to open link',error.message||String(error));return;}}}
+ try{await A.prepareWebSession()}catch(e){console.warn('Schoology web session preparation failed:',e)}
  c.classList.remove('webContentHost');c.classList.add('embeddedContentActive');state.toolbarTitle=title||'Schoology';state.embeddedTitle=title||'Schoology';state.embeddedCanOpenExternal=options.allowBrowser!==false;state.embeddedTheme=options.accountInfo?'account':(options.lti?'lti':(options.quiz?'quiz':''));syncToolbar();
  c.innerHTML=`<section class="embeddedPage"><div id="embeddedWebviewLoading" class="webviewLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div><webview id="schoologyWebview" src="${esc(String(url||''))}" allowpopups></webview></section>`;
- const w=document.getElementById('schoologyWebview');if(!w)return;const spinner=document.getElementById('embeddedWebviewLoading');const setLoading=v=>spinner?.classList.toggle('hidden',!v);let mainNavigation=0;let loadingStartedAt=0;setLoading(true);
+ const w=document.getElementById('schoologyWebview');if(!w)return;const spinner=document.getElementById('embeddedWebviewLoading');const setLoading=v=>spinner?.classList.toggle('hidden',!v);let mainNavigation=0;let loadingStartedAt=0;let initialPageLoaded=false;setLoading(true);
  w.addEventListener('did-start-navigation',e=>{if(!e.isMainFrame)return;mainNavigation++;loadingStartedAt=Date.now();setLoading(true);});
  w.addEventListener('dom-ready',()=>{if(mainNavigation>0)setLoading(false)});
- w.addEventListener('did-finish-load',()=>{if(mainNavigation>0)setLoading(false)});
+ w.addEventListener('did-finish-load',()=>{if(mainNavigation>0){setLoading(false);initialPageLoaded=true}});
  w.addEventListener('did-navigate',e=>{if(e.isMainFrame){loadingStartedAt=Date.now();setTimeout(()=>{if(spinner&&!spinner.classList.contains('hidden'))setLoading(false)},1200);}});
  w.addEventListener('did-fail-load',e=>{if(e.isMainFrame){setLoading(false);if(e.errorCode&&e.errorCode!==-3)console.warn('Schoology embedded page failed:',e.errorDescription)}});
  setTimeout(()=>{if(spinner&&!spinner.classList.contains('hidden')&&mainNavigation>0)setLoading(false)},8000);
- w.addEventListener('new-window',async e=>{e.preventDefault();if(await routeSchoologyLink(e.url))return;try{w.src=e.url}catch{}});
- w.addEventListener('will-navigate',e=>{const u=String(e.url||'');if(isSchoologyRoutableLink(u)){e.preventDefault();Promise.resolve(routeSchoologyLink(u)).catch(err=>console.warn('Schoology deep link failed:',err));}});
+ w.addEventListener('new-window',async e=>{e.preventDefault();if(await routeSchoologyLink(e.url))return;if(externalLinks){try{const result=await A.openExternal(e.url);if(result)showAppDialog('Unable to open link',result)}catch(err){showAppDialog('Unable to open link',err.message||String(err))}return;}try{w.src=e.url}catch{}});
+ w.addEventListener('will-navigate',e=>{const u=String(e.url||'');if(externalLinks&&initialPageLoaded){e.preventDefault();Promise.resolve(routeSchoologyLink(u)).then(handled=>{if(handled)return;if(state.openSchoologyLinks&&isSchoologyRoutableLink(u)){w.src=u;return;}return A.openExternal(u)}).catch(err=>showAppDialog('Unable to open link',err.message||String(err)));return;}if(isSchoologyRoutableLink(u)){e.preventDefault();Promise.resolve(routeSchoologyLink(u)).catch(err=>console.warn('Schoology deep link failed:',err));}});
 }
 async function loadAttendanceTab(course){
   const el=document.getElementById('sectionProfileContent');if(!el)return;
@@ -1477,7 +1482,7 @@ async function loadCourseApps(course,targetEl){
       const launchResult=Number.isFinite(appId)?await A.launchCourseApp({appId}):await A.launchCourseApp({launchUrl:href});
       const url=launchResult?.url||launchResult?.launchTokenUrl||launchResult?.data?.url||launchResult?.data?.launchTokenUrl||launchResult?.launch_url||launchResult?.launchUrl||href;
       if(!url)throw new Error('Schoology did not return a course-app launch URL.');
-      openWithPressTransition(b,()=>showEmbeddedWeb(url,a.title||'Course App'));
+      openWithPressTransition(b,()=>{});const openError=await A.openExternal(url);if(openError)throw new Error(openError);
     }catch(e){el.innerHTML=`<div class="error apiError"><b>Schoology could not launch this course app.</b><br>${esc(e.message)}</div>`}
   });
   await hydrateCourseImages(el);
@@ -1909,10 +1914,10 @@ async function openGroupResourceItem(d,b,gid){
   const t=String(d.template_type||d.templateType||d.type||'').toLowerCase(), dt=String(d.document_type||d.documentType||d.template?.template_document_type||d.template?.templateDocumentType||d.template_fields?.document_type||d.template_fields?.documentType||'').toLowerCase();
   if(t==='folder'){await showGroupResourceFolder(gid,d.id||d.folder_id||d.folderId,d.title||d.template_title||'Folder',d.collection_id||d.collectionID||d.collectionId);return;}
   if(t==='assignment'){const u=groupResourceDestination(d)||`https://app.schoology.com/assignment/${d.id}`;await A.prepareWebSession();showEmbeddedWeb(u,d.title||d.name||'Assignment');return;}
-  if(['link','web_content','external_tool','embed','video'].includes(t)||['link','external_tool','embed','video'].includes(dt)){const u=groupResourceDestination(d);if(u){await A.prepareWebSession();showEmbeddedWeb(u,d.title||d.name||'Link');return;}}
+  if(['link','web_content','external_tool','embed','video'].includes(t)||['link','external_tool','embed','video'].includes(dt)){const u=groupResourceDestination(d);if(u){const error=await A.openExternal(u);if(error)throw new Error(error);return;}}
   const u=groupResourceDestination(d);if(!u)throw new Error('Schoology did not provide a resource URL.');
   const f=groupResourceFirst(d,'files');const filename=f?.filename||f?.fileName||d.filename||d.fileName||d.title||d.name||'Schoology file';const mime=f?.filemime||f?.fileMIME||f?.converted_filemime||f?.convertedFileMime||d.filemime||d.fileMIME||'application/octet-stream';
-  if(dt==='link'||t==='link'){await A.prepareWebSession();showEmbeddedWeb(u,d.title||d.name||'Link');return;}
+  if(dt==='link'||t==='link'){const error=await A.openExternal(u);if(error)throw new Error(error);return;}
   const r=await downloadWithFeedback(b,{url:u,filename,mime});const err=await A.openDownloadedFile({path:r.path});if(err)alert(err);
 }
 async function loadSchoolProfileUpcoming(){
@@ -1932,7 +1937,7 @@ function wireSchoolProfileUpcoming(root,events,schoolId){
   if(['assessment','assessment_v2','managed_assessment','quiz'].includes(type)){const id=assignmentId??event.id;if(id){await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,event.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})}return}
   if(type==='event'&&event.id){showEventNative('schools',schoolId,event.id,event.title||'Event');return}
   const url=event.web_url||event.webUrl||event.url;
-  if(url){await A.prepareWebSession();showEmbeddedWeb(url,event.title||'Upcoming',{allowBrowser:false})}
+  if(url){if(await routeSchoologyLink(url))return;const error=await A.openExternal(url);if(error)throw new Error(error)}
  });
 }
 async function openSchoolProfile(schoolId,title='School'){
@@ -1943,7 +1948,7 @@ async function openSchoolProfile(schoolId,title='School'){
    const x=await A.api({path:`schools/${schoolId}`,params:{}}),school=x?.school||x||{},schoolTitle=school.title||school.name||title;
    state.toolbarTitle=schoolTitle;syncToolbar();
    const image=normalizeImageUrl(school.picture_url||school.pictureUrl||school.picture||school.image||'');
-   c.innerHTML=`<section class="schoolProfileNativePage"><m3e-split-pane orientation="horizontal" class="schoolProfileLayout schoolProfileSplit" data-persist-key="school-profile" value="73" min="50" max="88" step="1" label="Resize school content and upcoming"><section slot="start" class="schoolProfileMainPane"><m3e-tabs variant="secondary" class="m3eSchoologyTabs schoolProfileTabs"><m3e-tab data-school-profile-tab="updates" selected>Updates</m3e-tab><m3e-tab data-school-profile-tab="info">Info</m3e-tab><m3e-tab data-school-profile-tab="upcoming">Upcoming</m3e-tab><m3e-tab data-school-profile-tab="resources">Resources</m3e-tab><m3e-tab data-school-profile-tab="discussions">Discussions</m3e-tab></m3e-tabs><div class="schoolProfileHeader"><div class="schoolProfileHeaderImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:'<img src="../assets/icons/group_default_website.png" alt="">'}</div><div class="schoolProfileHeaderText"><h1>${esc(schoolTitle)}</h1><p>${esc(school.description||school.location||'')}</p></div></div><div id="schoolProfileTabContent" class="schoolProfileTabContent"></div></section><aside slot="end" id="schoolProfileUpcomingPane" class="schoolProfileUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="schoolProfileUpcomingContent" class="schoolProfileUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside></m3e-split-pane></section>`;
+   c.innerHTML=`<section class="schoolProfileNativePage"><div class="schoolProfileLayout"><section class="schoolProfileMainPane"><m3e-tabs variant="secondary" class="m3eSchoologyTabs schoolProfileTabs"><m3e-tab data-school-profile-tab="updates" selected>Updates</m3e-tab><m3e-tab data-school-profile-tab="info">Info</m3e-tab><m3e-tab data-school-profile-tab="upcoming">Upcoming</m3e-tab><m3e-tab data-school-profile-tab="resources">Resources</m3e-tab><m3e-tab data-school-profile-tab="discussions">Discussions</m3e-tab></m3e-tabs><div class="schoolProfileHeader"><div class="schoolProfileHeaderImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:'<img src="../assets/icons/group_default_website.png" alt="">'}</div><div class="schoolProfileHeaderText"><h1>${esc(schoolTitle)}</h1><p>${esc(school.description||school.location||'')}</p></div></div><div id="schoolProfileTabContent" class="schoolProfileTabContent"></div></section><aside id="schoolProfileUpcomingPane" class="schoolProfileUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="schoolProfileUpcomingContent" class="schoolProfileUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside></m3e-split-pane></section>`;
    await hydrateMediaImages(c);
    const content=document.getElementById('schoolProfileTabContent');
    const selectTab=async tab=>{
@@ -2387,7 +2392,7 @@ async function loadTab(){
     const bodyFor=n=>{const body=String(n?.body||n?.message||n?.title||'Notification');const args=n?.body_args||n?.bodyArgs||[];const rendered=Array.isArray(args)?args.reduce((out,a)=>out.replace('%s',String(a?.title||a?.name||'')),body):body;return rendered.replace(/<a\b([^>]*?)href=[\"']([^\"']+)[\"']([^>]*)>(.*?)<\/a>/gi,(_,pre,href,post,label)=>`<a class="notificationBodyLink" data-notification-href="${esc(href)}">${esc(label.replace(/<[^>]+>/g,''))}</a>`)};
     window.__schoologyNotifications=arr;
 c.innerHTML=`<section class="notificationsAndroidPage"><m3e-action-list variant="segmented" class="notificationList">${arr.map((n,i)=>`<m3e-list-action class="notificationClickable" data-notification-index="${i}"><span slot="leading" class="m3eOriginalIcon"><img src="../assets/icons/${iconFor(n)}" alt=""></span><span>${bodyFor(n)}</span><span slot="supporting-text">${esc(formatSchoologyDate(n.created||n.timestamp||''))}</span><span slot="trailing" class="m3eOriginalIcon">${originalM3Icon('chevron_right')}</span></m3e-list-action>`).join('')||'<m3e-list-action disabled>No notifications</m3e-list-action>'}</m3e-action-list></section>`;
-document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>openNotification(window.__schoologyNotifications[+b.dataset.notificationIndex]));document.querySelectorAll('[data-notification-href]').forEach(a=>a.onclick=async ev=>{ev.preventDefault();ev.stopPropagation();const href=a.dataset.notificationHref||'';if(!href)return;try{if(await routeSchoologyLink(href))return;await showEmbeddedWeb(href,a.textContent?.trim()||'Link')}catch(e){alert('Unable to open notification link: '+e.message)}});
+document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>openNotification(window.__schoologyNotifications[+b.dataset.notificationIndex]));document.querySelectorAll('[data-notification-href]').forEach(a=>a.onclick=async ev=>{ev.preventDefault();ev.stopPropagation();const href=a.dataset.notificationHref||'';if(!href)return;try{if(await routeSchoologyLink(href))return;const error=await A.openExternal(href);if(error)throw new Error(error)}catch(e){alert('Unable to open notification link: '+e.message)}});
   }else if(state.tab==='resources'){
     await loadResourcesHome(c);
   }else if(state.tab==='people'){

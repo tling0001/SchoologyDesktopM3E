@@ -1,12 +1,14 @@
+import './vendor/m3e-all.js';
 const DEFAULTS={courseMaterials:true,courses:true,courseUpdates:true,courseGrades:true,groups:true,homepage:true,resources:true,peopleDirectory:true,profiles:true,messages:true,accountSettings:true,calendar:true,grades:false,other:true};
 const LABELS={homepage:['Homepage','Home, recent activity, and course dashboard'],courses:['Courses','Course and section pages, assignments, and discussions'],courseMaterials:['Course materials & files','Materials, folders, documents, and attachments'],courseUpdates:['Course updates','Updates for a specific course'],courseGrades:['Course grades','Student grades for a specific course'],groups:['Groups','Group pages, updates, discussions, and resources'],resources:['Resources','Resource library and collections'],peopleDirectory:['People directory','School people directory pages'],profiles:['Profile pages','User and school profiles'],messages:['Messages','Inbox, sent messages, and message views'],accountSettings:['Account & settings','Account information and settings pages'],calendar:['Calendar & events','Calendar pages and event details'],grades:['Other grades pages','General grade pages outside a course'],other:['Other Schoology links','Generic or unrecognized Schoology URLs']};
 const host=document.getElementById('options'),status=document.getElementById('status');
-const controls=Object.keys(DEFAULTS).map(key=>{const label=document.createElement('label');label.className='option';label.innerHTML='<span><b>'+LABELS[key][0]+'</b><small>'+LABELS[key][1]+'</small></span><input type="checkbox" data-option="'+key+'">';host.appendChild(label);return label.querySelector('input')});
-function values(){return Object.fromEntries(controls.map(input=>[input.dataset.option,input.checked]))}
-function paint(v){controls.forEach(input=>input.checked=v[input.dataset.option]!==false)}
-function save(){status.className='';status.textContent='Saving preferences…';chrome.storage.sync.set(values(),()=>{status.className=chrome.runtime.lastError?'error':'';status.textContent=chrome.runtime.lastError?'Could not save. Check Chrome storage permissions.':'All changes saved'})}
-chrome.storage.sync.get(DEFAULTS,v=>{paint({...DEFAULTS,...v});status.textContent='All changes saved'});
-controls.forEach(input=>input.addEventListener('change',save));
-document.getElementById('selectAll').onclick=()=>{controls.forEach(input=>input.checked=true);save()};
-document.getElementById('selectNone').onclick=()=>{controls.forEach(input=>input.checked=false);save()};
-document.getElementById('reset').onclick=()=>{paint(DEFAULTS);chrome.storage.sync.set(DEFAULTS,()=>{status.className=chrome.runtime.lastError?'error':'';status.textContent=chrome.runtime.lastError?'Could not restore defaults.':'Default settings restored.'})};
+const controls=Object.keys(DEFAULTS).map(key=>{const row=document.createElement('m3e-list-item');row.innerHTML='<span>'+LABELS[key][0]+'</span><span slot="supporting-text">'+LABELS[key][1]+'</span><m3e-switch slot="trailing" data-option="'+key+'" aria-label="'+LABELS[key][0]+'"></m3e-switch>';host.appendChild(row);return row.querySelector('m3e-switch')});
+function values(){return Object.fromEntries(controls.map(control=>[control.dataset.option,!!control.checked]))}
+function paint(values){controls.forEach(control=>{control.checked=values[control.dataset.option]!==false})}
+function showStatus(message,error=false){status.textContent=message;status.toggleAttribute('data-error',error)}
+function save(){showStatus('Saving preferences…');chrome.storage.sync.set(values(),()=>{const failed=!!chrome.runtime.lastError;showStatus(failed?'Could not save. Check Chrome storage permissions.':'All changes saved',failed)})}
+chrome.storage.sync.get(DEFAULTS,values=>{paint({...DEFAULTS,...values});showStatus('All changes saved')});
+controls.forEach(control=>control.addEventListener('change',save));
+document.getElementById('selectAll').addEventListener('click',()=>{controls.forEach(control=>control.checked=true);save()});
+document.getElementById('selectNone').addEventListener('click',()=>{controls.forEach(control=>control.checked=false);save()});
+document.getElementById('reset').addEventListener('click',()=>{paint(DEFAULTS);chrome.storage.sync.set(DEFAULTS,()=>{const failed=!!chrome.runtime.lastError;showStatus(failed?'Could not restore defaults.':'Default settings restored.',failed)})});
