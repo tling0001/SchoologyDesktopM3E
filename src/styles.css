@@ -257,9 +257,6 @@ html,body,#app{width:100%;height:100%;margin:0;overflow:hidden}
 .drawerShade{opacity:0;transition:opacity 240ms ease;pointer-events:none}
 .drawerShade.open{opacity:1;pointer-events:auto}
 .gradesAndroid{background:#fff;min-height:100%;padding-bottom:24px}
-.gradeOverallCard{padding:16px;border-bottom:1px solid #d8dde1;background:#fff}
-.gradeOverallCard .label{font-size:12px;color:#6b747c;text-transform:uppercase}
-.gradeOverallCard .value{font-size:28px;color:#22303e;margin-top:4px}
 .gradePeriod{border-bottom:1px solid #d5dade;background:#fff}
 .gradePeriodHeader,.gradeCategoryHeader{display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;border:0;text-align:left}
 .gradePeriodHeader{padding:14px 16px;background:#56616b;color:#fff}
@@ -318,8 +315,7 @@ html,body,#app{width:100%;height:100%;margin:0;overflow:hidden}
 .homePaneHeader{height:48px;background:#002137;color:#fff;display:flex;align-items:center;padding:0 16px;font-size:14px}
 @media (min-width:801px){.homeLandscapeSplit .dashboardHybrid,.homeLandscapeSplit .dashboardHybrid webview{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-height:0!important;flex:1 1 auto!important}.homeLandscapeSplit #homeTabContent:has(.dashboardHybrid){display:flex!important;flex-direction:column!important;padding:0!important;overflow:hidden!important}.homeLandscapeSplit #homeTabContent .dashboardHybrid{display:flex!important;flex:1 1 auto!important;overflow:hidden!important}}
 .toolbar{position:relative!important}.toolbarActionSlot{margin-left:auto!important;flex:0 0 48px!important;width:48px!important;height:56px!important;display:flex!important;align-items:center!important;justify-content:flex-end!important}.toolbarActionSlot .iconButton{margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important}
-.sectionProfilePage{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}.sectionProfileContent{flex:1 1 auto;min-height:0;overflow:auto}.materialList,.gradesNativeList,.upcomingList{overflow:visible}
-.resourcesAndroidPage{height:100%;min-height:0;overflow:auto;background:#fff}.resourceCategory{border-bottom:1px solid #ddd}.resourceCategoryHeader{width:100%;height:56px;border:0;background:#fff;display:flex;align-items:center;text-align:left;padding:0 16px;color:#333;cursor:pointer}.resourceCategoryHeader img{width:40px;height:40px;object-fit:contain;margin-right:12px}.resourceCategoryHeader b{font-size:16px;font-weight:400;flex:1}.resourceChevron{font-size:25px;color:#888;transform:rotate(0deg);transition:transform .15s}.resourceCategory.open .resourceChevron{transform:rotate(90deg)}.resourceCategoryChildren{display:none;background:#fafafa}.resourceCategory.open .resourceCategoryChildren{display:block}.resourceCollectionRow,.resourceFileRow{width:100%;min-height:58px;border:0;border-bottom:1px solid #e5e5e5;background:#fff;display:flex;align-items:center;text-align:left;padding:8px 16px 8px 32px;color:#333;cursor:pointer}.resourceCollectionRow img,.resourceFileRow img{width:40px;height:40px;object-fit:contain;margin-right:12px;flex:0 0 40px}.resourceCollectionRow span:nth-child(2),.resourceFileRow span:nth-child(2){flex:1;min-width:0}.resourceCollectionRow b,.resourceFileRow b{display:block;font-size:15px;font-weight:400;color:#2e66a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resourceCollectionRow small,.resourceFileRow small{display:block;color:#888;font-size:11px;margin-top:3px}.resourceCollectionRow>span:last-child,.resourceFileRow>span:last-child{font-size:24px;color:#999}.resourceEmpty{padding:14px 32px;color:#888;font-size:13px}.resourceBackTitle{padding:14px 16px;font-size:18px;color:#333;border-bottom:1px solid #ddd;background:#fff}
+.sectionProfilePage{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}.sectionProfileContent{flex:1 1 auto;min-height:0;overflow:auto}.materialList,.gradesNativeList,.upcomingList{overflow:visible}.resourceFileRow{width:100%;min-height:58px;border:0;border-bottom:1px solid #e5e5e5;background:#fff;display:flex;align-items:center;text-align:left;padding:8px 16px 8px 32px;color:#333;cursor:pointer}.resourceFileRow img{width:40px;height:40px;object-fit:contain;margin-right:12px;flex:0 0 40px}.resourceFileRow span:nth-child(2){flex:1;min-width:0}.resourceFileRow b{display:block;font-size:15px;font-weight:400;color:#2e66a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resourceFileRow small{display:block;color:#888;font-size:11px;margin-top:3px}.resourceFileRow>span:last-child{font-size:24px;color:#999}
 
 /* v46: requested dynamic desktop Home orientation and full Course Dashboard fill. */
 .homeLandscapeSplit #homeUpcomingPane{border-left:1px solid #ddd;border-right:0;font-size:.94em}
@@ -554,7 +550,7 @@ html[data-electron-platform=win32] .toolbarTitle,html[data-electron-platform=lin
 .webviewLoading.hidden{pointer-events:none!important}
 .resourceActionLoading{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(255,255,255,.72);pointer-events:auto;color:#68757e}
 .resourceActionLoading img{width:48px;height:48px}.resourceBusy{pointer-events:none!important;opacity:.7!important}
-.resourceRows{position:relative;min-height:100%}.resourcesAndroidPage{position:relative}
+.resourceRows{position:relative;min-height:100%}
 
 /* v72.1: native Windows/Linux caption buttons occupy an overlay region. Keep all app-bar actions outside it. */
 html[data-electron-platform=win32] .toolbarActionSlot,html[data-electron-platform=linux] .toolbarActionSlot{margin-right:156px!important;z-index:50!important}
@@ -1117,8 +1113,7 @@ html[data-electron-platform="win32"][data-window-controls-overlay="true"] .toolb
 .calendarUpcomingListEmpty h2{margin:0 0 8px;font-size:20px;font-weight:400;color:#34424c}
 .calendarUpcomingListEmpty p{margin:0;font-size:14px}
 .composeMessageDialog{position:relative;z-index:12001}
-#composeMessageDialog{z-index:2147483646!important;isolation:isolate}
-.resourceCollectionRow>span:last-child,.resourceFileRow>span:last-child{margin-left:auto!important;flex:0 0 24px!important;text-align:center}
+#composeMessageDialog{z-index:2147483646!important;isolation:isolate}.resourceFileRow>span:last-child{margin-left:auto!important;flex:0 0 24px!important;text-align:center}
 @media (min-width:801px){.calendarAndroidPage{height:100%!important;min-height:0!important}}
 
 /* v99: any remaining Schoology pager-style .tab controls use the same Android primary blue. */
@@ -2152,10 +2147,10 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
   position:absolute!important;left:0!important;right:0!important;top:64px!important;bottom:0!important;
   width:auto!important;height:auto!important;min-height:0!important;overflow:hidden!important;display:block!important;
 }
-.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage,.nativeCourseDashboard{
+.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.nativeCourseDashboard{
   width:100%!important;min-width:0!important;box-sizing:border-box!important;
 }
-.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage{
+.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage{
   height:100%!important;min-height:0!important;overflow:auto!important;
 }
 
@@ -2436,11 +2431,11 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 .m3eShellMain>#content:has(.embeddedPage)>.embeddedPage>webview,.m3eShellMain>#content:has(.dashboardHybrid)>.dashboardHybrid>webview{
   position:relative!important;inset:auto!important;display:block!important;flex:1 1 0!important;width:100%!important;height:0!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;border:0!important;
 }
-.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage,.nativeCourseDashboard{
+.sectionProfilePage,.groupProfilePage,.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.settingsPage,.peopleAndroidPage,.requestsAndroidPage,.nativeCourseDashboard{
   flex:1 1 0!important;height:0!important;min-height:0!important;width:100%!important;box-sizing:border-box!important;
 }
 .settingsPage{overflow:auto!important;padding-bottom:32px!important}
-.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.peopleAndroidPage,.requestsAndroidPage,.resourcesAndroidPage{overflow:auto!important}
+.messagesAndroidPage,.notificationsAndroidPage,.calendarAndroidPage,.gradesNativePage,.gradesAndroidPage,.peopleAndroidPage,.requestsAndroidPage{overflow:auto!important}
 
 /* Split-pane track: M3E exposes the thumb through CSS variables, but not the
    surrounding drag-handle container as a part. Making the host blue lets the
@@ -2588,11 +2583,6 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 /* Grades: one outer accordion for grading periods; categories inside are
    ordinary M3E expansion panels, matching the Android period/category layers. */
 .gradesAccordion{margin:16px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
-.gradePeriodOuter{margin:0 0 12px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
-.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:8px!important;padding:8px 0 0!important;margin:0!important;background:transparent!important;border:0!important}
-.gradeCategoryInner{margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important}
-.gradeCategoryInner .gradeItemList{margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
-.gradeCategoryInner m3e-list-action,.gradeCategoryInner m3e-list-item{border:0!important;outline:0!important;box-shadow:none!important}
 .gradeItemList m3e-list-action{min-width:0!important}
 
 /* Portrait course pages must be able to scroll beyond the first viewport. */
@@ -2640,12 +2630,7 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
   margin:0!important;
 }
 
-/* v135: grade categories are individual expansion panels, not another
-   accordion layer. Remove the extra wrapper spacing so only M3E's 5px list
-   segment gap remains inside each category. */
-.gradePeriodInnerPanels{gap:0!important;padding:0!important;margin:0!important}
-.gradeCategoryInner{margin:0!important;padding:0!important}
-.gradeCategoryInner .gradeItemList{margin:0!important;padding:0!important;gap:0!important;row-gap:0!important}
+/* v135: grade categories are individual expansion panels{gap:0!important;padding:0!important;margin:0!important}
 
 /* v135: use M3E's documented drag-handle surface instead of a light-DOM
    pseudo-track. This keeps the 24px track color attached to the real shadow-DOM
@@ -2754,13 +2739,6 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 /* v136: inner grade categories are standalone expansion panels. Every grade
    level starts open; only grading periods are coordinated by the accordion. */
 .gradesAccordion>m3e-expansion-panel.gradePeriodOuter{display:block!important}
-.gradePeriodOuter m3e-expansion-panel.gradeCategoryInner{display:block!important}
-.gradePeriodInnerPanels{gap:8px!important;padding:8px 0 0!important}
-.gradeCategoryInner{
-  --m3e-expansion-panel-container-color:var(--md-sys-color-surface-container)!important;
-  --m3e-expansion-panel-elevation:none!important;
-  --m3e-expansion-panel-open-elevation:none!important;
-}
 
 /* v136: keep the shared webview in the exact flex space below the M3E app bar. */
 .m3eShellMain{position:relative!important;display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important}
@@ -2862,9 +2840,6 @@ html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShel
 .gradesAccordion{display:flex!important;flex-direction:column!important;gap:0!important;margin:16px!important;padding:0!important}
 .gradesPeriodsOuter{display:block!important;margin:0!important;padding:0!important}
 .gradesPeriodsBody{display:flex!important;flex-direction:column!important;gap:12px!important;padding:8px 0 0!important}
-.gradePeriodOuter{display:block!important;margin:0!important;padding:0!important}
-.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:8px!important;padding:8px 0 0!important}
-.gradeCategoryInner{display:block!important;margin:0!important;padding:0!important}
 
 /* v137: force the complete WebView chain to the bottom edge of the window. */
 html,body,#app,.m3eRoot,.m3eShellTheme,.m3eShell,.m3eAppDrawerContainer,.m3eShellMain{height:100%!important;min-height:0!important}
@@ -3006,7 +2981,6 @@ html[data-theme-effective="dark"] .androidCommentComposer,
 html[data-theme-effective="dark"] .commentsAndroidList,
 html[data-theme-effective="dark"] .gradeDropboxAndroid,
 html[data-theme-effective="dark"] .peoplePage,
-html[data-theme-effective="dark"] .resourcesAndroidPage,
 html[data-theme-effective="dark"] .courseDetail,
 html[data-theme-effective="dark"] .courseHero,
 html[data-theme-effective="dark"] .courseRows,
@@ -3028,8 +3002,6 @@ html[data-theme-effective="dark"] .eventCard,
 html[data-theme-effective="dark"] .messageCard,
 html[data-theme-effective="dark"] .dashboardCard,
 html[data-theme-effective="dark"] .courseRows button,
-html[data-theme-effective="dark"] .resourceCategoryHeader,
-html[data-theme-effective="dark"] .resourceCollectionRow,
 html[data-theme-effective="dark"] .resourceFileRow,
 html[data-theme-effective="dark"] .peopleRow,
 html[data-theme-effective="dark"] .gradeStudentRow,
@@ -3045,15 +3017,6 @@ html[data-theme-effective="dark"] .updatePoll,
 html[data-theme-effective="dark"] .gradeDropboxHeader {
   background: var(--md-sys-color-surface-container, #202329) !important;
   color: var(--md-sys-color-on-surface, #e2e2e9) !important;
-  border-color: var(--md-sys-color-outline-variant, #454750) !important;
-}
-html[data-theme-effective="dark"] :is(.page h1,.dashboardCard b,.upcomingCard b,.courseHero h1,.courseRows button,.messageDetail h1,.messageBody,.submissionExisting h3,.submissionHeader h1,.submissionHeader strong,.officialCommentBody>b,.commentHtml,.submissionRevisionAndroid b,.gradeStudentName b,.gradeStudentScore,.teacherUser,.studentOverallComment div,.peopleName,.peopleName strong,.resourceBackTitle,.resourceCollectionRow b,.resourceFileRow b,.settingsSection h2) {
-  color: var(--md-sys-color-on-surface, #e2e2e9) !important;
-}
-html[data-theme-effective="dark"] :is(.dashboardCard small,.upcomingCard small,.courseHero p,.messageSender,.messageDate,.submissionHeader small,.submissionRevisionAndroid small,.gradeStudentName small,.peoplePreferred,.peopleListLoading,.resourceCollectionRow small,.resourceFileRow small,.resourceEmpty,.settingsVersion,.submissionSectionTitle) {
-  color: var(--md-sys-color-on-surface-variant, #c4c6d0) !important;
-}
-html[data-theme-effective="dark"] :is(.resourceCategoryChildren,.resourceCategory,.courseAppsSidePane,.courseUpcomingPane,.homeUpcomingPane,.courseRows button,.officialCommentMain,.submissionExisting,.submissionRevisionAndroid,.submissionHeader,.submissionStatusCard,.teacherGradeHeader,.gradeStudentRow,.peopleRow,.resourceCategoryHeader,.resourceCollectionRow,.resourceFileRow) {
   border-color: var(--md-sys-color-outline-variant, #454750) !important;
 }
 html[data-theme-effective="dark"] :is(input,textarea,select,.submissionText,.teacherOverallComment textarea,.teacherScore input,.androidCommentComposer textarea) {
@@ -3340,32 +3303,18 @@ html[data-theme-effective="dark"] .m3eShell button:not(:disabled),html[data-them
 @media(max-width:800px){.themeSettingsDialog{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)!important}.themeSettingsScroll{max-height:calc(100vh - 140px)!important;padding:8px 16px 16px!important}.schoolProfileLayout{display:flex!important;flex-direction:column!important;height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileMainPane,.schoolProfileUpcomingPane{width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important}}
 
 /* Course grades use M3E cards, headings, expansion panels and lists. */
-.gradesAndroid{display:flex!important;flex-direction:column!important;gap:16px!important;padding:16px!important;background:var(--md-sys-color-background)!important}.gradeOverallCard{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:20px!important;background:var(--md-sys-color-surface-container)!important;--m3e-card-filled-container-color:var(--md-sys-color-surface-container)}.gradeOverallCard m3e-heading{margin:0!important}.gradeOverallCard .gradeOverallValue{font-size:clamp(28px,4vw,40px)!important;line-height:1.2!important;color:var(--md-sys-color-primary)!important}.gradeOverallTeacherComment{margin:0!important;color:var(--md-sys-color-on-surface-variant)!important;line-height:1.5!important}.gradesPeriodsStack{display:flex!important;flex-direction:column!important;gap:16px!important}.gradePeriodCard{display:flex!important;flex-direction:column!important;gap:12px!important;padding:20px!important;background:var(--md-sys-color-surface)!important;--m3e-card-outlined-outline-color:var(--md-sys-color-outline-variant)}.gradePeriodTitle{margin:0!important;color:var(--md-sys-color-on-surface)!important}.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:10px!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important}.gradeCategoryInner{margin:0!important;padding:0!important;border:0!important;border-radius:12px!important;background:var(--md-sys-color-surface-container-low)!important;--m3e-expansion-panel-container-color:var(--md-sys-color-surface-container-low)}.gradeCategoryInner .gradeItemList{display:block!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;--m3e-segmented-list-segment-gap:2px}.gradeCategoryInner m3e-list-action,.gradeCategoryInner m3e-list-item{min-height:60px!important;border:0!important;box-shadow:none!important;--m3e-list-item-container-color:var(--md-sys-color-surface-container-low)}.gradeItemList m3e-list-action{min-width:0!important}.gradeAssignmentTitle{font-weight:500!important;color:var(--md-sys-color-on-surface)!important}.gradeEmptyCard{padding:24px!important}
-
-
-/* v159: keep grades on the surface and make submission views use M3E components. */
-.gradeOverallCard{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;margin:0 0 18px!important;padding:20px!important;border:0!important;border-radius:16px!important;background:var(--md-sys-color-surface-container-high,var(--md-sys-color-surface-container,#f2f4f7))!important;color:var(--md-sys-color-on-surface)!important;box-shadow:none!important}
-.gradeOverallCard .gradeOverallValue{margin:0!important;color:var(--md-sys-color-on-surface)!important}
-.gradeOverallCard .gradeOverallTeacherComment{margin:0!important;color:var(--md-sys-color-on-surface-variant)!important;line-height:1.5}
+.gradesAndroid{display:flex!important;flex-direction:column!important;gap:16px!important;padding:16px!important;background:var(--md-sys-color-background)!important}.gradeOverallTeacherComment{margin:0!important;color:var(--md-sys-color-on-surface-variant)!important;line-height:1.5!important}.gradesPeriodsStack{display:flex!important;flex-direction:column!important;gap:16px!important}.gradePeriodCard{display:flex!important;flex-direction:column!important;gap:12px!important;padding:20px!important;background:var(--md-sys-color-surface)!important;--m3e-card-outlined-outline-color:var(--md-sys-color-outline-variant)}.gradeItemList m3e-list-action{min-width:0!important}.gradeAssignmentTitle{font-weight:500!important;color:var(--md-sys-color-on-surface)!important}.gradeEmptyCard{padding:24px!important}
 .gradesPeriodsStack{padding:0 0 20px!important;gap:14px!important}
 .gradePeriodCard{background:var(--md-sys-color-surface)!important;border-radius:16px!important;padding:18px!important}
-.gradeCategoryInner{overflow:hidden!important;border-radius:12px!important}
-.gradeCategoryInner [slot="header"]{font-weight:600!important;color:var(--md-sys-color-on-surface)!important}
-.gradeCategoryInner m3e-list-action{min-height:64px!important;padding-inline:16px!important}
 .gradeAssignmentTitle{overflow-wrap:anywhere!important}
 .gradeEmptyCard{display:block!important;margin:12px 0!important;border-radius:16px!important;background:var(--md-sys-color-surface-container)!important;color:var(--md-sys-color-on-surface)!important}
 .m3eSubmissionsView{display:flex!important;flex-direction:column!important;gap:12px!important;min-height:100%!important;padding:12px!important;box-sizing:border-box!important;background:var(--md-sys-color-surface)!important;color:var(--md-sys-color-on-surface)!important}
-.submissionHeaderCard{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:16px!important;border:0!important;border-radius:16px!important;background:var(--md-sys-color-surface-container-high)!important;color:var(--md-sys-color-on-surface)!important}
-.submissionHeaderCard m3e-heading{margin:0!important}
 .gradeStudentList{display:block!important;padding:0!important;margin:0!important;border:0!important;border-radius:16px!important;overflow:hidden!important;background:var(--md-sys-color-surface-container-low)!important;--m3e-segmented-list-segment-gap:2px}
 .gradeStudentList m3e-list-action{display:block!important;position:relative!important;min-height:76px!important;padding:12px 72px 12px 66px!important;border:0!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important;background:var(--md-sys-color-surface-container-low)!important;color:var(--md-sys-color-on-surface)!important;cursor:pointer!important}
 .gradeStudentList m3e-list-action:last-child{border-bottom:0!important}
 .gradeStudentList m3e-list-action:hover{background:var(--md-sys-color-surface-container)!important}
 .submissionStudentAvatar{position:absolute!important;left:14px!important;top:50%!important;transform:translateY(-50%)!important;display:flex!important;align-items:center!important;justify-content:center!important;width:38px!important;height:38px!important;border-radius:50%!important;background:var(--md-sys-color-secondary-container)!important;color:var(--md-sys-color-on-secondary-container)!important;font-weight:600!important}
 .submissionRevisionList{display:flex!important;flex-direction:column!important;gap:10px!important;padding:0!important}
-.submissionRevisionCard{display:flex!important;flex-direction:column!important;gap:10px!important;padding:16px!important;border-radius:16px!important;background:var(--md-sys-color-surface-container-low)!important;color:var(--md-sys-color-on-surface)!important;--m3e-card-outlined-outline-color:var(--md-sys-color-outline-variant)}
-.submissionRevisionHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
-.submissionRevisionHeader m3e-heading,.submissionRevisionCard>m3e-heading{margin:0!important}
 .revisionStatus{position:static!important;display:inline-flex!important;align-items:center!important;white-space:nowrap!important;color:var(--md-sys-color-primary)!important}
 .revisionStatus.late{color:var(--md-sys-color-error)!important}
 .studentOverallComment{padding:16px!important;border-radius:16px!important;background:var(--md-sys-color-surface-container)!important;color:var(--md-sys-color-on-surface)!important}
@@ -3376,48 +3325,27 @@ html[data-theme-effective="dark"] .m3eShell button:not(:disabled),html[data-them
 .schoolProfileLayout>[slot="end"]{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;overflow:hidden!important;background:var(--md-sys-color-surface)!important;border-left:1px solid var(--md-sys-color-outline-variant)!important}
 @media(min-width:801px){.schoolProfileNativePage{height:100%!important;min-height:0!important;overflow:hidden!important}.schoolProfileLayout{height:100%!important;min-height:0!important}.schoolProfileMainPane{height:100%!important;overflow:hidden!important}.schoolProfileTabContent{flex:1 1 0!important;min-height:0!important;overflow:auto!important}.schoolProfileUpcomingPane{display:flex!important}}
 @media(max-width:800px){.schoolProfileNativePage{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileLayout{height:auto!important;min-height:100%!important;overflow:visible!important}.schoolProfileLayout>[slot="end"]{display:none!important}.schoolProfileMainPane{width:100%!important;min-height:0!important;overflow:visible!important}.schoolProfileTabContent{overflow:visible!important}}
-:root[data-theme-effective="dark"] .gradeOverallCard,:root[data-theme-effective="dark"] .submissionHeaderCard{background:var(--md-sys-color-surface-container-high)!important;color:var(--md-sys-color-on-surface)!important}
 
-/* v160: align split-pane headers with Schoology's M3E tab bar. */
-.assignmentPaneHeader,.schoolProfileUpcomingPane>.homePaneHeader{display:flex!important;align-items:center!important;height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;box-sizing:border-box!important;margin:0!important;padding:0 16px!important;background:#002137!important;color:#fff!important;border:0!important;border-radius:0!important;font-size:14px!important;font-weight:500!important;line-height:20px!important}
-.assignmentInfoPane .assignmentTabsM3e,.schoolProfileMainPane .schoolProfileTabs{height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;background:#002137!important;color:#fff!important}
-.assignmentSubmissionsPane{min-width:0!important;min-height:0!important;background:var(--md-sys-color-surface)!important}
-.assignmentSubmissionsContent{padding:0!important}
-@media(max-width:800px){.assignmentPaneHeader{display:none!important}}
-/* Match the custom split-track color used by the other M3E split panes. */
+
+/* v161: preserve the shared split track and let M3E own card/list styling. */
 .schoolProfileLayout{--m3e-split-pane-drag-handle-container-width:24px!important;--m3e-split-pane-drag-handle-width:4px!important;--m3e-split-pane-drag-handle-height:48px!important;--m3e-split-pane-drag-handle-pressed-width:6px!important;--m3e-split-pane-drag-handle-pressed-height:48px!important;background:transparent!important;position:relative!important}
 .schoolProfileLayout::before{content:""!important;display:block!important;position:absolute!important;z-index:0!important;pointer-events:none!important;background:var(--md-sys-color-primary-container)!important;border-radius:0!important;left:calc(var(--schoology-split-position,73%) - 12px)!important;top:0!important;bottom:0!important;width:24px!important;height:auto!important}
 .schoolProfileLayout>*{position:relative!important;z-index:1!important;min-width:0!important;min-height:0!important}
-/* Normalize card spacing around comments to match assignment info cards. */
 .assignmentInfoCard,.androidCommentCard,.groupDiscussionCard{margin:12px 16px!important}
 .commentsAndroidList{padding:12px 16px 24px!important;gap:0!important}
 .commentsAndroidList>m3e-card.androidCommentCard{margin:0 0 12px!important;width:100%!important;max-width:100%!important}
 m3e-card.androidCommentCard[style*="--comment-depth"]{margin-left:0!important;margin-right:0!important;width:100%!important}
-/* One filled overall-grade card, followed by unboxed periods and standard M3E grade lists. */
-.gradeOverallCard{background:var(--md-sys-color-surface,#fff)!important;--m3e-filled-card-container-color:var(--md-sys-color-surface,#fff)!important;border:0!important;box-shadow:none!important}
-.gradePeriodSection{display:block!important;margin:0!important;padding:16px!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important}
-.gradePeriodSection>.gradePeriodTitle{display:block!important;margin:0 0 8px!important}
-.gradePeriodSection>m3e-divider{display:block!important;margin:0 0 4px!important}
-.gradePeriodInnerPanels{display:flex!important;flex-direction:column!important;gap:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
-.gradeCategoryInner{margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;--m3e-expansion-panel-container-color:transparent}
-.gradeCategoryInner [slot="header"]{padding:12px 0!important;font-weight:500!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important}
-.gradeCategoryInner .gradeItemList,.gradeCategoryInner .gradeItemList m3e-list-action,.gradeCategoryInner .gradeItemList m3e-list-item{margin:0!important;padding-inline:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;--m3e-list-item-container-color:transparent!important}
-.gradeCategoryInner m3e-list-action,.gradeCategoryInner m3e-list-item{min-height:56px!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important}
-.gradeCategoryInner m3e-list-action:last-child{border-bottom:0!important}
-/* Resources now use M3E expansion panels, action lists, and list items. */
-.resourcesAndroidPage{height:100%!important;min-height:0!important;overflow:auto!important;padding:8px 16px 24px!important;background:var(--md-sys-color-surface)!important;color:var(--md-sys-color-on-surface)!important}
-.resourceCategoryList{display:flex!important;flex-direction:column!important;gap:8px!important;max-width:100%!important}
-.resourceCategory{display:block!important;margin:0!important;padding:0!important;border:1px solid var(--md-sys-color-outline-variant)!important;border-radius:12px!important;overflow:hidden!important;background:var(--md-sys-color-surface)!important;--m3e-expansion-panel-container-color:var(--md-sys-color-surface)!important}
-.resourceCategoryHeader{display:flex!important;align-items:center!important;gap:12px!important;min-height:56px!important;padding:8px 16px!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important;font-size:16px!important;font-weight:500!important}
-.resourceCategoryHeader img{width:32px!important;height:32px!important;object-fit:contain!important;margin:0!important}
-.resourceCategoryChildren{display:block!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;--m3e-segmented-list-segment-gap:0}
-.resourceCollectionRow{display:flex!important;align-items:center!important;min-height:56px!important;padding:8px 16px!important;border:0!important;border-top:1px solid var(--md-sys-color-outline-variant)!important;border-radius:0!important;background:transparent!important;color:var(--md-sys-color-on-surface)!important;text-align:left!important;cursor:pointer!important}
-.resourceCollectionRow>span:not([slot]){flex:1!important;min-width:0!important;overflow-wrap:anywhere!important}
-.resourceM3eIcon{display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;flex:0 0 40px!important}
-.resourceM3eIcon img{width:32px!important;height:32px!important;object-fit:contain!important}
-.resourceAppLogo,.resourceAppFallback{max-width:32px!important;max-height:32px!important}
-.resourceEmpty{padding:16px!important;color:var(--md-sys-color-on-surface-variant)!important}
 .messageThreadCard .messageAttachments{display:block!important;width:auto!important;max-width:none!important;margin:8px 14px 14px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
 .messageThreadCard .messageAttachments .messageAttachment{border:0!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important;border-radius:0!important;background:transparent!important;padding:12px 0!important;color:var(--md-sys-color-primary)!important}
 .messageThreadCard .messageAttachments .messageAttachment:last-child{border-bottom:0!important}
-:root[data-theme-effective="dark"] .gradeOverallCard{background:var(--md-sys-color-surface,#191b20)!important}
+/* Share M3E primary/on-primary roles across tabs, app bar and split headers. */
+.m3eMainAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary)!important}
+.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:var(--md-sys-color-on-primary)!important}
+.m3eSchoologyTabs,.homeTabsM3e,.courseTabsM3e,.groupTabsM3e,.messageTabsM3e,.calendarTabsM3e,.profileTabsM3e,.assignmentTabsM3e{background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary)!important;--m3e-tab-unselected-color:color-mix(in srgb,var(--md-sys-color-on-primary) 82%,transparent)!important}
+.m3eSchoologyTabs::part(base){background:var(--md-sys-color-primary)!important}
+.m3eSchoologyTabs m3e-tab,.homeTabsM3e m3e-tab,.courseTabsM3e m3e-tab,.groupTabsM3e m3e-tab,.messageTabsM3e m3e-tab,.calendarTabsM3e m3e-tab,.profileTabsM3e m3e-tab,.assignmentTabsM3e m3e-tab{color:var(--md-sys-color-on-primary)!important}
+.assignmentInfoPane .assignmentTabsM3e,.schoolProfileMainPane .schoolProfileTabs{height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important}
+.assignmentPaneHeader,.schoolProfileUpcomingPane>.homePaneHeader{display:flex!important;align-items:center!important;height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;box-sizing:border-box!important;margin:0!important;padding:0 16px!important;background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important;border:0!important;border-radius:0!important;font-size:14px!important;font-weight:500!important;line-height:20px!important}
+@media(max-width:800px){.assignmentPaneHeader{display:none!important}}
+@media(min-width:801px){.assignmentPaneHeader{display:flex!important}}
+.resourcesAndroidPage{height:100%!important;min-height:0!important;overflow:auto!important}
