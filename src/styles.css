@@ -3338,14 +3338,29 @@ m3e-card.androidCommentCard[style*="--comment-depth"]{margin-left:0!important;ma
 .messageThreadCard .messageAttachments{display:block!important;width:auto!important;max-width:none!important;margin:8px 14px 14px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
 .messageThreadCard .messageAttachments .messageAttachment{border:0!important;border-bottom:1px solid var(--md-sys-color-outline-variant)!important;border-radius:0!important;background:transparent!important;padding:12px 0!important;color:var(--md-sys-color-primary)!important}
 .messageThreadCard .messageAttachments .messageAttachment:last-child{border-bottom:0!important}
-/* Share M3E primary/on-primary roles across tabs, app bar and split headers. */
-.m3eMainAppBar{--m3e-app-bar-container-color:var(--md-sys-color-primary)!important;--m3e-app-bar-title-text-color:var(--md-sys-color-on-primary)!important}
-.m3eMainAppBar m3e-icon-button{--m3e-icon-button-icon-color:var(--md-sys-color-on-primary)!important}
-.m3eSchoologyTabs,.homeTabsM3e,.courseTabsM3e,.groupTabsM3e,.messageTabsM3e,.calendarTabsM3e,.profileTabsM3e,.assignmentTabsM3e{background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important;--m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary)!important;--m3e-tab-selected-color:var(--md-sys-color-on-primary)!important;--m3e-tab-unselected-color:color-mix(in srgb,var(--md-sys-color-on-primary) 82%,transparent)!important}
-.m3eSchoologyTabs::part(base){background:var(--md-sys-color-primary)!important}
-.m3eSchoologyTabs m3e-tab,.homeTabsM3e m3e-tab,.courseTabsM3e m3e-tab,.groupTabsM3e m3e-tab,.messageTabsM3e m3e-tab,.calendarTabsM3e m3e-tab,.profileTabsM3e m3e-tab,.assignmentTabsM3e m3e-tab{color:var(--md-sys-color-on-primary)!important}
-.assignmentInfoPane .assignmentTabsM3e,.schoolProfileMainPane .schoolProfileTabs{height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important}
-.assignmentPaneHeader,.schoolProfileUpcomingPane>.homePaneHeader{display:flex!important;align-items:center!important;height:48px!important;min-height:48px!important;max-height:48px!important;flex:0 0 48px!important;box-sizing:border-box!important;margin:0!important;padding:0 16px!important;background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important;border:0!important;border-radius:0!important;font-size:14px!important;font-weight:500!important;line-height:20px!important}
-@media(max-width:800px){.assignmentPaneHeader{display:none!important}}
-@media(min-width:801px){.assignmentPaneHeader{display:flex!important}}
+/* Keep established colors elsewhere; scope M3E roles to assignment and school-profile views. */
+.assignmentInfoPane .assignmentTabsM3e,
+.schoolProfileMainPane .schoolProfileTabs {
+  background:var(--md-sys-color-primary)!important;
+  color:var(--md-sys-color-on-primary)!important;
+  --m3e-tabs-active-indicator-color:var(--md-sys-color-on-primary)!important;
+  --m3e-tab-selected-color:var(--md-sys-color-on-primary)!important;
+  --m3e-tab-unselected-color:color-mix(in srgb,var(--md-sys-color-on-primary) 82%,transparent)!important;
+}
+.assignmentInfoPane .assignmentTabsM3e m3e-tab,
+.schoolProfileMainPane .schoolProfileTabs m3e-tab {
+  color:var(--md-sys-color-on-primary)!important;
+}
+.assignmentSubmissionBar {
+  background:var(--md-sys-color-primary)!important;
+  color:var(--md-sys-color-on-primary)!important;
+}
+.assignmentSubmissionBar .androidDialogTitle {color:var(--md-sys-color-on-primary)!important}
+.assignmentAndroidPage .assignmentPaneHeader,
+.schoolProfileUpcomingPane>.homePaneHeader {
+  background:var(--md-sys-color-primary)!important;
+  color:var(--md-sys-color-on-primary)!important;
+}
+@media(max-width:800px){.assignmentAndroidPage .assignmentPaneHeader{display:none!important}}
+@media(min-width:801px){.assignmentAndroidPage .assignmentPaneHeader{display:flex!important}}
 .resourcesAndroidPage{height:100%!important;min-height:0!important;overflow:auto!important}

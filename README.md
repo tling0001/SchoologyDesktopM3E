@@ -13,7 +13,7 @@ A Windows-first Electron desktop port of Schoology, implemented from the supplie
 
 Schoology-specific behavior is based on the supplied `schoology-android-2026-06-0.zip`. Do not substitute unrelated web implementations when changing Schoology behavior.
 
-M3E dependencies are vendored under `vendor/m3e/`. The current build uses the supplied `@m3e/web` **2.9.2** package and the supplied `@m3e/icons` package.
+M3E dependencies are vendored under `vendor/m3e/`. The current build uses `@m3e/web` **2.10.1** and the supplied `@m3e/icons` package.
 
 ## Repository structure
 
