@@ -2,7 +2,7 @@ const DEFAULTS={courseMaterials:true,courses:true,courseUpdates:true,courseGrade
 function categoryFor(url){
  try{
   const u=new URL(url);if(u.protocol!=='https:')return null;
-  const host=u.hostname.toLowerCase();if(!(host==='lms.lausd.net'||host==='app.schoology.com'||host==='schoology.com'||host.endsWith('.schoology.com')))return null;
+  const host=u.hostname.toLowerCase();if(host==='lti-service.svc.schoology.com')return null;if(!(host==='lms.lausd.net'||host==='app.schoology.com'||host==='schoology.com'||host.endsWith('.schoology.com')))return null;
   const path=u.pathname.replace(/\/+$/,'')||'/';
   if(/^\/(apps|resources\/apps)(?:\/|$)/i.test(path)||/^\/(oauth|login|logout|mobile_login_success|saml|auth)(?:\/|$)/i.test(path))return null;
   if(['oauth_token','oauth_callback','request_token','login_landing_dest','sgyInitialPage'].some(k=>u.searchParams.has(k))||u.searchParams.get('__schoology_desktop_external')==='1')return null;

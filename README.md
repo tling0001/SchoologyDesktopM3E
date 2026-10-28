@@ -1,6 +1,6 @@
 # Schoology Desktop Port
 
-A Windows-first Electron desktop port of Schoology, implemented from the supplied **Schoology Android 2026.06.0** reference and using the official **matraic M3E** Web Components package.
+A cross-platform Tauri desktop port of Schoology, implemented from the supplied **official Schoology Android 2026.10.0** source and using the official **matraic M3E** Web Components package.
 
 ## Project goals
 
@@ -11,7 +11,7 @@ A Windows-first Electron desktop port of Schoology, implemented from the supplie
 
 ## Source references
 
-Schoology-specific behavior is based on the supplied `schoology-android-2026-06-0.zip`. Do not substitute unrelated web implementations when changing Schoology behavior.
+Schoology-specific behavior is based on the supplied official `schoology2026010 source.zip`. Do not substitute unofficial web descriptions or unrelated implementations when changing Schoology behavior.
 
 M3E dependencies are vendored under `vendor/m3e/`. The current build uses `@m3e/web` **2.10.1** and the supplied `@m3e/icons` package.
 
@@ -19,8 +19,8 @@ M3E dependencies are vendored under `vendor/m3e/`. The current build uses `@m3e/
 
 ```text
 src/
-  main.js             Electron main process and native bridge
-  preload.js          Renderer IPC bridge
+  main.js             Legacy Electron compatibility host and API bridge
+  preload.js          Legacy Electron renderer IPC bridge
   webview-dark-preload.js  Early theme handling for shared Schoology WebViews
   renderer.js         Schoology UI, navigation, native screens, API flows
   styles.css          Layout/integration styling
@@ -32,7 +32,7 @@ src/
 assets/               Schoology/Android artwork and application assets
 chrome-link-handler/  Optional Chrome extension for routing supported Schoology links into the app
 vendor/m3e/           Vendored M3E packages used for reproducible builds
-package.json          Version, dependencies, and electron-builder configuration
+package.json          Version, dependencies, and Tauri/legacy compatibility configuration
 ```
 
 ## M3E implementation
@@ -58,16 +58,10 @@ Interactive M3E action lists use `m3e-list-action` children so M3E can provide i
 
 ```bash
 npm install
-npm start
+npm run tauri:dev
 ```
 
-For a Windows production build:
-
-```bash
-npm run dist:win
-```
-
-The Windows build produces an NSIS installer and an unpacked directory build.
+GitHub Actions is the release build environment. Pushes to `main` build the Tauri desktop packages and mobile targets from the version in `package.json`; do not run local Electron builds or installer tests for this project.
 
 ## Versioning
 
@@ -87,7 +81,7 @@ The Settings page exposes the normal **Check for Updates** workflow. Windows con
 
 ## Reproducible builds
 
-The M3E packages needed by the application are stored in `vendor/m3e/` so the build does not depend on downloading the M3E packages at release time. Electron-builder packages the vendored/runtime dependencies into the application.
+The M3E packages needed by the application are stored in `vendor/m3e/` so the build does not depend on downloading the M3E packages at release time. Tauri packages the renderer and native host together; release builds and installers are produced by GitHub Actions.
 
 Do not rename a supplied M3E tarball to claim a different version; the package's internal `package.json` version must match the dependency version used by the project.
 

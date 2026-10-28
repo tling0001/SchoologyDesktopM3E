@@ -53,6 +53,12 @@ function syncM3eTabSelection(container, attr, value){
     tab.toggleAttribute('selected',selected);
     tab.selected=selected;
   });
+  // Segmented action-list navigation shares the same selection state as M3E tabs.
+  root.querySelectorAll('m3e-list-action[data-course-tab]').forEach(item=>{
+    const selected=String(item.dataset?.[attr]||'')===String(value);
+    item.classList.toggle('courseSidebarActive',selected);
+    if(selected)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');
+  });
 }
 function alert(message){showAppDialog('Schoology',String(message));}
 function showAppDialog(title,message,actions=[{label:'OK',action:null}]){
@@ -756,7 +762,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    const buttons=[...c.querySelectorAll('[data-course-tab]')];
    const target=buttons.find(b=>b.dataset.courseTab===tab);
    if(target){buttons.forEach(b=>b.removeAttribute('active'));syncM3eTabSelection(document.getElementById('content'),'courseTab',tab);}
-   state.courseTab=tab;state.toolbarTitle=target?.textContent||state.toolbarTitle;state.folderStack=[];state.currentFolderId=0;state.assignmentView=null;state.embeddedTitle=null;syncToolbar();
+   state.courseTab=tab;state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);state.folderStack=[];state.currentFolderId=0;state.assignmentView=null;state.embeddedTitle=null;syncToolbar();
    const tabContent=document.getElementById('sectionProfileContent');
    if(tabContent)tabContent.innerHTML='<div class="loading courseTabLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
    await loadCourseTab(course,tab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
@@ -770,18 +776,21 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  // Mount the Android-like course shell immediately. Network-dependent metadata and
  // permissions are hydrated after the page is visible so slow connections show the
  // native loading indicators instead of blocking navigation.
- const initialTabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming']]),['grades','Grades'],['attendance','Attendance'],...(landscape?[]:[['courseapp','Course App']])];
+ const initialTabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[['courseapp','Course Apps']]:[['upcoming','Upcoming'],['courseapp','Course App']]),['grades','Grades'],['attendance','Attendance']];
  let effectiveTab=activeTab;
  if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
- if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
+ 
  state.courseTab=effectiveTab;
  const courseTabsMarkup=tabs=>tabs.map(([id,label])=>`<m3e-tab class="sectionProfileTab" data-course-tab="${id}" ${effectiveTab===id?'selected':''}>${label}</m3e-tab>`).join('');
+ const courseSidebarMarkup=tabs=>tabs.map(([id,label])=>`<m3e-list-action class="courseSidebarNavItem ${effectiveTab===id?'courseSidebarActive':''}" data-course-tab="${id}" tabindex="0"><span slot="leading" class="m3eOriginalIcon" aria-hidden="true">${originalM3Icon(({materials:'folder_open',updates:'campaign',members:'groups',grades:'grade',gradebook:'grade',attendance:'event_available',courseapp:'apps',upcoming:'event'}[id])||'chevron_right')}</span><span>${esc(label)}</span></m3e-list-action>`).join('');
  const courseLandscapeMarkup=`<m3e-split-pane orientation="horizontal" class="courseOuterSplit" data-persist-key="courses-outer" value="73" min="25" max="90" step="1" label="Resize course content and upcoming">
-    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="courses-apps" value="20" min="5" max="45" step="1" label="Resize course apps and content">
-     <aside slot="start" class="courseAppsSidePane"><div class="homePaneHeader">Course Apps</div><div id="courseAppsSideContent" class="courseAppsSideContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>
+    <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="courses-apps" value="20" min="12" max="40" step="1" label="Resize course navigation and content">
+     <aside slot="start" class="courseAppsSidePane courseInfoSidePane">
+      <div class="courseLandscapeImage"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:${image?'block':'none'}" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div>
+      <m3e-action-list variant="segmented" class="courseSidebarSegmentedList">${courseSidebarMarkup(initialTabs)}</m3e-action-list>
+     </aside>
      <section slot="end" class="courseMainPane">
-      <div class="sectionProfileTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs courseTabsM3e">${courseTabsMarkup(initialTabs)}</m3e-tabs></div>
-      <div class="sectionProfileHeader courseIdentityCard"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div><span class="courseSchoolLoading" aria-hidden="true"></span></div></div>
+      <div class="sectionProfileHeader courseIdentityCard courseIdentityMainInfo"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div><span class="courseSchoolLoading" aria-hidden="true"></span></div></div>
       <div class="sectionProfileRule"></div>
       <div id="sectionProfileContent" class="sectionProfileContent tabSlidePage"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div>
      </section>
@@ -800,7 +809,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  const schoolButton=document.querySelector('[data-course-school-id]');if(schoolButton)schoolButton.onclick=()=>{const id=Number(schoolButton.getAttribute('data-course-school-id')||0);if(id)openSchoolProfile(id,schoolButton.textContent||'School')};
  hydrateCourseImages(c);
  const bindCourseTabs=()=>document.querySelectorAll('[data-course-tab]').forEach(b=>b.onclick=()=>{
-   const id=b.dataset.courseTab;state.courseTab=id;state.toolbarTitle=b.textContent||'Course';
+   const id=b.dataset.courseTab;state.courseTab=id;state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);
    syncM3eTabSelection(document.getElementById('content'),'courseTab',id);
    state.folderStack=[];state.currentFolderId=0;syncToolbar();
    const tabContent=document.getElementById('sectionProfileContent');
@@ -818,22 +827,21 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    const school=await resolveCourseSchoolName(sectionDetail||course)||schoolFromList;
    if(renderToken!==courseRenderToken||state.screen!=='app'||state.courseView!=='course'||state.selectedCourse!==course)return;
    const canGradebook=!!navPerms?.sectionGradesPut, canGrades=!!navPerms?.userGradesGet, attendanceEnabled=!!navPerms?.attendanceGet;
-   const tabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[]),...(landscape?[]:[['courseapp','Course App']])];
+   const tabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[['courseapp','Course Apps']]:[['upcoming','Upcoming'],['courseapp','Course App']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[])];
    effectiveTab=activeTab;
    if(effectiveTab==='grades'&&canGradebook)effectiveTab='gradebook';
    if(effectiveTab==='gradebook'&&!canGradebook)effectiveTab='grades';
    if(effectiveTab==='attendance'&&!attendanceEnabled)effectiveTab='materials';
    if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
-   if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
+   
    state.courseTab=effectiveTab;
-   const tabsHost=c.querySelector('.courseTabsM3e');
-   if(tabsHost){tabsHost.innerHTML=courseTabsMarkup(tabs);bindCourseTabs();syncM3eTabSelection(document.getElementById('content'),'courseTab',effectiveTab);}
+   const tabsHost=landscape?c.querySelector('.courseSidebarSegmentedList'):c.querySelector('.courseTabsM3e');
+   if(tabsHost){tabsHost.innerHTML=landscape?courseSidebarMarkup(tabs):courseTabsMarkup(tabs);bindCourseTabs();syncM3eTabSelection(document.getElementById('content'),'courseTab',effectiveTab);}
    const info=c.querySelector('.courseIdentityInfoBar');
    const loadingSchool=info?.querySelector('.courseSchoolLoading');
    if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';const infoSchoolButton=info?.querySelector('[data-course-school-id]');if(infoSchoolButton)infoSchoolButton.onclick=()=>{const id=Number(infoSchoolButton.getAttribute('data-course-school-id')||0);if(id)openSchoolProfile(id,infoSchoolButton.textContent||'School')};}
    loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
    if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
-   if(landscape)loadCourseApps(course,document.getElementById('courseAppsSideContent')).catch(e=>{const el=document.getElementById('courseAppsSideContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
  })();
 }
 function collectAssignmentAttachments(a){
@@ -2720,7 +2728,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.06.0-port.153')}</div></section>`;
+      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.10.0-port.1')}</div></section>`;
     document.getElementById('setupChromeLinkHandler')?.addEventListener('click',async()=>{try{state.openSchoologyLinks=await A.setOpenSchoologyLinks?.(true)!==false;const error=await A.openChromeExtensionFolder?.();if(error)throw new Error(error);showAppDialog('Chrome link handler','In Chrome, open chrome://extensions, enable Developer mode, choose Load unpacked, and select the chrome-link-handler folder that was opened. Supported Schoology links will now open in this app.')}catch(err){showAppDialog('Unable to open Chrome link handler folder',err.message||String(err))}});
     document.getElementById('desktopNotificationsToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.desktopNotifications=await A.setDesktopNotifications?.(next)!==false;const sound=document.getElementById('notificationSoundToggle');if(sound)sound.disabled=!state.desktopNotifications}catch(err){e.target.checked=state.desktopNotifications;showAppDialog('Unable to update notifications',err.message||String(err))}});
     document.getElementById('notificationSoundToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.notificationSound=await A.setNotificationSound?.(next)===true}catch(err){e.target.checked=state.notificationSound;showAppDialog('Unable to update notification sound',err.message||String(err))}});
@@ -2797,7 +2805,7 @@ async function loadHomeTab(){
       }catch(e){alert('Unable to load comments: '+e.message)}
     });
   }else if(state.homeTab==='dashboard'){
-    // Android 2026.06.0 uses a HybridView for this tab. The desktop port uses a
+    // Android 2026.10.0 uses a HybridView for this tab. The desktop port uses a
     // native equivalent so Chromium/WebView sizing cannot leave a blank bottom area.
     const uid=state.auth?.userId||state.auth?.user?.id;
     c.classList.remove('embeddedContentActive');c.classList.add('dashboardContentActive');

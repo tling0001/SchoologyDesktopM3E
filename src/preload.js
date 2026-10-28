@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld('schoology',{
   setDesktopNotifications:enabled=>ipcRenderer.invoke('set-desktop-notifications',enabled),
   getNotificationSound:()=>ipcRenderer.invoke('get-notification-sound'),
   setNotificationSound:enabled=>ipcRenderer.invoke('set-notification-sound',enabled),
+  getReducedMotion:()=>ipcRenderer.invoke('get-reduced-motion'),
+  setReducedMotion:enabled=>ipcRenderer.invoke('set-reduced-motion',enabled),
   setSharedWebviewTheme:dark=>ipcRenderer.send('shared-webview-theme-set',!!dark),
   openChromeExtensionFolder:()=>ipcRenderer.invoke('open-chrome-extension-folder'),
   onDeepLink:fn=>{const h=(_,url)=>fn(url);ipcRenderer.on('schoology-deep-link',h);ipcRenderer.invoke('renderer-deep-link-ready').catch(e=>console.warn('Could not signal deep-link readiness:',e));return()=>ipcRenderer.removeListener('schoology-deep-link',h)},

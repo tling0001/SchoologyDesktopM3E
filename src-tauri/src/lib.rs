@@ -279,7 +279,7 @@ async fn login_qr(app: &AppHandle, state: &HostState, qr: &str) -> Result<Value,
     sync_server_time(state).await;
     let temporary = request_token(state).await?;
     let mut form = serde_json::Map::new(); form.insert("scanned_qr_data".into(), json!(qr)); form.insert("oauth_token".into(), temporary.get("oauth_token").cloned().unwrap_or(Value::Null));
-    let url = Url::parse(&format!("https://{}/oauth/qr_code_authorize_auto", api_host())).map_err(|e| e.to_string())?;
+    let url = Url::parse(&format!("https://{}/v1/oauth/qr_code_authorize_auto", api_host())).map_err(|e| e.to_string())?;
     let response = request("POST", url, Some(Value::Object(form)), Some(&temporary), state, true, Some(qr), false).await?;
     if !response.status().is_success() { let status=response.status().as_u16(); let text=response.text().await.unwrap_or_default(); return Err(format!("QR authorization failed: {status} {text}")); }
     exchange_token(app, state, &temporary).await
@@ -1000,7 +1000,7 @@ fn release_asset_info(release: &Value, asset: &Value, repo: &str, product_name: 
 }
 
 async fn check_for_updates() -> Result<Value, String> {
-    let release = fetch_release("tling0001/schoology-for-desktop-port").await?;
+    let release = fetch_release("tling0001/SchoologyDesktopM3E").await?;
     let tag = release.get("tag_name").and_then(Value::as_str).unwrap_or("");
     let remote = tag.rsplit('.').next().and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
     let local = local_release_number();
@@ -1008,7 +1008,7 @@ async fn check_for_updates() -> Result<Value, String> {
         return Ok(json!({"checked":true,"available":false,"version":local}));
     }
     let asset = select_update_asset(&release)?;
-    let mut info = release_asset_info(&release, &asset, "tling0001/schoology-for-desktop-port", "Schoology");
+    let mut info = release_asset_info(&release, &asset, "tling0001/SchoologyDesktopM3E", "Schoology");
     info["available"] = json!(true);
     Ok(info)
 }

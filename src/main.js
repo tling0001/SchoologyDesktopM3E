@@ -6,7 +6,7 @@ const https=require('https');
 const querystring=require('querystring');
 
 // Match the Android app's public identity/version as closely as Electron allows.
-const ANDROID_WEBVIEW_UA='Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/UQ1A.240205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/134.0.0.0 Mobile Safari/537.36 Schoology Android v2026.06.0';
+const ANDROID_WEBVIEW_UA='Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/UQ1A.240205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/134.0.0.0 Mobile Safari/537.36 Schoology Android v2026.10.0';
 const CLIENT_UA=ANDROID_WEBVIEW_UA;
 const API_HOST='api.schoology.com';
 const WEB_HOST='app.schoology.com';
@@ -68,7 +68,7 @@ function readThemeSettings(){try{const value=JSON.parse(fs.readFileSync(themeSet
 function writeJsonSettings(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(value,null,2),'utf8');fs.renameSync(tmp,file)}
 function saveThemeSettings(value){const next={...DEFAULT_THEME_SETTINGS,...(value&&typeof value==='object'?value:{}),colorVersion:2};writeJsonSettings(themeSettingsFile,next);return next}
 const notificationSeenFile=path.join(stableUserData,'notification-seen.json');
-function readAppSettings(){try{const value=JSON.parse(fs.readFileSync(appSettingsFile,'utf8'))||{};return {openSchoologyLinks:value.openSchoologyLinks!==false,desktopNotifications:value.desktopNotifications!==false,notificationSound:value.notificationSound===true}}catch{return {openSchoologyLinks:true,desktopNotifications:true,notificationSound:false}}}
+function readAppSettings(){try{const value=JSON.parse(fs.readFileSync(appSettingsFile,'utf8'))||{};return {openSchoologyLinks:value.openSchoologyLinks!==false,desktopNotifications:value.desktopNotifications!==false,notificationSound:value.notificationSound===true,reducedMotion:value.reducedMotion===true}}catch{return {openSchoologyLinks:true,desktopNotifications:true,notificationSound:false,reducedMotion:false}}}
 function saveAppSettings(patch){const settings={...readAppSettings(),...(patch||{})};fs.mkdirSync(path.dirname(appSettingsFile),{recursive:true});fs.writeFileSync(appSettingsFile,JSON.stringify(settings,null,2),'utf8');return settings}
 function readNotificationSeen(){try{const value=JSON.parse(fs.readFileSync(notificationSeenFile,'utf8'))||{};return {userId:String(value.userId||''),ids:Array.isArray(value.ids)?value.ids.map(String):[]}}catch{return {userId:'',ids:[]}}}
 function writeNotificationSeen(userId,ids){try{fs.mkdirSync(path.dirname(notificationSeenFile),{recursive:true});fs.writeFileSync(notificationSeenFile,JSON.stringify({userId:String(userId||''),ids:ids.slice(0,200)},null,2),'utf8')}catch{}}
@@ -201,7 +201,7 @@ function request(method,url,body={},opts={},redirectDepth=0){
     };
     if(opts.clientIdentity){
       headers['X-Schoology-Client']='Android';
-      headers['X-Schoology-App-Version']='2026.06.0';
+      headers['X-Schoology-App-Version']='2026.10.0';
     }
     if(opts.headers) Object.assign(headers,opts.headers);
     if(opts.sign){
@@ -261,7 +261,7 @@ async function authorizeQR(qr){
   const body={scanned_qr_data:qr,oauth_token:t.oauth_token};
   // Android QRCodeAuthorizer signs this endpoint with the request-token secret
   // and includes scanned_qr_data in the HMAC normalized parameter set.
-  const r=await request('POST',`https://${WEB_HOST}/oauth/qr_code_authorize_auto`,body,{sign:true,clientIdentity:true,authToken:t.oauth_token,tokenSecret:t.oauth_token_secret,qr});
+  const r=await request('POST',`https://${API_HOST}/v1/oauth/qr_code_authorize_auto`,body,{sign:true,clientIdentity:true,authToken:t.oauth_token,tokenSecret:t.oauth_token_secret,qr});
   if(r.status<200||r.status>=300)throw new Error('QR authorization failed: '+r.status+' '+r.text);
   return exchangeToken(t);
 }
@@ -439,7 +439,7 @@ async function submitAssignmentFile(info){
   const mime=mimeByExt[path.extname(filename).toLowerCase()]||String(info.mime||'application/octet-stream');
   let fileId=null, primaryError=null;
   try{
-    // This reproduces tc.z.a()/MultipartBody from Android 2026.06.0. In
+    // This reproduces tc.z.a()/MultipartBody from Android 2026.10.0. In
     // particular, the file part itself has the multipart/form-data media type,
     // includes a Content-Length header, and the multipart boundary is a UUID.
     const boundary=crypto.randomUUID();
@@ -465,7 +465,7 @@ async function submitAssignmentFile(info){
     if(!fileId)throw new Error(`FileService ${uploaded.status}: ${uploaded.text}`);
   }catch(e){primaryError=e}
   if(!fileId){
-    // The Android 2026.06.0 legacy implementation is only used when the
+    // The Android 2026.10.0 legacy implementation is only used when the
     // FileServiceApi dependency is unavailable. Reproduce its exact request:
     // POST /v1/upload with UploadAttachmentObject JSON fields (filename/md5_checksum/filesize) in the BODY (not query parameters), then
     // PUT /v1/upload/{id} with the raw file bytes. The previous port incorrectly
@@ -543,7 +543,7 @@ async function loginThroughSchoolBrowser(info){
   while(rawHost.endsWith('/'))rawHost=rawHost.slice(0,-1);
   let host='';try{const parsed=new URL('https://'+rawHost);if(parsed.hostname&&parsed.pathname==='/'&&!parsed.search&&!parsed.hash)host=parsed.host}catch{}
   if(!host)throw new Error('This school did not provide a valid login domain.');
-  const callback='https://'+host+'/mobile_login_success?os=android&os_version=34&app_version=600000477';
+  const callback='https://'+host+'/mobile_login_success?os=android&os_version=34&app_version=600000478';
   const oauthPath='oauth/authorize?oauth_token='+encodeURIComponent(credential.oauth_token)+'&oauth_callback='+encodeURIComponent(callback);
   const loginUrl='https://'+host+'/'+oauthPath+'&login_landing_dest='+encodeURIComponent(oauthPath);
   return new Promise((resolve,reject)=>{
@@ -774,6 +774,8 @@ app.whenReady().then(()=>{
   ipcMain.handle('set-desktop-notifications',(_,enabled)=>saveAppSettings({desktopNotifications:!!enabled}).desktopNotifications);
   ipcMain.handle('get-notification-sound',()=>readAppSettings().notificationSound);
   ipcMain.handle('set-notification-sound',(_,enabled)=>saveAppSettings({notificationSound:!!enabled}).notificationSound);
+  ipcMain.handle('get-reduced-motion',()=>readAppSettings().reducedMotion);
+  ipcMain.handle('set-reduced-motion',(_,enabled)=>saveAppSettings({reducedMotion:!!enabled}).reducedMotion);
   ipcMain.handle('open-chrome-extension-folder',async()=>{
     const folder=app.isPackaged?path.join(process.resourcesPath,'chrome-link-handler'):path.join(__dirname,'..','chrome-link-handler');
     if(!fs.existsSync(path.join(folder,'manifest.json')))throw new Error('The Chrome link handler folder is missing from this build.');

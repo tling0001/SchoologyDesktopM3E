@@ -3558,3 +3558,54 @@ html[data-theme-effective="dark"] .sharedCommentAvatar,html[data-theme-effective
 .m3ePeopleDirectory .peopleAdminsSectionHeader{color:var(--md-sys-color-primary,#2e66a3);font-weight:700}
 html[data-theme-effective="dark"] .m3ePeopleDirectory .peopleAvatar{background:var(--md-sys-color-secondary-container,#354b61);color:var(--md-sys-color-on-secondary-container,#e0e8f0)}
 @media(max-width:600px){.m3ePeopleDirectory .peopleDirectoryToolbar{padding-inline:4px}.m3ePeopleDirectory .peopleMemberFilterTabs{max-width:100%}}
+
+/* Tauri window-controls overlay: controls are injected by tauri-bridge.js. */
+#tauriWindowControls{position:fixed;top:0;right:0;width:var(--tauri-window-controls-width,138px);height:56px;display:flex;align-items:stretch;box-sizing:border-box;z-index:2147483647;background:var(--tauri-window-controls-bg,#002137);color:#fff;user-select:none;-webkit-user-select:none}
+#tauriWindowControls .tauriWindowDragArea{flex:1 1 auto;min-width:0;height:56px;cursor:default;-webkit-app-region:drag}
+#tauriWindowControls button{appearance:none;flex:0 0 46px;width:46px;min-width:46px;height:56px;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;background:transparent;color:inherit;font:16px/1 "Segoe UI Symbol","Segoe UI",system-ui,sans-serif;cursor:pointer;outline-offset:-3px}
+#tauriWindowControls button::before{display:block;line-height:1}
+#tauriWindowControls button[data-window-action="minimize"]::before{content:"—";font-size:18px;transform:translateY(-3px)}
+#tauriWindowControls button[data-window-action="maximize"]::before{content:"□";font-size:16px}
+#tauriWindowControls button[data-window-action="maximize"][data-maximized="true"]::before{content:"▣";font-size:14px}
+#tauriWindowControls button[data-window-action="close"]::before{content:"×";font-size:22px;font-weight:300}
+#tauriWindowControls button:hover{background:rgba(255,255,255,.14)}
+#tauriWindowControls button[data-window-action="close"]:hover{background:#c42b1c}
+#tauriWindowControls button:focus-visible{outline:2px solid #fff;outline-offset:-4px}
+html[data-window-controls-overlay="false"] #tauriWindowControls{display:none!important}
+@media(prefers-reduced-motion:reduce){#tauriWindowControls button{transition:none!important}}
+
+/* Landscape course navigation uses the same M3E segmented action-list pattern as Upcoming. */
+.courseLandscapePage{display:block!important;min-width:0}
+.courseOuterSplit,.courseInnerSplit{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.courseInnerSplit{--m3e-split-pane-drag-handle-container-width:16px}
+.courseAppsSidePane.courseInfoSidePane{display:flex;flex:1 1 auto;flex-direction:column;align-items:stretch;gap:12px;min-width:0;min-height:0;height:100%;overflow:auto;padding:12px 8px;background:var(--md-sys-color-surface-container-low,#f4f6f8);color:var(--md-sys-color-on-surface,#263746);border-right:1px solid var(--md-sys-color-outline-variant,#d6dce2)}
+.courseInfoSidePane .courseLandscapeImage{display:flex;flex:0 0 auto;justify-content:center;align-items:center;width:100%;padding:6px 0 10px}
+.courseInfoSidePane .courseLandscapeImage .sectionProfileImage,.courseInfoSidePane .courseLandscapeImage .sectionProfileFallback{width:72px;height:72px;min-width:72px;border-radius:16px;object-fit:cover}
+.courseInfoSidePane .courseLandscapeImage .sectionProfileFallback{display:flex;align-items:center;justify-content:center;background:var(--md-sys-color-secondary-container,#dce8f5);color:var(--md-sys-color-on-secondary-container,#163a5b);font-size:26px;font-weight:600}
+.courseSidebarSegmentedList{display:block;width:100%;min-width:0;overflow:visible}
+.courseSidebarSegmentedList .courseSidebarNavItem{width:100%;min-width:0;min-height:48px;color:var(--md-sys-color-on-surface,#263746)}
+.courseSidebarSegmentedList .courseSidebarNavItem.courseSidebarActive{background:var(--md-sys-color-secondary-container,#dce8f5);color:var(--md-sys-color-on-secondary-container,#163a5b);font-weight:600}
+.courseSidebarSegmentedList .courseSidebarNavItem [slot="leading"]{display:inline-flex;align-items:center;justify-content:center}
+.courseMainPane{display:flex;flex:1 1 auto;flex-direction:column;min-width:0;min-height:0;height:100%;overflow:hidden}
+.courseMainPane .courseIdentityMainInfo{flex:0 0 auto;min-width:0}
+.courseMainPane .sectionProfileContent{flex:1 1 auto;min-height:0;overflow:auto}
+.courseLandscapePage .courseUpcomingPane{display:flex!important;flex:0 0 auto;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#263746);border-left:1px solid var(--md-sys-color-outline-variant,#d6dce2)}
+.courseLandscapePage .courseUpcomingContent{flex:1 1 auto;height:auto;min-height:0;overflow:auto}
+html[data-theme-effective="dark"] .courseAppsSidePane.courseInfoSidePane{background:var(--md-sys-color-surface-container-low,#20252b);color:var(--md-sys-color-on-surface,#e3e7eb);border-right-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme-effective="dark"] .courseInfoSidePane .courseLandscapeImage .sectionProfileFallback{background:var(--md-sys-color-secondary-container,#354b61);color:var(--md-sys-color-on-secondary-container,#e0e8f0)}
+html[data-theme-effective="dark"] .courseSidebarSegmentedList .courseSidebarNavItem{color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme-effective="dark"] .courseSidebarSegmentedList .courseSidebarNavItem.courseSidebarActive{background:var(--md-sys-color-secondary-container,#354b61);color:var(--md-sys-color-on-secondary-container,#e0e8f0)}
+html[data-theme-effective="dark"] .courseLandscapePage .courseUpcomingPane{background:var(--md-sys-color-surface,#171a1e);color:var(--md-sys-color-on-surface,#e3e7eb);border-left-color:var(--md-sys-color-outline-variant,#454b52)}
+@media(max-width:800px){.courseAppsSidePane.courseInfoSidePane{display:none!important}.courseLandscapePage .courseUpcomingPane{display:none!important}}
+
+
+/* Port.22: the school profile Info tab is a surface, so keep its rows readable in dark mode. */
+html[data-theme-effective="dark"] .schoolProfileNativePage .schoolProfileInfoRows,
+html[data-theme-effective="dark"] .schoolProfileNativePage .schoolProfileInfoRow {
+  background:var(--md-sys-color-surface-container-low,#20252b)!important;
+  color:var(--md-sys-color-on-surface,#e3e7eb)!important;
+  border-color:var(--md-sys-color-outline-variant,#454b52)!important;
+}
+html[data-theme-effective="dark"] .schoolProfileNativePage .schoolProfileInfoRow span {
+  color:var(--md-sys-color-on-surface-variant,#b7c0c9)!important;
+}
