@@ -1,35 +1,41 @@
-# Installing Schoology on an iPhone with a QR code
+# iPhone QR installation (Tauri)
 
-The main workflow can produce a QR-based over-the-air install package when Ad Hoc signing is configured. This is optional; simulator builds and desktop releases do not require these secrets.
+The release workflow can build a signed Ad Hoc IPA and publish an install QR code. This job is optional: if the iOS signing secrets are not configured, desktop and Android builds continue and the iOS job reports that it skipped the signed package.
 
-## Apple requirements
+## Apple setup
 
-1. Enroll in the Apple Developer Program and create an App ID with bundle identifier `com.schoology.app`.
-2. Register the iPhone's UDID in the Apple Developer account. An Ad Hoc provisioning profile can install only on devices listed in that profile.
-3. Create an **Ad Hoc** provisioning profile for `com.schoology.app` using an Apple Distribution certificate, and download it.
-4. Export that Apple Distribution certificate and private key as a password-protected `.p12` file.
+1. Enroll in the Apple Developer Program.
+2. Create an App ID with bundle identifier `com.schoologytauri.app`.
+3. Register the target iPhone/iPad UDID.
+4. Create an **Ad Hoc** provisioning profile for `com.schoologytauri.app`, using the Apple Distribution certificate and including the registered device.
+5. The provisioning profile must be available to App Store Connect so `Apple-Actions/download-provisioning-profiles@v7.0.0` can retrieve it.
 
-## GitHub Actions secrets
+## GitHub Actions secrets and variables
 
-In the repository's **Settings → Secrets and variables → Actions → Repository secrets**, configure:
+Configure these repository secrets under **Settings → Secrets and variables → Actions**:
 
-- `IOS_CERTIFICATE_P12_BASE64`: base64-encoded `.p12` file.
-- `IOS_CERTIFICATE_PASSWORD`: the password used when exporting that `.p12`.
-- `APPLE_TEAM_ID`: the 10-character Apple Developer Team ID.
-- `IOS_ADHOC_PROVISIONING_PROFILE_BASE64`: base64-encoded Ad Hoc `.mobileprovision` file containing the registered iPhone UDID.
+- `APPSTORE_API_PRIVATE_KEY`: contents of the App Store Connect API private key `.p8`.
+- `IOS_CERTIFICATE_P12_BASE64`: base64-encoded Apple Distribution certificate `.p12`.
+- `IOS_CERTIFICATE_PASSWORD`: password that unlocks that `.p12`.
 
-On macOS, create the base64 values with `base64 -i path/to/file | pbcopy`. Never commit certificates, private keys, provisioning profiles, or decoded contents to the repository.
+Configure these repository variables or secrets:
 
-## Installing
+- `APPSTORE_API_KEY_ID`: App Store Connect API key ID.
+- `APPSTORE_ISSUER_ID`: App Store Connect issuer ID.
+- `APPLE_TEAM_ID`: 10-character Apple Developer Team ID.
 
-When the optional signing job succeeds, the release includes:
+The certificate-generation workflow also uses the App Store Connect API key to create an iOS Distribution certificate. Run **Actions → Tauri cross-platform builds and releases → Run workflow** and check **Generate the iOS distribution certificate and setup artifact only**. Download the short-lived `Schoology-iOS-Certificate-Setup` artifact securely, then set the two `IOS_CERTIFICATE_*` secrets from the generated text files. Do not commit or share the `.p12`, password, private key, or provisioning profile.
+
+`IOS_CERTIFICATE_PASSWORD` is the password for the exported iOS distribution `.p12`. It is not the App Store Connect API private key and is not the macOS certificate password.
+
+## Build and install
+
+On a normal push to `main`, the workflow builds Tauri desktop packages and Android APK, and attempts the optional Ad Hoc iOS build when signing is configured. The release contains versioned assets such as:
 
 - `Schoology-<version>-iOS-AdHoc.ipa`
-- `Schoology-<version>-iOS-AdHoc.plist` (Apple's OTA installation manifest)
+- `Schoology-<version>-iOS-AdHoc.plist` (Apple OTA install manifest)
 - `Schoology-<version>-iOS-Install-QR.png`
 
-Open the QR image on another screen and scan it with the iPhone camera. The release must be publicly accessible without signing into GitHub. The workflow validates that the exported IPA contains a profile with registered devices before it publishes the QR code.
+The release must be publicly accessible for over-the-air installation. Scan the QR code using the iPhone camera. The target device must be registered in the selected Ad Hoc profile. Apple also requires Developer Mode for running apps installed from an IPA: enable it in **Settings → Privacy & Security → Developer Mode**, restart, and confirm.
 
-## Developer Mode and trust
-
-Apple requires Developer Mode to run apps installed from an IPA, including this Ad Hoc build. On the iPhone, open **Settings → Privacy & Security → Developer Mode**, turn it on, restart, then confirm the prompt after restart. If Developer Mode is not visible yet, pair the iPhone with Xcode or initiate device setup first. The QR code cannot enable Developer Mode, register the iPhone, or bypass signing. The device must still be listed in the Ad Hoc provisioning profile. See [Apple's distribution guide](https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices) and [Developer Mode instructions](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device).
+To rebuild only the iOS Ad Hoc package, manually run the workflow with **Build only the iOS Ad Hoc package and publish its assets** enabled. This publishes the iOS assets without rebuilding the desktop/Android packages.
