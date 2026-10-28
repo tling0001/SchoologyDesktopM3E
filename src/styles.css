@@ -3364,3 +3364,197 @@ m3e-card.androidCommentCard[style*="--comment-depth"]{margin-left:0!important;ma
 @media(max-width:800px){.assignmentAndroidPage .assignmentPaneHeader{display:none!important}}
 @media(min-width:801px){.assignmentAndroidPage .assignmentPaneHeader{display:flex!important}}
 .resourcesAndroidPage{height:100%!important;min-height:0!important;overflow:auto!important}
+
+
+/* Shared post/comment actions ported onto the existing M3E surface. */
+.sharedPostCard{display:block;margin:0 0 12px;padding:14px;min-width:0;color:var(--md-sys-color-on-surface,#24313d);background:var(--md-sys-color-surface-container-low,#fafafa);border:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:16px}
+.sharedPostCard .activityHeader{display:flex;align-items:center;gap:10px;min-width:0}
+.sharedPostCard .activityUser{min-width:0;text-align:left}
+.sharedPostCard .activityBody{overflow-wrap:anywhere;white-space:pre-wrap;margin-top:10px}
+.sharedPostCard .activityMeta{padding:8px 0 0;color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedPostActions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 0 0!important}
+.sharedPostActions button,.sharedCommentActions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:5px 10px;border:1px solid var(--md-sys-color-outline-variant,#c8d0d8);border-radius:999px;background:var(--md-sys-color-surface-container,#f4f6f8);color:var(--md-sys-color-on-surface,#24313d);font:inherit;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.09)}
+.sharedPostActions button:focus-visible,.sharedCommentActions button:focus-visible{outline:2px solid var(--md-sys-color-primary,#2e66a3);outline-offset:2px}
+.sharedPostActions button[data-liked="1"]{background:var(--md-sys-color-secondary-container,#dce8f5);border-color:var(--md-sys-color-primary,#2e66a3)}
+.sharedActionIcon{width:17px;height:17px;flex:0 0 17px;display:block}
+.sharedPostActions .sharedPostLikeCount,.sharedPostActions .sharedPostCommentCount{min-width:42px}
+.sharedPostContext{font-size:12px;color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedPostInlineComments{margin:10px 0 0!important;padding:10px!important;border-top:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:0 0 12px 12px;background:var(--md-sys-color-surface-container-lowest,#fff)}
+.sharedCommentsList{min-width:0}
+.sharedCommentRow{padding:10px 0;border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dee2);overflow-wrap:anywhere}
+.sharedCommentHeading{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sharedCommentAuthor{padding:0;border:0;background:transparent;color:var(--md-sys-color-primary,#2e66a3);font:inherit;font-weight:600;cursor:pointer}
+.sharedCommentHeading small{color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedCommentBody{padding:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.sharedCommentActions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.sharedCommentActions button{min-height:28px;padding:3px 8px;font-size:12px;box-shadow:none}
+.sharedCommentActions .sharedCommentLikeCount{display:inline-flex;gap:5px;align-items:center}
+.sharedCommentInlineComposer{padding-top:12px}
+.sharedCommentInlineComposer textarea,.sharedComposerBody textarea{width:100%;min-height:90px;resize:vertical;padding:12px;border:1px solid var(--md-sys-color-outline,#aeb7c0);border-radius:12px;background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#24313d);font:inherit}
+.sharedCommentComposerActions{display:flex;justify-content:flex-end;gap:8px;padding-top:8px}
+.sharedCommentComposerActions button{border:1px solid var(--md-sys-color-outline-variant,#c8d0d8);border-radius:999px;padding:7px 12px;background:var(--md-sys-color-surface-container,#f4f6f8);color:var(--md-sys-color-on-surface,#24313d)}
+.sharedCommentComposerActions [data-shared-post-comment]{background:var(--md-sys-color-primary,#2e66a3);color:var(--md-sys-color-on-primary,#fff)}
+.sharedOverlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.42)}
+.sharedM3eDialog{display:block;width:min(620px,100%);max-height:min(86vh,760px);overflow:auto;--md-dialog-container-color:var(--md-sys-color-surface,#fff)}
+.sharedCommentsDialog{width:min(720px,100%)}
+.sharedCommentsDialogBody,.sharedLikeUsersBody{max-height:60vh;overflow:auto;padding:8px 0}
+.sharedM3eDialog .updateCommentsPanel{margin:0;padding:0;background:transparent;border:0}
+.sharedM3eDialog .sharedCommentRow[hidden]{display:none!important}
+.sharedPostCard .updateDeleteButton{margin-left:auto}
+
+html[data-theme-effective="dark"] .sharedPostCard,html[data-theme-effective="dark"] .sharedPostActions button,html[data-theme-effective="dark"] .sharedCommentActions button{background:var(--md-sys-color-surface-container-low,#20252b);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme-effective="dark"] .sharedPostInlineComments{background:var(--md-sys-color-surface-container-lowest,#171b20);border-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme-effective="dark"] .sharedCommentInlineComposer textarea,html[data-theme-effective="dark"] .sharedComposerBody textarea{background:var(--md-sys-color-surface,#171b20);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme="dark"] .sharedPostCard,html.dark .sharedPostCard{background:var(--md-sys-color-surface-container-low,#20252b);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme="dark"] .sharedPostActions button,html.dark .sharedPostActions button,html[data-theme="dark"] .sharedCommentActions button,html.dark .sharedCommentActions button{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme="dark"] .sharedPostInlineComments,html.dark .sharedPostInlineComments{background:var(--md-sys-color-surface-container-lowest,#171b20);border-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme="dark"] .sharedCommentInlineComposer textarea,html.dark .sharedCommentInlineComposer textarea,html[data-theme="dark"] .sharedComposerBody textarea,html.dark .sharedComposerBody textarea{background:var(--md-sys-color-surface,#171b20);color:var(--md-sys-color-on-surface,#e3e7eb)}
+.schoology-webview{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--md-sys-color-surface,#fff)}
+.embeddedPage{position:relative;width:100%;height:100%;min-height:0;overflow:hidden}
+.embeddedWebviewError{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;color:var(--md-sys-color-on-surface,#24313d);background:var(--md-sys-color-surface,#fff);height:100%}
+@media(prefers-reduced-motion:reduce){.sharedOverlay,.sharedM3eDialog{scroll-behavior:auto;animation:none!important;transition:none!important}}
+
+
+/* Native iOS/Android safe-area insets for the M3E shell and embedded WebView. */
+:root{--ios-status-bar-height:env(safe-area-inset-top,0px);--schoology-safe-area-top:env(safe-area-inset-top,0px)}
+html.iosAppSafeArea{--schoology-safe-area-top:var(--ios-status-bar-height)}
+html.androidAppSafeArea{--schoology-safe-area-top:max(env(safe-area-inset-top,0px),24px)}
+html.iosAppSafeArea,html.iosAppSafeArea body,html.iosAppSafeArea #app,html.androidAppSafeArea,html.androidAppSafeArea body,html.androidAppSafeArea #app{height:100%;min-height:100%;overflow:hidden}
+html.iosAppSafeArea .m3eShell,html.androidAppSafeArea .m3eShell{height:100dvh!important;min-height:0!important;box-sizing:border-box!important;padding-top:var(--schoology-safe-area-top)!important}
+html.iosAppSafeArea .m3eAppDrawerContainer,html.androidAppSafeArea .m3eAppDrawerContainer{height:calc(100dvh - var(--schoology-safe-area-top))!important;min-height:0!important}
+html.iosAppSafeArea .m3eShellMain,html.androidAppSafeArea .m3eShellMain{height:100%!important;min-height:0!important}
+.iosStatusBarInset,.androidStatusBarInset{position:fixed;top:0;left:0;right:0;min-height:0;background:#002137;z-index:2147483000;pointer-events:none}
+.iosStatusBarInset{height:var(--ios-status-bar-height)}
+.androidStatusBarInset{height:var(--schoology-safe-area-top)}
+html.iosAppSafeArea .embeddedPage,html.androidAppSafeArea .embeddedPage{height:100%;min-height:0}
+@media(prefers-reduced-motion:reduce){html.iosAppSafeArea *,html.androidAppSafeArea *{scroll-behavior:auto}}
+
+
+/* Student PDF annotation editor — isolated overlay; PDF and ink canvases share the same viewport. */
+.annotationEditorOverlay{position:fixed;inset:0;z-index:2147483600;background:rgba(9,18,28,.66);display:flex;align-items:stretch;justify-content:center;padding:12px;box-sizing:border-box;animation:annotationEditorFadeIn .16s ease-out}
+.annotationEditor{display:flex;flex-direction:column;width:min(1500px,100%);height:100%;min-height:0;background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#1b1b1f);border-radius:10px;overflow:hidden;box-shadow:0 16px 54px rgba(0,0,0,.35)}
+.annotationEditorToolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:56px;padding:8px 12px;background:#002137;color:#fff;flex:0 0 auto}
+.annotationEditorToolbar b{font-size:15px;font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:auto}
+.annotationEditorToolbar button{min-height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.28);border-radius:5px;background:transparent;color:#fff;font:inherit;cursor:pointer}
+.annotationEditorToolbar button.selected{background:#fff;color:#002137;border-color:#fff}
+.annotationEditorToolbar button:disabled{opacity:.4;cursor:default}
+.annotationEditorToolbar .annotationEditorSubmit{background:#fff;color:#002137;font-weight:600}
+.annotationEditorStatus{font-size:12px;opacity:.88;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.annotationEditorPages{flex:1;min-height:0;overflow:auto;padding:20px;background:#e8ebef;display:flex;flex-direction:column;align-items:center;gap:18px}
+.annotationEditorLoading,.annotationEditorError{margin:auto;padding:24px;max-width:520px;background:#fff;color:#263238;border-radius:8px;line-height:1.5}
+.annotationEditorError p{overflow-wrap:anywhere}
+.annotationPdfPage{position:relative;flex:none;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);line-height:0;max-width:100%}
+.annotationPdfCanvas{display:block;max-width:100%;height:auto}
+.annotationInkCanvas{position:absolute;inset:0;display:block;touch-action:none;cursor:crosshair;max-width:100%;height:auto}
+.annotationLaunchButton{border-color:#c8d8e7!important;background:#f3f8fc!important;color:#174a76!important}
+.annotationLaunchButton .attachmentFileIcon{font-size:22px}
+@keyframes annotationEditorFadeIn{from{opacity:0}to{opacity:1}}
+:root[data-reduced-motion="true"] .annotationEditorOverlay{animation:none!important}
+:root[data-reduced-motion="true"] *, :root[data-reduced-motion="true"] *::before, :root[data-reduced-motion="true"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+@media(max-width:760px){.annotationEditorOverlay{padding:0}.annotationEditor{border-radius:0}.annotationEditorToolbar{gap:4px;padding:6px}.annotationEditorToolbar b{max-width:130px}.annotationEditorStatus{order:2;flex-basis:100%;max-width:none}.annotationEditorToolbar button{font-size:12px;padding:0 7px}.annotationEditorPages{padding:8px}}
+
+
+/* Full-screen annotation workspace with a Schoology-style app bar and touch-friendly tool strip. */
+.annotationEditorOverlay{padding:0!important;background:var(--md-sys-color-surface-container-low,#f5f7fa)!important;z-index:2147483600}
+.annotationEditor{width:100%!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;box-shadow:none!important;background:var(--md-sys-color-surface-container-low,#f5f7fa)!important}
+.annotationEditorAppBar{display:flex;align-items:center;gap:8px;min-height:56px;padding:env(safe-area-inset-top) 12px 0;background:var(--md-sys-color-primary,#002137);color:#fff;flex:0 0 auto;box-sizing:content-box}
+.annotationBackButton{width:44px!important;min-width:44px;min-height:44px!important;padding:10px!important;border:0!important;background:transparent!important;color:inherit!important;display:grid;place-items:center}
+.annotationBackButton svg{width:24px;height:24px;fill:currentColor}
+.annotationDocumentTitle{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}
+.annotationDocumentTitle b{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.annotationDocumentTitle span{font-size:12px;font-weight:400;opacity:.82;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.annotationEditorAppBar button:not(.annotationBackButton){min-height:38px;padding:0 14px;border:0;border-radius:20px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.annotationEditorAppBar .annotationEditorSubmit{background:#fff!important;color:var(--md-sys-color-primary,#002137)!important}
+.annotationEditorToolRow{display:flex;align-items:center;gap:4px;min-height:64px;padding:6px 12px;background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#202124);border-bottom:1px solid var(--md-sys-color-outline-variant,#dce1e6);overflow-x:auto;flex:0 0 auto}
+.annotationEditorToolRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:62px;min-height:52px;padding:5px 9px;border:0;border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.annotationEditorToolRow button svg{width:22px;height:22px;fill:currentColor}
+.annotationEditorToolRow button span{font-size:11px;white-space:nowrap}
+.annotationEditorToolRow button.selected{background:var(--md-sys-color-secondary-container,#d9e8f8);color:var(--md-sys-color-on-secondary-container,#163a5b)}
+.annotationEditorToolRow button:disabled{opacity:.35}
+.annotationToolDivider{width:1px;height:34px;background:var(--md-sys-color-outline-variant,#dce1e6);margin:0 6px;flex:0 0 auto}
+.annotationEditorPages{background:var(--md-sys-color-surface-container-low,#eef1f5);padding:16px 10px calc(20px + env(safe-area-inset-bottom))}
+.annotationPdfPage{border-radius:2px}
+@media(max-width:760px){
+ .annotationEditorAppBar{gap:4px;padding-left:4px;padding-right:8px}
+ .annotationDocumentTitle b{font-size:14px}
+ .annotationEditorAppBar button:not(.annotationBackButton){min-height:36px;padding:0 11px;font-size:13px}
+ .annotationEditorToolRow{min-height:60px;padding:4px 6px}
+ .annotationEditorToolRow button{min-width:56px;min-height:50px}
+ .annotationEditorPages{padding:8px 4px calc(16px + env(safe-area-inset-bottom))}
+}
+:root[data-reduced-motion="true"] .annotationEditorOverlay{animation:none!important}
+
+
+
+html[data-theme-effective="dark"] .annotationEditor,html[data-theme-effective="dark"] .annotationEditorLoading,html[data-theme-effective="dark"] .annotationEditorError{background:var(--md-sys-color-surface,#202327);color:var(--md-sys-color-on-surface,#e6e8eb)}
+html[data-theme-effective="dark"] .annotationEditorToolRow{background:var(--md-sys-color-surface-container,#292f36);color:var(--md-sys-color-on-surface,#e6e8eb);border-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme-effective="dark"] .annotationEditorPages{background:var(--md-sys-color-surface-container-low,#20252b)}
+@media(prefers-reduced-motion:reduce){.annotationEditorOverlay{animation:none!important;transition:none!important}}
+
+
+.updatePoll{margin:8px 0;padding:10px;border:1px solid #d9dee4;border-radius:4px;background:#f7f9fb}
+.courseUpdateComposer{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.courseUpdateComposerInner{width:min(620px,90vw);background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:18px}
+.courseUpdateComposerInner h2{margin:0 0 12px}
+.courseUpdateComposerInner textarea{width:100%;min-height:150px;box-sizing:border-box;resize:vertical;border:1px solid #cfd6dd;border-radius:4px;padding:10px;font:inherit}
+.courseUpdateComposerInner>div{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+/* Shared post cards: compact two-comment preview, with the full thread still behind the count button. */
+.sharedPostCommentPreview{margin-top:8px;padding-top:7px;border-top:1px solid var(--md-sys-color-outline-variant,#e4e7eb);color:var(--md-sys-color-on-surface,#263238)}
+.sharedPostViewMore{display:block;margin:0 0 6px;padding:3px 0;border:0;background:transparent;color:var(--md-sys-color-primary,#2e66a3);font:inherit;font-size:13px;cursor:pointer}
+.sharedPostPreviewList .updateCommentsList{margin:0;padding:0}
+.sharedPostPreviewList .updateCommentComposer[hidden]{display:none!important}
+#assignmentActionMenu button,#submissionMenu button{display:block;width:100%;text-align:left}
+
+
+.sharedPostCommentPreview{margin:10px 0 0;padding-top:8px;border-top:1px solid var(--md-sys-color-outline-variant,#d9dee2)}
+.sharedPostPreviewComment{padding:7px 0;border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dee2);overflow-wrap:anywhere}
+.sharedPostPreviewComment:last-child{border-bottom:0}
+.sharedPostPreviewComment b{color:var(--md-sys-color-primary,#2e66a3);font-size:13px}
+.sharedPostPreviewBody{padding-top:3px;overflow-wrap:anywhere}
+.sharedPostPreviewComment small{color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedPostViewMore{border:0;background:transparent;color:var(--md-sys-color-primary,#2e66a3);padding:6px 0;font:inherit;font-size:13px;cursor:pointer}
+.updatePoll{margin:10px 0;padding:12px;border:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:12px;background:var(--md-sys-color-surface-container-low,#f7f9fb);color:var(--md-sys-color-on-surface,#283746)}
+.updatePollHeading{font-weight:600;margin-bottom:8px}
+.updatePollOption{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;text-align:left;padding:8px 10px;border:1px solid var(--md-sys-color-outline-variant,#d0d8df);border-radius:10px;background:var(--md-sys-color-surface,#fff);color:var(--md-sys-color-on-surface,#283746);cursor:pointer;min-height:44px;margin-top:6px}
+.updatePollOption.selected{border-color:var(--md-sys-color-primary,#2f6fa3);background:var(--md-sys-color-secondary-container,#edf6fc)}
+.updatePollOptionTitle{grid-column:1/-1}
+.updatePollTrack{height:6px;border-radius:4px;background:var(--md-sys-color-surface-container-high,#e1e6eb);overflow:hidden}
+.updatePollTrack span{display:block;height:100%;background:var(--md-sys-color-primary,#2f6fa3);border-radius:4px}
+.updatePollResult,.updatePoll small,.updatePollUnavailable{font-size:12px;color:var(--md-sys-color-on-surface-variant,#697783)}
+.updatePoll:not(.resultsVisible) .updatePollTrack,.updatePoll:not(.resultsVisible) .updatePollResult{display:none!important}
+.updatePoll:not(.resultsVisible) .updatePollOption{grid-template-columns:minmax(0,1fr)}
+html[data-theme-effective="dark"] .updatePoll{background:var(--md-sys-color-surface-container-low,#20252b);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme-effective="dark"] .updatePollOption{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme-effective="dark"] .updatePollOption.selected{background:var(--md-sys-color-secondary-container,#354b61)}
+html[data-theme-effective="dark"] .sharedPostPreviewComment{border-color:var(--md-sys-color-outline-variant,#454b52)}
+@media(prefers-reduced-motion:reduce){.sharedPostViewMore,.updatePollOption{transition:none!important}}
+
+.sharedCommentAvatar,.sharedLikeAvatar{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;overflow:hidden;border-radius:50%;background:var(--md-sys-color-secondary-container,#dce8f5);color:var(--md-sys-color-on-secondary-container,#163a5b);font-size:12px;font-weight:600}
+.sharedCommentAvatar img,.sharedLikeAvatar img{display:block;width:100%;height:100%;object-fit:cover}
+.sharedCommentHeading{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sharedCommentHeading .sharedCommentAvatar{margin-right:2px}
+.sharedCommentHeading small{margin-left:auto;font-size:11px}
+.sharedCommentHeading .groupAdminBadge{width:15px;height:17px;flex:0 0 auto}
+.sharedCommentBody.commentDeleted{font-style:italic;color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedLikeAvatar{width:36px;height:36px;min-width:36px}
+html[data-theme-effective="dark"] .sharedCommentAvatar,html[data-theme-effective="dark"] .sharedLikeAvatar{background:var(--md-sys-color-secondary-container,#354b61);color:var(--md-sys-color-on-secondary-container,#e0e8f0)}
+
+
+/* M3E-native searchable course/group member directory. */
+.m3ePeopleDirectory{min-width:0}
+.m3ePeopleDirectory .peopleDirectoryToolbar{display:flex;flex-direction:column;gap:10px;padding:4px 0 12px}
+.m3ePeopleDirectory .peopleDirectorySearchField{display:block;width:100%;max-width:none}
+.m3ePeopleDirectory .peopleDirectorySearchInput{width:100%;min-width:0}
+.m3ePeopleDirectory .peopleMemberFilterTabs{width:100%;min-width:0;overflow-x:auto}
+.m3ePeopleDirectory .peopleDirectoryList{min-width:0}
+.m3ePeopleDirectory .peopleListItem{min-width:0}
+.m3ePeopleDirectory .peopleAvatar{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;overflow:hidden;border-radius:50%;background:var(--md-sys-color-secondary-container,#dce8f5);color:var(--md-sys-color-on-secondary-container,#163a5b);font-size:13px;font-weight:600}
+.m3ePeopleDirectory .peopleAvatar img{width:100%;height:100%;object-fit:cover}
+.m3ePeopleDirectory .peopleMemberNameBlock{display:flex;flex-direction:column;min-width:0;gap:2px}
+.m3ePeopleDirectory .peopleMemberNameBlock b{overflow-wrap:anywhere}
+.m3ePeopleDirectory .peopleMemberNameBlock small,.m3ePeopleDirectory .peopleMemberRole{color:var(--md-sys-color-on-surface-variant,#68727c);font-size:12px}
+.m3ePeopleDirectory .peopleMemberAdminIcon .groupAdminBadge{width:17px;height:19px;display:block}
+.m3ePeopleDirectory .peopleAdminsSectionHeader{color:var(--md-sys-color-primary,#2e66a3);font-weight:700}
+html[data-theme-effective="dark"] .m3ePeopleDirectory .peopleAvatar{background:var(--md-sys-color-secondary-container,#354b61);color:var(--md-sys-color-on-secondary-container,#e0e8f0)}
+@media(max-width:600px){.m3ePeopleDirectory .peopleDirectoryToolbar{padding-inline:4px}.m3ePeopleDirectory .peopleMemberFilterTabs{max-width:100%}}

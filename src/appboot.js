@@ -60,7 +60,7 @@
     const reason=e&&e.reason;const msg=reason&&reason.stack?reason.stack:String(reason||'Unknown promise error');
     console.error('Schoology renderer promise error:',msg);showError('Schoology could not start',msg);
   });
-  if(!window.schoology){showError('Schoology could not start','The Electron authentication bridge is unavailable.');return;}
+  if(!window.schoology){showError('Schoology could not start','The Schoology application bridge is unavailable.');return;}
   const loadRenderer=()=>{
     const s=document.createElement('script');s.src='renderer.js';
     s.onload=()=>console.log('Schoology renderer loaded.');

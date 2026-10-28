@@ -1,8 +1,8 @@
 const app=document.getElementById('app');
 const A=window.schoology;
 if(!A){
-  app.innerHTML='<div class="fatal"><h2>Schoology</h2><p>The application interface could not initialize.</p><p>The Electron authentication bridge did not load.</p></div>';
-  throw new Error('Schoology preload bridge is unavailable');
+  app.innerHTML='<div class="fatal"><h2>Schoology</h2><p>The application interface could not initialize.</p><p>The Schoology application bridge did not load.</p></div>';
+  throw new Error('Schoology application bridge is unavailable');
 }
 const C={graphite:'#44505d',dark:'#22303e',blue:'#2e66a3',blueText:'#3183c8',bg:'#e7ebee',light:'#f4f5f5',white:'#fff',muted:'#868e96'};
 let qrStream=null;
@@ -37,7 +37,9 @@ if(!window.__schoologyDarkTextObserver){window.__schoologyDarkTextObserver=new M
 
 if(!window.__schoologyThemeMediaBound){window.__schoologyThemeMediaBound=true;window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(getThemeSettings().scheme==='auto')applyThemeToDocument()})}
 
-let state={screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',settingsPage:null,homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null,peopleEnabled:false,openSchoologyLinks:true,desktopNotifications:true,notificationSound:false,appVersion:''};
+let state={canadianInstance:false,screen:'login',school:null,schools:[],q:'',loading:false,error:'',auth:null,user:null,tab:'home',settingsPage:null,homeTab:'recent',searchToken:0,drawerPage:null,message:null,messageTab:'inbox',messageFolder:'inbox',messageThread:null,composeMessage:false,selectedCourse:null,mobileMe:null,courseDashboardEnabled:false,preferredHomepage:'recent',toolbarTitle:'Home',embeddedReturn:null,embeddedCanOpenExternal:false,homeUpcomingReturn:false,assignmentTab:'info',assignmentCanSubmit:false,assignmentIsTeacher:false,assignmentSubpage:null,submissionMenu:false,assignmentAllowComments:false,assignmentLandscape:false,folderId:0,folderStack:[],courseView:null,activityUsers:{},activityComments:null,currentFolderId:0,currentGroup:null,profileUser:null,profileTab:'updates',groupTab:'updates',resourceCollection:null,windowChromeOverlay:false,homeCreateMenu:false,calendarDate:null,calendarSelectedDate:null,calendarCanCreate:false,calendarEvents:[],calendarEventsMonth:'',calendarTab:'calendar',calendarUpcomingEvents:null,groupJoinOpen:false,embeddedTheme:'',profileReturn:null,peopleEnabled:false,openSchoologyLinks:true,desktopNotifications:true,notificationSound:false,appVersion:'',groupCanCreateDiscussion:false,groupCanPostUpdates:false,courseCanPostUpdates:false,assignmentSupportsAnnotations:false};
+A.getServerInstance?.().then(enabled=>{state.canadianInstance=!!enabled;const b=document.getElementById('switchCanada');if(b)b.textContent=state.canadianInstance?'Switch to app.schoology.com':'Switch to app.schoologyca.com'}).catch(()=>{});
+
 A.getOpenSchoologyLinks?.().then(v=>{state.openSchoologyLinks=v!==false}).catch(()=>{});
 A.getDesktopNotifications?.().then(v=>{state.desktopNotifications=v!==false}).catch(()=>{});
 A.getNotificationSound?.().then(v=>{state.notificationSound=v===true}).catch(()=>{});
@@ -130,14 +132,23 @@ function officialOrAssetIcon(name,alt=''){const embedded=officialIcon(name,alt);
 const originalM3IconMap={school:'ic_school.svg',qr_code_scanner:'ic_qr_code.svg',arrow_back:'ic_arrow_back_white_24dp.svg',search:'ic_search_list.svg',chevron_right:'ic_chevron.svg',menu:'ic_menu.svg',menu_open:'ic_menu.svg',add:'ic_add_white_24dp.svg',notifications:'ic_menu_notifications.svg',mail:'ic_menu_messages.svg',request_quote:'ic_menu_requests.svg',home:'ic_menu_home.svg',book:'ic_menu_courses.svg',groups:'ic_menu_groups.svg',folder:'ic_menu_resources.svg',assignment:'ic_menu_grades.svg',calendar_month:'ic_menu_calender.svg',settings:'ic_menu_account_settings.svg',logout:'ic_menu_logout.svg',refresh:'ic_action_refresh.png'};
 function originalM3Icon(name,alt=''){return officialOrAssetIcon(originalM3IconMap[name]||name,alt)}
 
-function render(){let h=state.message?messageDetail():state.screen==='login'?login():state.screen==='search'?schoolSearchScreen():state.screen==='credentials'?credentials():state.screen==='externalSelect'?externalSelect():state.screen==='qr'?qr():shell();app.innerHTML=h;bind();applyThemeToDocument();syncWindowChrome();return h}
+function syncIosStatusBarInset(){
+ const platform=A.platform||document.documentElement.dataset.electronPlatform||'';
+ const enabled=(platform==='ios'||platform==='android')&&state.screen==='app'&&!!app.querySelector('.m3eShell');
+ const ios=enabled&&platform==='ios',android=enabled&&platform==='android';
+ document.documentElement.classList.toggle('iosAppSafeArea',!!ios);
+ document.documentElement.classList.toggle('androidAppSafeArea',!!android);
+ app.querySelector('.iosStatusBarInset')?.remove();app.querySelector('.androidStatusBarInset')?.remove();
+ if(ios||android){const inset=document.createElement('div');inset.className=ios?'iosStatusBarInset':'androidStatusBarInset';inset.setAttribute('aria-hidden','true');app.prepend(inset)}
+}
+function render(){if(!state.embeddedTitle)window.dispatchEvent(new Event('schoology-close-embedded-webviews'));let h=state.message?messageDetail():state.screen==='login'?login():state.screen==='search'?schoolSearchScreen():state.screen==='credentials'?credentials():state.screen==='externalSelect'?externalSelect():state.screen==='qr'?qr():shell();app.innerHTML=h;bind();applyThemeToDocument();syncIosStatusBarInset();syncWindowChrome();return h}
 function syncWindowChrome(){if(A.platform!=='win32'&&A.platform!=='linux')return;let color='#002137';if(state.screen!=='app'){color='#002137'}else if(document.getElementById('appDrawerContainer')?.start)color='#002137';A.setWindowChrome?.({color,symbolColor:'#ffffff',height:56}).catch?.(()=>{})}
 function m3eTheme(content,extraClass=''){const t=getThemeSettings();return `<m3e-theme class="m3eRoot ${extraClass}" color="${esc(t.color)}" variant="${esc(t.variant)}" scheme="${esc(t.scheme)}" contrast="${esc(t.contrast)}" motion="${esc(t.motion)}" strong-focus>${content}</m3e-theme>`;}
 function login(){return m3eTheme(`<main class="m3eLogin loginAnimated"><img class="m3eLoginLogo" src="${themeLogoSrc()}" alt="Schoology"><div class="m3eLoginActions">
   <m3e-button id="schoolLogin" variant="filled" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("school")}</span>Log in through your School</m3e-button>
   <m3e-button id="continueSchoology" variant="tonal" size="large" class="m3eLoginButton"><img src="${themeLogoSrc()}" class="m3eButtonLogo" slot="icon" alt="">Log in using schoology.com</m3e-button>
   <m3e-button id="qrLogin" variant="outlined" size="large" class="m3eLoginButton"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button>
-</div><m3e-button id="loginHelp" class="m3eLoginHelp" variant="text" size="medium">I need help signing in</m3e-button>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eLoginScreen');}
+</div>${typeof A.getServerInstance==='function'?`<m3e-button id="switchCanada" class="m3eLoginHelp" variant="text" size="medium">${state.canadianInstance?'Switch to app.schoology.com':'Switch to app.schoologyca.com'}</m3e-button>`:''}<m3e-button id="loginHelp" class="m3eLoginHelp" variant="text" size="medium">I need help signing in</m3e-button>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eLoginScreen');}
 function schoolSearchScreen(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">School</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><div class="m3eSearchArea"><m3e-search-view id="schoolSearchView" mode="docked" contained open clear-label="Clear school search" close-label="Close school search"><span class="m3eOriginalIcon">${originalM3Icon("search")}</span><input id="schoolSearch" slot="input" autocomplete="off" placeholder="Enter your School or domain" value="${esc(state.q)}"><m3e-list variant="segmented" id="schoolSuggestions"></m3e-list></m3e-search-view><div id="schoolSearchStatus" class="m3eSearchStatus"></div></div>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eSearchScreen');}
 function credentials(){return m3eTheme(`<main class="m3eLogin loginAnimated"><m3e-app-bar size="small" class="m3eLoginAppBar"><m3e-icon-button id="back" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon("arrow_back")}</span></m3e-icon-button><span slot="title">Log in using schoology.com</span></m3e-app-bar><img class="m3eLoginLogo m3eLoginLogoSmall" src="${themeLogoSrc()}" alt="Schoology"><form id="credentialForm" class="m3eCredentialForm"><div class="m3eCredentialSchool">${state.school?`<span class="m3eOriginalIcon">${originalM3Icon("school")}</span><span>${esc(state.school.title||'School')}</span>`:'<m3e-heading variant="title" size="medium">Log in using schoology.com</m3e-heading>'}</div><m3e-form-field variant="outlined"><label slot="label" for="user">Username or Email</label><input id="user" autocomplete="username"></m3e-form-field><m3e-form-field variant="outlined"><label slot="label" for="pass">Password</label><input id="pass" type="password" autocomplete="current-password"></m3e-form-field><m3e-button id="signIn" type="submit" variant="filled" size="large">Login</m3e-button><m3e-button id="qrLogin" type="button" variant="outlined" size="medium"><span class="m3eOriginalIcon">${originalM3Icon("qr_code_scanner")}</span>Sign in with a QR code</m3e-button></form>${state.error?`<div class="m3eLoginError" role="alert">${esc(state.error)}</div>`:''}</main>`,'m3eCredentialsScreen');}
 function externalSelect(){
@@ -372,6 +383,7 @@ function bind(){
   installSplitPaneTrackObserver();
   document.getElementById('composeMessage')?.addEventListener('click',()=>showComposeMessage());document.getElementById('joinGroup')?.addEventListener('click',showJoinGroupDialog);
   document.getElementById('toolbarBack')?.addEventListener('click',()=>navigateBack());
+  document.getElementById('switchCanada')?.addEventListener('click',async()=>{try{state.canadianInstance=await A.setServerInstance(!state.canadianInstance);state.schools=[];state.q='';state.error='';state.searchToken++;render()}catch(error){showAppDialog('Unable to switch Schoology instance',error?.message||String(error))}});
   document.getElementById('loginHelp')?.addEventListener('click',()=>A.openExternal('https://docs.powerschool.com/SGYH/en/students/schoology-mobile-apps/logging-into-the-schoology-mobile-app-students').catch(e=>{state.error=e.message||'Unable to open the sign-in help page.';render()}));
   const schoolBtn=document.getElementById('schoolLogin');if(schoolBtn)schoolBtn.onclick=()=>{state.error='';state.q='';state.schools=[];state.screen='search';render();document.getElementById('schoolSearch')?.focus()};
   const accountBtn=document.getElementById('continueSchoology');if(accountBtn)accountBtn.onclick=()=>{state.error='';state.school=null;state.screen='credentials';render();document.getElementById('user')?.focus()};
@@ -640,7 +652,11 @@ function syncToolbar(){
   }else if(state.assignmentView&&state.assignmentIsTeacher&&state.assignmentSubpage==='teacherSubmission'){
     slot.innerHTML=`<m3e-icon-button id="assignmentSaveGrade" aria-label="Save grade"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_post_checkmark_divider.png','Save')}</span></m3e-icon-button>`;
     document.getElementById('assignmentSaveGrade')?.addEventListener('click',()=>document.getElementById('saveTeacherGrade')?.click());
-  }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='updates'){
+  }else if(state.currentGroup&&state.tab==='groups'&&!state.embeddedTitle&&!state.assignmentView){
+    const gid=state.currentGroup.id||state.currentGroup.group_id;
+    if(state.groupTab==='updates'&&state.groupCanPostUpdates){slot.innerHTML='<m3e-fab id="groupUpdateCreatePlus" variant="primary-container" aria-label="Post update"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>';document.getElementById('groupUpdateCreatePlus')?.addEventListener('click',()=>{if(gid)openGroupUpdateComposer(gid)})}
+    else if(state.groupTab==='discussions'&&state.groupCanCreateDiscussion){slot.innerHTML='<m3e-fab id="groupDiscussionCreatePlus" variant="primary-container" aria-label="Create discussion"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>';document.getElementById('groupDiscussionCreatePlus')?.addEventListener('click',()=>{if(gid)showCreatePostDialog('discussion','groups',gid)})}
+  }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='updates'&&state.courseCanPostUpdates){
     slot.innerHTML=`<m3e-fab id="courseUpdatePlus" variant="primary-container" aria-label="Post update"><m3e-icon name="add" variant="outlined"></m3e-icon></m3e-fab>`;
     document.getElementById('courseUpdatePlus')?.addEventListener('click',()=>state.selectedCourse&&openCourseUpdateComposer(state.selectedCourse));
   }else if(state.courseView&&!state.assignmentView&&!state.embeddedTitle&&!state.currentGroup&&!state.profileUser&&state.courseTab==='materials'){
@@ -717,15 +733,14 @@ function navigateBack(){
 }
 async function getCourseNavigationPermissions(sectionId,userId){
  if(!sectionId||!userId)throw new Error('Missing course/user ID');
- const request=[`/v1/sections/${sectionId}/grades`,`/v1/users/${userId}/grades`,`/v1/sections/${sectionId}/attendance`];
+ const request=['/v1/sections/'+sectionId+'/grades','/v1/users/'+userId+'/grades','/v1/sections/'+sectionId+'/attendance','/v1/sections/'+sectionId+'/updates'];
  const x=await A.api({path:'multioptions',method:'POST',params:{request}});
  const list=Array.isArray(x?.response)?x.response:(Array.isArray(x?.responses)?x.responses:[]);
- const by={};
- for(const r of list){if(r?.location)by[String(r.location)]=String(r.body||'').toLowerCase()}
- const sectionGradeBody=by[`/v1/sections/${sectionId}/grades`]||'';
- const userGradeBody=by[`/v1/users/${userId}/grades`]||'';
- const attendanceBody=by[`/v1/sections/${sectionId}/attendance`]||'';
- return {sectionGradesPut:sectionGradeBody.includes('put'),userGradesGet:userGradeBody.includes('get'),attendanceGet:attendanceBody.includes('get')};
+ const by={};for(const row of list){if(!row?.location)continue;let body=row.body??'';by[String(row.location)]=(typeof body==='string'?body:JSON.stringify(body)).toLowerCase()}
+ const sectionGradeBody=by['/v1/sections/'+sectionId+'/grades']||'',userGradeBody=by['/v1/users/'+userId+'/grades']||'',attendanceBody=by['/v1/sections/'+sectionId+'/attendance']||'',updatesBody=by['/v1/sections/'+sectionId+'/updates']||'';
+ const sectionUpdatesPost=/\bpost\b/i.test(updatesBody);
+ if(state.courseView==='course'&&String(state.selectedCourse?.id||state.selectedCourse?.section_id||state.selectedCourse?.sectionId)===String(sectionId)){state.courseCanPostUpdates=sectionUpdatesPost;syncToolbar()}
+ return {sectionGradesPut:sectionGradeBody.includes('put'),userGradesGet:userGradeBody.includes('get'),attendanceGet:attendanceBody.includes('get'),sectionUpdatesPost};
 }
 
 async function showCourse(course,activeTab='materials',forceRebuild=false){
@@ -747,7 +762,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    await loadCourseTab(course,tab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
    return;
  }
- state.selectedCourse=course;state.courseView='course';state.courseTab=activeTab;state.folderStack=[];state.currentFolderId=0;state.assignmentView=null;state.embeddedTitle=null;
+ state.courseCanPostUpdates=false;state.selectedCourse=course;state.courseView='course';state.courseTab=activeTab;state.folderStack=[];state.currentFolderId=0;state.assignmentView=null;state.embeddedTitle=null;
  state.toolbarTitle=sectionTitleOf(course)||courseTitleOf(course);syncToolbar();
  const title=courseTitleOf(course), section=sectionTitleOf(course);
  const image=normalizeImageUrl(course.profile_url||course.profileUrl||course.course_profile_url||course.courseProfileUrl||course.course_theme||course.courseTheme||course.image||course.course_image||'');
@@ -755,7 +770,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  // Mount the Android-like course shell immediately. Network-dependent metadata and
  // permissions are hydrated after the page is visible so slow connections show the
  // native loading indicators instead of blocking navigation.
- const initialTabs=[['materials','Materials'],['updates','Updates'],...(landscape?[]:[['upcoming','Upcoming']]),['grades','Grades'],['attendance','Attendance'],...(landscape?[]:[['courseapp','Course App']])];
+ const initialTabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming']]),['grades','Grades'],['attendance','Attendance'],...(landscape?[]:[['courseapp','Course App']])];
  let effectiveTab=activeTab;
  if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
  if(landscape&&effectiveTab==='courseapp')effectiveTab='materials';
@@ -803,7 +818,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    const school=await resolveCourseSchoolName(sectionDetail||course)||schoolFromList;
    if(renderToken!==courseRenderToken||state.screen!=='app'||state.courseView!=='course'||state.selectedCourse!==course)return;
    const canGradebook=!!navPerms?.sectionGradesPut, canGrades=!!navPerms?.userGradesGet, attendanceEnabled=!!navPerms?.attendanceGet;
-   const tabs=[['materials','Materials'],['updates','Updates'],...(landscape?[]:[['upcoming','Upcoming']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[]),...(landscape?[]:[['courseapp','Course App']])];
+   const tabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[]),...(landscape?[]:[['courseapp','Course App']])];
    effectiveTab=activeTab;
    if(effectiveTab==='grades'&&canGradebook)effectiveTab='gradebook';
    if(effectiveTab==='gradebook'&&!canGradebook)effectiveTab='grades';
@@ -881,9 +896,37 @@ function showAssignmentAttachmentDialog(attachments){
   }));
   wrapper.addEventListener('click',event=>{if(event.target===wrapper)close()});
 }
+function collectAssignmentAttachments(a){
+  const out=[],seen=new Set();
+  const add=(kind,v)=>{if(!v||typeof v!=='object')return;const id=String(v.id||v.file_id||v.fileId||v.link_id||v.linkId||v.url||v.href||v.title||'');const key=kind+':'+id;if(seen.has(key))return;seen.add(key);out.push({kind,...v});};
+  const walk=v=>{if(!v)return;if(Array.isArray(v)){v.forEach(walk);return}if(typeof v!=='object')return;
+    const files=v.files?.file||v.files?.list||v.files||v.file; if(files){for(const f of (Array.isArray(files)?files:(files.file||files.list||[files])))add('file',f)}
+    const links=v.links?.link||v.links||v.link; if(links){for(const l of (Array.isArray(links)?links:(links.link||links.list||[links])))add('link',l)}
+    const videos=v.videos?.video||v.videos||v.video; if(videos){for(const x of (Array.isArray(videos)?videos:(videos.video||videos.list||[videos])))add('video',x)}
+    const embeds=v.embeds?.embed||v.embeds||v.embed; if(embeds){for(const x of (Array.isArray(embeds)?embeds:(embeds.embed||embeds.list||[embeds])))add('embed',x)}
+    const tools=v.external_tools?.external_tool||v.external_tools||v.external_tool||v.externalTool||v.tools;if(tools){for(const x of (Array.isArray(tools)?tools:(tools.external_tool||tools.list||[tools])))add('external_tool',x)}
+    const t=String(v.type||v.attachmentType||v.attachment_type||'').toLowerCase();if(t==='file'||v.download_path||v.downloadPath||v.resolveDownloadUrl)add('file',v);if(t==='link'||v.linkURL||v.linkUrl)add('link',v);if(['external_tool','externaltool','lti'].includes(t)||v.launch_url||v.launchUrl)add('external_tool',v);
+    for(const k of ['attachment','attachments','files','links','videos','embeds','external_tools','external_tool','tools','file','link','video','embed'])if(v[k]&&v[k]!==a)walk(v[k]);
+  };walk(a);return out;
+}
+async function schoologyAssignmentSupportsAnnotations(sectionId,assignmentId){
+  if(!sectionId||!assignmentId||!A.annotationRequest)return false;
+  try{
+    const isCa=await A.getServerInstance?.().catch(()=>false);
+    const host=isCa?'api.schoologyca.com':'api.schoology.com';
+    const result=await A.annotationRequest({url:'https://'+host+'/v2/sections/'+encodeURIComponent(sectionId)+'/assignments/'+encodeURIComponent(assignmentId)});
+    const actions=result?.['@actions']||result?.actions||[];
+    const hasAction=type=>Array.isArray(actions)&&actions.some(action=>{
+      const types=Array.isArray(action?.['@type'])?action['@type']:[action?.['@type']||action?.type];
+      return types.includes(type)&&!!(action?.['@href']||action?.href);
+    });
+    return hasAction('assignment:startAssignment')||hasAction('assignment:restoreAssignment');
+  }catch(error){console.debug('Could not verify Schoology annotation availability:',error);return false;}
+}
+
 async function showAssignment(sectionId,assignmentId){
   const c=document.getElementById('content'); if(!c)return;
-  state.toolbarTitle='Assignment'; state.screen='app'; state.assignmentView={sectionId,assignmentId}; state.courseView='course'; state.assignmentTab='info'; state.assignmentCanSubmit=false; state.assignmentIsTeacher=false; state.assignmentSubpage=null; state.submissionMenu=false; state.assignmentAllowComments=false; state.assignmentLandscape=window.matchMedia('(min-width: 801px)').matches; syncToolbar();
+  state.assignmentSupportsAnnotations=false;state.toolbarTitle='Assignment'; state.screen='app'; state.assignmentView={sectionId,assignmentId}; state.courseView='course'; state.assignmentTab='info'; state.assignmentCanSubmit=false; state.assignmentIsTeacher=false; state.assignmentSubpage=null; state.submissionMenu=false; state.assignmentAllowComments=false; state.assignmentLandscape=window.matchMedia('(min-width: 801px)').matches; syncToolbar();
   c.innerHTML=`<section class="assignmentPage"><div class="assignmentLoading loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading assignment…</span></div></section>`;
   try{
     const uid=state.auth?.userId||state.auth?.user?.id;
@@ -915,10 +958,12 @@ async function showAssignment(sectionId,assignmentId){
     }catch{}
     const canSubmit=flag(at.allow_dropbox)||flag(at.allowDropbox)||flag(at.allow_submission)||flag(at.allowSubmission)||flag(gradeItem.allow_dropbox)||flag(gradeItem.allowDropbox)||flag(gradeItem.allow_submission)||flag(gradeItem.allowSubmission);
     const allowComments=flag(at.allow_discussion)||flag(at.allowDiscussion)||flag(gradeItem.allow_discussion)||flag(gradeItem.allowDiscussion);
+    const annotationFiles=collectAssignmentAttachments(attachments).filter(file=>{const name=String(file.filename||file.fileName||file.title||file.fileTitle||''),mime=String(file.filemime||file.fileMIME||file.mime||'').toLowerCase();return !!(file.id||file.file_id||file.fileId)&&(mime.includes('pdf')||/\.pdf$/i.test(name))&&!!(file.file_download_url||file.fileDownloadURL||file.download_path||file.downloadPath||file.download_url||file.downloadUrl||file.url||file.resolveDownloadUrl||file.resolve_download_url)});
+    const supportsAnnotations=canSubmit&&!isTeacher&&await schoologyAssignmentSupportsAnnotations(sectionId,assignmentId);
     let assignmentGrade={};
     if(uid){try{const gr=await A.api({path:`sections/${sectionId}/grades`,params:{assignment_id:gradeItem.id||assignmentId,enrollment_id:(myEnrollment.id||undefined)}});assignmentGrade=(gr.grades?.grade||gr.grade||[])[0]||{}}catch{}}
     const resolvedGradeItemId=Number(gradeItem.id||gradeItem.grade_item_id||gradeItem.gradeItemId||gradeItem.gradeitem_id||gradeItem.gradeItemID||assignmentId)||Number(assignmentId);
-    state.assignmentCanSubmit=canSubmit; state.assignmentIsTeacher=isTeacher; state.assignmentAllowComments=allowComments; state.assignmentData={...at,__gradeItemId:resolvedGradeItemId}; state.assignmentEnrollmentId=myEnrollment.id||null;
+    state.assignmentCanSubmit=canSubmit; state.assignmentIsTeacher=isTeacher; state.assignmentSupportsAnnotations=supportsAnnotations; state.assignmentAllowComments=allowComments; state.assignmentData={...at,__gradeItemId:resolvedGradeItemId,__annotationFiles:annotationFiles}; state.assignmentEnrollmentId=myEnrollment.id||null;
     const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs assignmentTabsM3e"><m3e-tab class="assignmentTab" data-assignment-tab="info" selected>Info</m3e-tab>${allowComments?`<m3e-tab class="assignmentTab" data-assignment-tab="comments">Comments</m3e-tab>`:''}${!state.assignmentLandscape&&canSubmit?`<m3e-tab class="assignmentTab" data-assignment-tab="submit">${isTeacher?'Grade Submissions':'Submissions'}</m3e-tab>`:''}</m3e-tabs>`;
     if(state.assignmentLandscape&&canSubmit){
       c.innerHTML=`<section class="assignmentAndroidPage assignmentLandscapePage"><m3e-split-pane orientation="horizontal" class="assignmentLandscapeSplit" data-persist-key="assignment-${esc(sectionId)}-${esc(assignmentId)}" value="70.833" min="35" max="85" step="1" label="Resize assignment information and submissions"><section slot="start" class="assignmentInfoPane">${tabs}<div id="assignmentTabContent" class="assignmentTabContent"></div></section><aside slot="end" class="assignmentSubmissionsPane"><div class="assignmentPaneHeader">${isTeacher?'Submissions':'Submissions'}</div><div id="assignmentSubmissionsPane" class="assignmentSubmissionsContent"></div></aside></div></section>`;
@@ -1060,7 +1105,8 @@ async function openAssignmentSubmissions(sectionId,assignmentId,assignment,isTea
       let subs={};
       try{subs=await A.api({path:`sections/${sectionId}/submissions/${gradeItemId}/${uid}`,params:{with_attachments:'TRUE',all_revisions:'TRUE',start:0,limit:200}})}catch(e){subs={};}
       const g=(grades.grades?.grade||grades.grade||[])[0]||{};const revsRaw=subs.revision||subs.revisions||subs.data?.revision||subs.data?.revisions||[];const revs=Array.isArray(revsRaw)?revsRaw.slice():[];revs.sort((a,b)=>Number(b.revision_id??b.revisionId??b.id??0)-Number(a.revision_id??a.revisionId??a.id??0));
-      const revisionHtml=revs.length?revs.map(r=>{const rid=r.revision_id??r.revisionId??r.id??'';const status=String(r.draft)==='1'?'Draft':String(r.late)==='1'?'Late':'On time';return `<m3e-card variant="filled" class="submissionRevisionCard"><div slot="content"><div class="submissionRevisionHeader"><m3e-heading variant="title" size="medium">Revision ${esc(rid)}</m3e-heading><m3e-heading variant="label" size="small" class="revisionStatus ${String(r.late)==='1'?'late':''}">${status}</m3e-heading></div><m3e-heading variant="body" size="small">${esc(formatSchoologyDate(r.created||''))}</m3e-heading><m3e-divider></m3e-divider>${renderAttachments(r.attachments||{}, {sectionId,gradeItemId,userId:uid,revisionId:rid,submissionId:r.submission_id||r.submissionId||r.sub_id||''})}</div></m3e-card>`}).join(''):'<m3e-card variant="filled" class="gradeEmptyCard"><m3e-heading variant="body" size="medium">You haven’t made any submissions.</m3e-heading></m3e-card>';
+      const annotationAllowed=await schoologyAssignmentSupportsAnnotations(sectionId,assignmentId);
+      const revisionHtml=revs.length?revs.map(r=>{const rid=r.revision_id??r.revisionId??r.id??'';const status=String(r.draft)==='1'?'Draft':String(r.late)==='1'?'Late':'On time';return `<m3e-card variant="filled" class="submissionRevisionCard"><div slot="content"><div class="submissionRevisionHeader"><m3e-heading variant="title" size="medium">Revision ${esc(rid)}</m3e-heading><m3e-heading variant="label" size="small" class="revisionStatus ${String(r.late)==='1'?'late':''}">${status}</m3e-heading></div><m3e-heading variant="body" size="small">${esc(formatSchoologyDate(r.created||''))}</m3e-heading><m3e-divider></m3e-divider>${renderAttachments(r.attachments||{}, {sectionId,assignmentId,gradeItemId,userId:uid,revisionId:rid,submissionId:r.submission_id||r.submissionId||r.sub_id||'',allowAnnotation:annotationAllowed})}</div></m3e-card>`}).join(''):'<m3e-card variant="filled" class="gradeEmptyCard"><m3e-heading variant="body" size="medium">You haven’t made any submissions.</m3e-heading></m3e-card>';
       const gradeComment=typeof g.comment==='string'?g.comment:(g.comment?.comment||g.comment?.body||'');
       c.innerHTML=`<section class="gradeDropboxAndroid studentSubmissionAndroid m3eSubmissionsView"><m3e-card variant="filled" class="submissionHeaderCard"><div slot="content"><m3e-heading variant="title" size="large">${esc(assignment.title||'Assignment')}</m3e-heading><m3e-heading variant="label" size="medium">${esc((g.grade??'—')+(assignment.max_points!=null?` / ${assignment.max_points}`:''))}</m3e-heading></div></m3e-card>${gradeComment?`<m3e-card variant="outlined" class="studentOverallComment"><m3e-heading variant="label" size="large">Overall Comment</m3e-heading><p>${esc(gradeComment)}</p></m3e-card>`:''}<m3e-heading variant="title" size="large" class="submissionSectionTitle">Your Submissions</m3e-heading><div class="submissionRevisionList">${revisionHtml}</div></section>`;
       await hydrateMediaImages(c);
@@ -1086,12 +1132,32 @@ async function openTeacherSubmission(sectionId,gradeItemId,assignment,userId,enr
 function showSubmissionMenu(){
   const old=document.getElementById('submissionMenu');old?.remove();
   const plus=document.getElementById('assignmentPlus');if(!plus)return;
-  const menu=createFabMenuFor('assignmentPlus','submissionMenu',`<m3e-fab-menu-item id="uploadSubmissionAction">Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionAction">Create Text Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionCommentAction">Create Comment</m3e-fab-menu-item>`);if(!menu)return;
+  const menu=createFabMenuFor('assignmentPlus','submissionMenu',`<m3e-fab-menu-item id="uploadSubmissionAction">Upload Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionAction">Create Text Submission</m3e-fab-menu-item><m3e-fab-menu-item id="textSubmissionCommentAction">Create Comment</m3e-fab-menu-item>${state.assignmentSupportsAnnotations?'<m3e-fab-menu-item id="annotatedSubmissionAction">Create annotated submission</m3e-fab-menu-item>':''}`);if(!menu)return;
   document.getElementById('uploadSubmissionAction')?.addEventListener('click',()=>{menu.hide?.();showAssignmentAttachmentChooser()});
   document.getElementById('textSubmissionAction')?.addEventListener('click',()=>{menu.hide?.();openTextSubmissionComposer()});
   document.getElementById('textSubmissionCommentAction')?.addEventListener('click',()=>{menu.hide?.();openAssignmentCommentComposer(state.assignmentView.sectionId,state.assignmentView.assignmentId,'0')});
+  document.getElementById('annotatedSubmissionAction')?.addEventListener('click',()=>{menu.hide?.();openAnnotatedSubmissionPicker()});
 }
 
+function openAnnotatedSubmissionPicker(){
+ const assignment=state.assignmentData||{},files=assignment.__annotationFiles||[];
+ if(!state.assignmentSupportsAnnotations||!files.length){showAppDialog('Annotated submission unavailable','This assignment does not currently provide a supported PDF for annotated submissions.');return;}
+ const openFile=async file=>{
+  const fileId=file.id||file.file_id||file.fileId;
+  const pdfUrl=file.file_download_url||file.fileDownloadURL||file.download_path||file.downloadPath||file.download_url||file.downloadUrl||file.url||file.resolveDownloadUrl||file.resolve_download_url;
+  if(!fileId||!pdfUrl){showAppDialog('Annotated submission unavailable','Schoology did not provide the PDF file details required to annotate this submission.');return;}
+  if(!window.schoologyAnnotationEditor?.open){showAppDialog('Annotation unavailable','The PDF annotation editor did not load.');return;}
+  try{await window.schoologyAnnotationEditor.open({sectionId:state.assignmentView.sectionId,assignmentId:state.assignmentView.assignmentId,fileId:String(fileId),fileType:file.fileType||file.file_type||file.filemime||file.fileMIME||'application/pdf',pdfUrl,filename:file.title||file.fileTitle||file.filename||file.fileName||'Assignment PDF',onSubmitted:async()=>{await openAssignmentSubmissions(state.assignmentView.sectionId,state.assignmentView.assignmentId,state.assignmentData||{},false)}})}
+  catch(error){showAppDialog('Unable to open annotation editor',error?.message||String(error))}
+ };
+ if(files.length===1){void openFile(files[0]);return;}
+ const old=document.getElementById('annotatedSubmissionPicker');old?.remove();
+ const wrap=document.createElement('div');wrap.id='annotatedSubmissionPicker';wrap.className='appDialogOverlay';
+ wrap.innerHTML='<section class="appDialog assignmentAttachmentDialog" role="dialog" aria-modal="true"><h2>Create annotated submission</h2><div class="assignmentAttachmentList">'+files.map((f,i)=>'<button type="button" class="assignmentAttachmentRow" data-annotated-file="'+i+'"><span class="assignmentAttachmentName">'+esc(f.title||f.fileTitle||f.filename||f.fileName||'Assignment PDF')+'</span></button>').join('')+'</div><div class="appDialogActions"><button type="button" data-annotated-cancel>Cancel</button></div></section>';
+ document.body.appendChild(wrap);wrap.classList.add('open');
+ wrap.querySelector('[data-annotated-cancel]')?.addEventListener('click',()=>wrap.remove());
+ wrap.querySelectorAll('[data-annotated-file]').forEach(button=>button.addEventListener('click',async()=>{const file=files[Number(button.dataset.annotatedFile)];wrap.remove();if(file)await openFile(file)}));
+}
 function showAssignmentAttachmentChooser(){
   document.getElementById('assignmentUploadSubmissionDialog')?.remove();
   const wrap=document.createElement('div');wrap.id='assignmentUploadSubmissionDialog';wrap.className='assignmentSubmissionDialogOverlay';
@@ -1166,6 +1232,11 @@ function renderAttachments(a,submissionContext=null){
     const mime=f.filemime||f.fileMIME||f.converted_filemime||f.convertedFileMime||'application/octet-stream';
     const ctx=submissionContext&&f?.id?' data-submission-file-id="'+esc(f.id)+'" data-submission-revision-id="'+esc(submissionContext.revisionId||'')+'" data-submission-submission-id="'+esc(submissionContext.submissionId||'')+'" data-submission-section-id="'+esc(submissionContext.sectionId||'')+'" data-submission-grade-item-id="'+esc(submissionContext.gradeItemId||'')+'" data-submission-user-id="'+esc(submissionContext.userId||'')+'"':'';
     rows.push('<m3e-list-action class="attachmentSegmentedItem fileAttachment" tabindex="0" data-download-url="'+esc(url)+'" data-download-name="'+esc(title)+'" data-download-mime="'+esc(mime)+'"'+ctx+'><span slot="leading" class="attachmentFileIcon"><img src="'+localAttachmentIcon(mimeIconForFilename(title,mime))+'" alt=""></span><span class="attachmentFileText"><b>'+esc(title)+'</b><small>'+esc((mime||'File').split('/').pop().toUpperCase())+'</small></span><span slot="trailing" class="attachmentDownloadIcon"><img src="'+localAttachmentIcon('ic_action_download.png')+'" alt=""></span></m3e-list-action>');
+    const fileId=f?.id||f?.file_id||f?.fileId;
+    if(submissionContext?.allowAnnotation&&fileId&&(String(mime).toLowerCase().includes('pdf')||/\.pdf$/i.test(title))){
+      rows.push('<m3e-list-action class="attachmentSegmentedItem annotationLaunchButton" tabindex="0" data-annotate-pdf data-annotate-url="'+esc(url)+'" data-annotate-file-id="'+esc(fileId)+'" data-annotate-file-type="'+esc(f.fileType||f.file_type||mime)+'" data-annotate-name="'+esc(title)+'" data-annotate-section-id="'+esc(submissionContext.sectionId||'')+'" data-annotate-assignment-id="'+esc(submissionContext.assignmentId||submissionContext.gradeItemId||'')+'"><span slot="leading" class="m3eOriginalIcon">'+originalM3Icon('edit')+'</span><span class="attachmentFileText"><b>Annotate PDF</b><small>'+esc(title)+'</small></span><span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>');
+    }
+
   };
   const addLink=(url,title)=>{if(url)rows.push('<m3e-list-action class="attachmentSegmentedItem" tabindex="0" data-open-url="'+esc(url)+'"><span slot="leading" class="m3eOriginalIcon">'+originalM3Icon('link')+'</span><span>'+esc(title||url)+'</span><span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>')};
   const walk=(v)=>{
@@ -1192,6 +1263,7 @@ async function hydrateMediaImages(root=document){
     const u=el.getAttribute('data-media-image-url');try{const data=await A.fetchImage(u);if(data){el.src=data;el.style.display='block';if(el.nextElementSibling)el.nextElementSibling.style.display='none'}}catch{}
   }));
   root.querySelectorAll?.('[data-open-url]')?.forEach(b=>{if(b.dataset.boundOpen)return;b.dataset.boundOpen='1';b.onclick=()=>openWithPressTransition(b,()=>showEmbeddedWeb(b.dataset.openUrl,'Attachment'))});
+  root.querySelectorAll?.('[data-annotate-pdf]')?.forEach(button=>{if(button.dataset.boundAnnotate)return;button.dataset.boundAnnotate='1';button.onclick=async()=>{if(!window.schoologyAnnotationEditor?.open){showAppDialog('Annotation unavailable','The PDF annotation editor did not load.');return;}try{await window.schoologyAnnotationEditor.open({sectionId:button.dataset.annotateSectionId,assignmentId:button.dataset.annotateAssignmentId,fileId:button.dataset.annotateFileId,fileType:button.dataset.annotateFileType,pdfUrl:button.dataset.annotateUrl,filename:button.dataset.annotateName,onSubmitted:async()=>{await openAssignmentSubmissions(button.dataset.annotateSectionId,button.dataset.annotateAssignmentId,state.assignmentData||{},false)}})}catch(error){showAppDialog('Unable to open annotation editor',error?.message||String(error))}}});
   root.querySelectorAll?.('[data-download-url]')?.forEach(b=>{if(b.dataset.boundDownload)return;b.dataset.boundDownload='1';b.onclick=async()=>{try{let info={url:b.dataset.downloadUrl,filename:b.dataset.downloadName,mime:b.dataset.downloadMime};if(b.dataset.submissionFileId&&b.dataset.submissionRevisionId&&b.dataset.submissionSectionId&&b.dataset.submissionGradeItemId&&b.dataset.submissionUserId){const rr=await A.api({path:`sections/${b.dataset.submissionSectionId}/submissions/${b.dataset.submissionSubmissionId||b.dataset.submissionGradeItemId}/${b.dataset.submissionUserId}/revision/${b.dataset.submissionRevisionId}`,params:{with_annotations:'TRUE',with_attachments:'TRUE'}});const revisions=rr?.revision||rr?.revisions||rr?.data?.revision||rr?.data?.revisions||[];const list=Array.isArray(revisions)?revisions:[revisions];let exact=null;for(const rv of list){const files=rv?.attachments?.files?.file||rv?.attachments?.files||rv?.attachments?.file||[];const fs=Array.isArray(files)?files:(files?[files]:[]);const hit=fs.find(f=>String(f?.id??f?.fid??'')===String(b.dataset.submissionFileId));if(hit){exact=hit;break;}}if(exact){const convertedOk=['success','converted','1'].includes(String(exact.converted_status??exact.convertedStatus??'').toLowerCase());const rawUrl=exact.download_path||exact.downloadPath||'';const convertedUrl=exact.converted_download_path||exact.convertedDownloadPath||'';info.url=convertedOk&&convertedUrl?convertedUrl:(rawUrl||convertedUrl);info.filename=(convertedOk&&exact.convertedFilename)||exact.filename||exact.title||info.filename;info.mime=(convertedOk&&exact.convertedFileMime)||exact.filemime||info.mime;}}const r=await downloadWithFeedback(b,info);const err=await A.openDownloadedFile({path:r.path});if(err)alert(err)}catch(e){alert('Unable to open file: '+e.message)}}});
 }
 function materialIconForType(item){
@@ -1465,21 +1537,31 @@ async function showPageNative(realm,realmId,pageId,title='Page'){
 }
 async function showEmbeddedWeb(url,title,options={}){
  const c=document.getElementById('content');if(!c)return;
+ const baseUrl=options.baseUrl||(state.canadianInstance?'https://app.schoologyca.com/':'https://app.schoology.com/');
+ try{url=new URL(String(url||''),baseUrl).href}catch{throw new Error('This link does not contain a valid web address.')}
+ if(state.canadianInstance)url=String(url).replace(/app\.schoology\.com/gi,'app.schoologyca.com').replace(/api\.schoology\.com/gi,'api.schoologyca.com');
  const externalLinks=typeof options.externalLinks==='boolean'?options.externalLinks:!(options.quiz||options.assessment||options.accountInfo);
- if(!options.quiz&&!options.assessment&&!options.accountInfo&&options.openInitialExternalInBrowser!==false){try{const initial=new URL(String(url||''));const h=initial.hostname.toLowerCase();const schoolHost=h==='lms.lausd.net'||h==='schoology.com'||h.endsWith('.schoology.com');if(['http:','https:'].includes(initial.protocol)&&!schoolHost){const handled=await routeSchoologyLink(initial.href);if(handled)return;const result=await A.openExternal(initial.href);if(result)showAppDialog('Unable to open link',result);return;}}catch(error){if(error instanceof TypeError){/* Relative or non-HTTP destinations continue into the webview. */}else{showAppDialog('Unable to open link',error.message||String(error));return;}}}
- try{await A.prepareWebSession()}catch(e){console.warn('Schoology web session preparation failed:',e)}
+ if(!options.quiz&&!options.assessment&&!options.accountInfo&&options.openInitialExternalInBrowser!==false){
+  try{const initial=new URL(String(url||'')),h=initial.hostname.toLowerCase(),schoolHost=h==='lms.lausd.net'||h==='schoology.com'||h.endsWith('.schoology.com')||h==='schoologyca.com'||h.endsWith('.schoologyca.com');if(['http:','https:'].includes(initial.protocol)&&!schoolHost){const handled=await routeSchoologyLink(initial.href);if(handled)return;const result=await A.openExternal(initial.href);if(result)showAppDialog('Unable to open link',result);return}}
+  catch(error){if(!(error instanceof TypeError)){showAppDialog('Unable to open link',error.message||String(error));return}}
+ }
+ try{await A.prepareWebSession()}catch(error){console.warn('Schoology web session preparation failed:',error)}
  c.classList.remove('webContentHost');c.classList.add('embeddedContentActive');state.toolbarTitle=title||'Schoology';state.embeddedTitle=title||'Schoology';state.embeddedCanOpenExternal=options.allowBrowser!==false;state.embeddedTheme=options.accountInfo?'account':(options.lti?'lti':(options.quiz?'quiz':''));syncToolbar();
- c.innerHTML=`<section class="embeddedPage"><div id="embeddedWebviewLoading" class="webviewLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div><webview id="schoologyWebview" src="${esc(String(url||''))}" allowpopups></webview></section>`;
- const w=document.getElementById('schoologyWebview');if(!w)return;const spinner=document.getElementById('embeddedWebviewLoading');const setLoading=v=>spinner?.classList.toggle('hidden',!v);let mainNavigation=0;let loadingStartedAt=0;let initialPageLoaded=false;setLoading(true);
- w.addEventListener('did-start-navigation',e=>{if(!e.isMainFrame)return;mainNavigation++;loadingStartedAt=Date.now();setLoading(true);});
- w.addEventListener('dom-ready',()=>{if(mainNavigation>0)setLoading(false)});
- w.addEventListener('did-finish-load',()=>{if(mainNavigation>0){setLoading(false);initialPageLoaded=true}});
- w.addEventListener('did-navigate',e=>{if(e.isMainFrame){loadingStartedAt=Date.now();setTimeout(()=>{if(spinner&&!spinner.classList.contains('hidden'))setLoading(false)},1200);}});
- w.addEventListener('did-fail-load',e=>{if(e.isMainFrame){setLoading(false);if(e.errorCode&&e.errorCode!==-3)console.warn('Schoology embedded page failed:',e.errorDescription)}});
- setTimeout(()=>{if(spinner&&!spinner.classList.contains('hidden')&&mainNavigation>0)setLoading(false)},8000);
- w.addEventListener('new-window',async e=>{e.preventDefault();if(await routeSchoologyLink(e.url))return;if(externalLinks){try{const result=await A.openExternal(e.url);if(result)showAppDialog('Unable to open link',result)}catch(err){showAppDialog('Unable to open link',err.message||String(err))}return;}try{w.src=e.url}catch{}});
- w.addEventListener('will-navigate',e=>{const u=String(e.url||'');if(externalLinks&&initialPageLoaded){e.preventDefault();Promise.resolve(routeSchoologyLink(u)).then(handled=>{if(handled)return;if(state.openSchoologyLinks&&isSchoologyRoutableLink(u)){w.src=u;return;}return A.openExternal(u)}).catch(err=>showAppDialog('Unable to open link',err.message||String(err)));return;}if(isSchoologyRoutableLink(u)){e.preventDefault();Promise.resolve(routeSchoologyLink(u)).catch(err=>console.warn('Schoology deep link failed:',err));}});
+ const embeddedTag=window.__TAURI__?'schoology-webview':'webview';
+ const attrs=window.__TAURI__?'data-lti="'+(options.lti?'true':'false')+'" data-external-links="'+(externalLinks?'true':'false')+'" data-open-popups-external="'+(options.openPopupsExternal?'true':'false')+'" data-course-app="'+(options.courseApp?'true':'false')+'"':'';
+ c.innerHTML='<section class="embeddedPage"><'+embeddedTag+' id="schoologyWebview" src="'+esc(String(url||''))+'" allowpopups '+attrs+'></'+embeddedTag+'><div class="embeddedWebviewError" id="embeddedWebviewError" hidden><b>Unable to load this Schoology page.</b><span id="embeddedWebviewErrorText">Check your connection and try again.</span><button type="button" id="embeddedWebviewRetry">Retry</button></div></section>';
+ const w=document.getElementById('schoologyWebview'),errorPanel=document.getElementById('embeddedWebviewError'),errorText=document.getElementById('embeddedWebviewErrorText');
+ if(!w)return;
+ const showFailure=message=>{if(errorText)errorText.textContent=message||'Check your connection and try again.';if(errorPanel)errorPanel.hidden=false};
+ document.getElementById('embeddedWebviewRetry')?.addEventListener('click',()=>{if(errorPanel)errorPanel.hidden=true;try{w.src=url}catch{showFailure('Unable to retry this page.')}});
+ let initialPageLoaded=false;
+ w.addEventListener('did-start-navigation',event=>{if(event.isMainFrame&&errorPanel)errorPanel.hidden=true});
+ w.addEventListener('did-finish-load',()=>{initialPageLoaded=true;if(errorPanel)errorPanel.hidden=true});
+ w.addEventListener('did-fail-load',event=>{if(event.isMainFrame&&event.errorCode!==-3){showFailure(event.errorDescription||'Check your connection and try again.');console.warn('Schoology embedded page failed:',event.errorDescription)}});
+ w.addEventListener('new-window',async event=>{event.preventDefault();if(await routeSchoologyLink(event.url))return;if(externalLinks){try{const result=await A.openExternal(event.url);if(result)showAppDialog('Unable to open link',result)}catch(error){showAppDialog('Unable to open link',error.message||String(error))}return}try{w.src=event.url}catch{}});
+ w.addEventListener('will-navigate',event=>{const target=String(event.url||'');if(externalLinks&&initialPageLoaded){event.preventDefault();Promise.resolve(routeSchoologyLink(target)).then(handled=>{if(handled)return;if(state.openSchoologyLinks&&isSchoologyRoutableLink(target)){w.src=target;return}return A.openExternal(target)}).catch(error=>showAppDialog('Unable to open link',error.message||String(error)));return}if(isSchoologyRoutableLink(target)){event.preventDefault();Promise.resolve(routeSchoologyLink(target)).catch(error=>console.warn('Schoology deep link failed:',error))}});
 }
+
 async function loadAttendanceTab(course){
   const el=document.getElementById('sectionProfileContent');if(!el)return;
   const sid=course.id||course.section_id||course.sectionId;
@@ -1559,83 +1641,166 @@ function installCourseLayoutWatcher(){
   courseLayoutMediaQuery=mq;
 }
 
-async function loadCourseUpdates(course,el){
- const sid=course.id||course.section_id||course.sectionId;
- const uid=state.auth?.userId||state.auth?.user?.id;
- if(!sid)throw new Error('Course section ID is missing.');
- let start=0,limit=20,all=[];let authorUsers={};
- let next=true,loading=false;
- const render=async()=>{
-   const cards=all.map(u=>{
-     const id=u.id||u.update_id||u.updateId;
-     const au=authorUsers[Number(u.user_id||u.uid||u.author_id||u.authorId)]||{};
-     const author=u.display_name||u.author_name||au.name_display||au.display_name||au.name||'Schoology';
-     const avatar=normalizeImageUrl(au.picture_url||au.pictureUrl||au.picture||au.photo_url||u.user_photo||u.photo_url||'');
-     const body=u.body||u.message||'';
-     const comments=Number(u.num_comments??u.comment_count??u.comments_count??0);
-     const likes=Number(u.likes??u.like_count??0);
-     const liked=!!(u.user_liked??u.liked??u.is_liked);
-     const canDelete=uid&&String(u.uid||u.user_id||u.author_id||'')===String(uid);
-     return `<m3e-card variant="filled" class="androidActivityCard sectionFullUpdate" data-update-card="${esc(id)}">
-       <div class="activityHeader">${avatar?`<img class="activityAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="activityAvatar">${esc(String(author).charAt(0))}</span>`}<button class="activityUser activityAuthorLink" data-course-author-id="${esc(au.id||u.user_id||u.uid||u.author_id||u.authorId||'')}">${esc(author)}</button>${canDelete?`<button class="updateDeleteButton" data-update-delete="${esc(id)}" aria-label="Delete update">⋮</button>`:''}</div>
-       <div class="activityBody">${body}</div>
-       ${renderAttachments(u.attachments||u.attachment||u.files||{})}
-       ${u.poll||u.pollUpdateModel?`<div class="updatePoll"><b>Poll</b></div>`:''}
-       <div class="activityMeta">${esc(formatSchoologyDate(u.created||u.timestamp||u.last_updated||u.lastUpdated||''))}</div>
-       <div class="activityActions"><button data-course-update-comments="${esc(id)}">Comment${comments?` (${comments})`:''}</button><button data-course-update-like="${esc(id)}" data-liked="${liked?'1':'0'}">${liked?'Unlike':'Like'}${likes?` (${likes})`:''}</button></div>
-       <div class="updateCommentsPanel" id="course-update-comments-${esc(id)}" hidden></div>
-     </m3e-card>`;
-   }).join('');
-   el.innerHTML=`${cards||'<div class="empty"><h2>No updates</h2><p>There are no updates in this course.</p></div>'}${next?'<button id="courseUpdateMore" class="androidMoreButton">Load more</button>':''}`;
-   await hydrateMediaImages(el);
-   el.querySelectorAll('[data-course-author-id]').forEach(b=>b.onclick=()=>{const id=b.dataset.courseAuthorId;if(id)openProfileById(id,b.textContent||'Profile')});
-   el.querySelector('#courseUpdateRefresh')?.addEventListener('click',()=>{start=0;all=[];next=true;loadPage(true)});
-   el.querySelector('#courseUpdateMore')?.addEventListener('click',()=>loadPage(false));
-   el.querySelectorAll('[data-course-update-like]').forEach(btn=>btn.onclick=async()=>{
-     const id=btn.dataset.courseUpdateLike,liked=btn.dataset.liked==='1'; if(!id)return;
-     try{
-       await A.api({path:`like/${id}`,method:'POST',params:{like_action:!liked},json:true});
-       const u=all.find(x=>String(x.id||x.update_id)===String(id));if(u){u.user_liked=!liked;u.liked=!liked;u.likes=Number(u.likes||0)+(liked?-1:1);}
-       await render();
-     }catch(e){alert('Unable to update like: '+e.message)}
-   });
-   el.querySelectorAll('[data-course-update-comments]').forEach(btn=>btn.onclick=()=>loadCourseUpdateComments(sid,btn.dataset.courseUpdateComments,btn.closest('.sectionFullUpdate')?.querySelector('.updateCommentsPanel')));
-   el.querySelectorAll('[data-update-delete]').forEach(btn=>btn.onclick=async()=>{
-     if(!confirm('Delete this update?'))return;
-     try{await A.api({path:`sections/${sid}/updates/${btn.dataset.updateDelete}`,method:'DELETE',params:{}});all=all.filter(x=>String(x.id||x.update_id)!==String(btn.dataset.updateDelete));await render()}catch(e){alert('Unable to delete update: '+e.message)}
-   });
- };
- const loadPage=async(reset)=>{
-   if(loading)return;loading=true;
-   if(reset){start=0;all=[];next=true}
+
+document.addEventListener('click',async event=>{
+ const button=event.target.closest?.('[data-poll-option]');if(!button||button.disabled)return;
+ const updateId=button.dataset.updateId,optionId=button.dataset.pollOption,container=button.closest('[data-update-poll]');if(!updateId||!optionId||!container)return;
+ event.preventDefault();button.disabled=true;const wasSelected=button.dataset.selected==='1';
+ try{const result=await A.api({path:`poll/${updateId}/vote`,method:'POST',params:{id:Number(optionId),select:!wasSelected},json:true});const model=result?.pollUpdateModel||result?.poll_update_model||result?.update?.pollUpdateModel||result?.update?.poll_update_model||result?.update||result?.poll||null;if(model){const html=renderUpdatePoll({pollUpdateModel:model,pollVoteRecorded:true},updateId);if(html&&!html.includes('Poll options are unavailable.')){container.outerHTML=html;return}}
+ const oldCount=Number((button.querySelector('.updatePollResult')?.textContent||'').match(/^\s*(\d+)/)?.[1]||0),nextCount=Math.max(0,oldCount+(wasSelected?-1:1));button.dataset.selected=wasSelected?'0':'1';button.classList.toggle('selected',!wasSelected);button.setAttribute('aria-pressed',String(!wasSelected));const resultEl=button.querySelector('.updatePollResult');if(resultEl)resultEl.textContent=`${nextCount} · —%`;container.querySelectorAll('[data-poll-option]').forEach(b=>{if(b!==button&&!wasSelected){b.dataset.selected='0';b.classList.remove('selected');b.setAttribute('aria-pressed','false')}});container.classList.add('resultsVisible');const summary=container.querySelector('small');if(summary)summary.textContent='Vote recorded';
+ }catch(error){showAppDialog('Unable to vote in poll',error?.message||String(error)||'Unknown error')}finally{if(button.isConnected)button.disabled=false}
+});
+
+function dialogPersonId(person){
+ const nested=person?.user||person?.author||person?.creator||person?.profile_info||person?.profile||{};
+ const linked=person?.links?.user?.href||person?.links?.creator?.href||person?.links?.author?.href||'';
+ const linkedId=String(linked).match(/(?:users|user)\/(\d+)/i)?.[1];
+ return Number(person?.uid??person?.user_id??person?.userId??person?.author_user_id??person?.authorUserId??person?.creator_user_id??person?.creatorUserId??person?.commenter_id??person?.commenterId??person?.creater_id??person?.creator_id??person?.created_by??person?.createdBy??person?.author_id??person?.authorId??person?.user?.id??person?.author?.id??person?.creator?.id??nested?.uid??nested?.user_id??nested?.userId??nested?.author_id??nested?.id??linkedId??((person?.id&&(person?.name_display||person?.display_name||person?.name||person?.picture_url||person?.avatar_url))?person.id:0));
+}
+function dialogPersonName(person,profile={}){
+ const nested=person?.user||person?.author||person?.creator||person?.profile_info||person?.profile||{};
+ const hydrated=profile?.user||profile?.profile_info||profile?.profile||profile||{};
+ const candidates=[person?.name_display,person?.nameDisplay,person?.display_name,person?.displayName,person?.author_name,person?.authorName,person?.user_name,person?.userName,person?.commenter_name,person?.commenterName,person?.creator_name,person?.creatorName,person?.name,nested?.name_display,nested?.nameDisplay,nested?.display_name,nested?.displayName,nested?.full_name,nested?.fullName,nested?.name,hydrated?.name_display,hydrated?.nameDisplay,hydrated?.display_name,hydrated?.displayName,hydrated?.full_name,hydrated?.fullName,hydrated?.name];
+ const name=candidates.find(value=>typeof value==='string'&&value.trim()&&!/^(?:schoology(?: user)?)$/i.test(value.trim()));
+ return String(name||'Schoology user');
+}
+function dialogPersonAvatar(person,profile={}){
+ const nested=person?.user||person?.author||person?.creator||person?.profile_info||person?.profile||{};
+ const hydrated=profile?.user||profile?.profile_info||profile?.profile||profile||{};
+ return normalizeImageUrl(person?.picture_url||person?.pictureUrl||person?.picture||person?.avatar_url||person?.avatarUrl||person?.photo_url||person?.photoUrl||person?.avatar||nested?.picture_url||nested?.pictureUrl||nested?.picture||nested?.avatar_url||nested?.avatarUrl||nested?.photo_url||nested?.photoUrl||nested?.avatar||hydrated?.picture_url||hydrated?.pictureUrl||hydrated?.picture||hydrated?.avatar_url||hydrated?.avatarUrl||hydrated?.photo_url||hydrated?.photoUrl||hydrated?.avatar||'');
+}
+async function hydrateDialogPeople(records){
+ const rows=(Array.isArray(records)?records:[records]).filter(Boolean),profiles={};
+ const ids=[...new Set(rows.map(dialogPersonId).filter(id=>Number.isFinite(id)&&id>0))];
+ await Promise.all(ids.map(async id=>{
+   const row=rows.find(person=>dialogPersonId(person)===id)||{};
+   const name=dialogPersonName(row,{}),avatar=dialogPersonAvatar(row,{});
+   if(name!=='Schoology user'&&avatar)return;
    try{
-     const x=await A.api({path:`sections/${sid}/updates`,params:{start,limit,with_attachments:'TRUE',richtext:1}});
-     const rows=x.update||x.updates||x.update_list||[];
-     const ids=[...new Set(rows.map(u=>u.user_id||u.uid||u.author_id||u.authorId).filter(Boolean).map(Number))];
-     await Promise.all(ids.map(async id=>{if(authorUsers[id])return;try{const q=await A.api({path:`users/${id}`,params:{}});authorUsers[id]=q?.user||q}catch{}}));
-     all=all.concat(rows);
-     next=!!(x.links?.next||x.link?.next||(rows.length>=limit));
-     start+=rows.length;
-     await render();
-   }finally{loading=false}
- };
- const loadInitial=()=>loadPage(true);
- await loadInitial();
+     const response=await A.api({path:'users/'+id,params:{picture_size:'sm'}});
+     const candidates=[response?.user,response?.data?.user,response?.users?.user,response?.data?.users?.user,response?.data?.data?.user,response?.data?.profile,response?.profile,response?.data?.data?.profile,response?.data?.data,response?.data,response];
+     profiles[id]=candidates.find(value=>value&&typeof value==='object'&&!Array.isArray(value)&&(value.name_display||value.nameDisplay||value.display_name||value.displayName||value.full_name||value.fullName||value.name||value.picture_url||value.pictureUrl||value.picture||value.avatar_url||value.avatarUrl||value.photo_url||value.photoUrl||value.avatar||value.profile_info||value.profile||value.user))||{};
+   }catch{}
+ }));
+ return rows.map(person=>({person,profile:profiles[dialogPersonId(person)]||{},id:dialogPersonId(person)}));
+}
+function groupAdminBadgeMarkup(value){const role=String(value?.role||value?.group_role||value?.groupRole||value?.user_role||value?.userRole||'').toLowerCase();return value&&(value.is_admin===true||value.isAdmin===true||value.admin===true||value.is_group_admin===true||value.isGroupAdmin===true||role==='admin'||role==='group admin')?'<svg class="groupAdminBadge" viewBox="0 0 17 19" aria-label="Group admin" role="img"><path fill="#fac901" stroke="#024f7d" stroke-width="1" d="M8.5.6c2.3 2.1 4.1 2.7 8 3v7.8c0 .5-.2 5.1-8 7.6C.5 16.5.5 11.9.5 11.4V3.6c4-.2 6-.9 8-3Z"/><path fill="#43c5f9" stroke="#024f7d" stroke-width=".8" d="m8.5 5.3 1.4 2.7 3 .4-2.2 2.1.5 3-2.7-1.4-2.7 1.4.5-3-2.2-2.1 3-.4Z"/></svg>':''}
+function sharedPostId(post){return post?.id??post?.update_id??post?.updateId??post?.update?.id??''}
+function sharedPostCounts(post){return {comments:Number(post?.num_comments??post?.comment_count??post?.comments_count??post?.comments??0)||0,likes:Number(post?.likes??post?.like_count??post?.likeCount??0)||0,liked:!!(post?.user_liked??post?.user_like_action??post?.liked??post?.is_liked)}}
+function sharedPostIcon(kind){
+ const paths=kind==='comment'?'<path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 0 1 10.5 8H12"/>':'<path d="M12 21s-8-4.6-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.4-8 11-8 11Z"/>';
+ return '<svg class="sharedActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+}
+function renderUpdatePoll(update,updateId){
+ const poll=update?.pollUpdateModel||update?.poll_update_model||update?.poll||update?.poll_update||update?.pollUpdate||null;
+ const options=Array.isArray(poll)?poll:(poll?.options||poll?.pollOptionsList||poll?.poll_options||poll?.pollOptions||update?.pollOptions||update?.poll_options||[]);
+ if(!Array.isArray(options)||!options.length)return poll?`<section class="updatePoll" data-update-poll="${esc(updateId)}"><b>Poll</b><div class="updatePollUnavailable">Poll options are unavailable.</div></section>`:'' ;
+ const optionCount=o=>Number(o?.count??o?.votes??o?.vote_count??o?.voteCount??o?.total_votes??o?.totalVotes??o?.num_votes??o?.numVotes??0)||0;const total=options.reduce((sum,o)=>sum+optionCount(o),0),voted=update?.pollVoteRecorded===true||options.some(o=>o?.selected===true||o?.selected===1||o?.selected==='true'||o?.is_selected===true||o?.isSelected===true);
+ return `<section class="updatePoll ${voted?'resultsVisible':''}" data-update-poll="${esc(updateId)}"><div class="updatePollHeading">Poll</div>${options.map(o=>{const id=o?.id??o?.pollOptionID??o?.poll_option_id??'',title=o?.title??o?.name??'Option',count=optionCount(o),selected=o?.selected===true||o?.selected===1||o?.selected==='true'||o?.is_selected===true||o?.isSelected===true,percent=total?Math.round(count/total*100):0;return `<button type="button" class="updatePollOption ${selected?'selected':''}" data-poll-option="${esc(id)}" data-update-id="${esc(updateId)}" data-selected="${selected?'1':'0'}" aria-pressed="${selected?'true':'false'}"><span class="updatePollOptionTitle">${esc(title)}</span><span class="updatePollTrack"><span style="width:${percent}%"></span></span><span class="updatePollResult">${count} · ${percent}%</span></button>`}).join('')}<small>${voted?`${total} vote${total===1?'':'s'} · Your vote is recorded`:'Select an option to vote'}</small></section>`;
+}
+function renderSharedPostCard({post={},id=sharedPostId(post),realm,realmId,author='Schoology',avatar='',authorId='',contextLabel='',canDelete=false,cardClass='' }={}){
+ const counts=sharedPostCounts(post),body=post.body||post.message||post.description||'',created=post.created||post.timestamp||post.last_updated||post.lastUpdated||post.updated||'';
+ const safeId=String(id??'');
+ const authorMarkup='<button type="button" class="activityUser activityAuthorLink" data-shared-post-author="'+esc(authorId||post.user_id||post.uid||post.author_id||post.authorId||'')+'">'+esc(author||'Schoology')+'</button>';
+ const avatarMarkup=avatar?'<img class="activityAvatar" data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="activityAvatar">'+esc(String(author||'S').trim().charAt(0)||'S')+'</span>';
+ const contextMarkup=contextLabel?'<span class="sharedPostContext">'+esc(contextLabel)+'</span>':'';
+ const del=canDelete?'<button type="button" class="updateDeleteButton" data-shared-post-delete="'+esc(safeId)+'" aria-label="Delete update">⋮</button>':'';
+ return '<m3e-card variant="filled" class="androidActivityCard sharedPostCard '+esc(cardClass)+'" data-shared-post-id="'+esc(safeId)+'" data-shared-post-realm="'+esc(realm||'')+'" data-shared-post-realm-id="'+esc(realmId||'')+'"><div class="activityHeader">'+avatarMarkup+authorMarkup+contextMarkup+del+'</div><div class="activityBody">'+body+'</div>'+renderAttachments(post.attachments||post.attachment||post.files||{})+renderUpdatePoll(post,safeId)+'<div class="activityMeta">'+esc(formatSchoologyDate(created))+'</div><div class="activityActions sharedPostActions"><button type="button" class="sharedPostCommentButton" data-shared-post-comment="'+esc(safeId)+'">Comment</button><button type="button" class="sharedPostCommentCount" data-shared-post-comments="'+esc(safeId)+'" aria-label="'+counts.comments+' comments">'+sharedPostIcon('comment')+'<span>'+counts.comments+'</span></button><button type="button" class="sharedPostLikeButton" data-shared-post-like="'+esc(safeId)+'" data-liked="'+(counts.liked?'1':'0')+'">'+(counts.liked?'Unlike':'Like')+'</button><button type="button" class="sharedPostLikeCount" data-shared-post-like-count="'+esc(safeId)+'" aria-label="'+counts.likes+' likes">'+sharedPostIcon('like')+'<span>'+counts.likes+'</span></button></div><div class="sharedPostCommentPreview" data-shared-post-preview="'+esc(safeId)+'"></div><div class="updateCommentsPanel sharedPostInlineComments" data-shared-post-panel="'+esc(safeId)+'" hidden></div></m3e-card>';
+}
+function flattenSharedComments(response){
+ const raw=response?.comment??response?.comments??response?.data?.comment??response?.data?.comments??[];
+ const roots=Array.isArray(raw)?raw:(raw&&typeof raw==='object'?[raw]:[]),rows=[],seen=new Set();
+ const walk=(node,parentId=0)=>{if(!node||typeof node!=='object')return;const id=String(node.id??node.comment_id??node.commentId??'');if(id&&seen.has(id))return;if(id)seen.add(id);const row={...node};if(row.parent_id==null&&row.parentId==null&&parentId)row.parent_id=parentId;rows.push(row);const nextId=node.id??node.comment_id??node.commentId??parentId;const children=node.children??node.replies??node.comments??node.comment_replies??[];if(Array.isArray(children))children.forEach(child=>walk(child,nextId));};
+ roots.forEach(row=>walk(row,0));return rows;
+}
+function renderSharedCommentRow(comment,allComments,updateId,hydratedRow=null){
+ const id=comment.id??comment.comment_id??comment.commentId??'',parent=Number(comment.parent_id??comment.parentId??0)||0;
+ const author=comment.user||comment.author||comment.profile||comment.creator||{},profile=hydratedRow?.profile&&Object.keys(hydratedRow.profile).length?hydratedRow.profile:author;
+ const authorId=hydratedRow?.id||dialogPersonId(comment),name=dialogPersonName(comment,profile),avatar=dialogPersonAvatar(comment,profile),body=comment.body??comment.comment??comment.message??'',created=formatSchoologyDate(comment.created??comment.timestamp??comment.last_updated??'');
+ const liked=[comment.user_like_action,comment.user_liked,comment.userLiked,comment.liked,comment.is_liked,comment.isLiked].some(value=>value===true||value===1||value==='1'||String(value).toLowerCase()==='true');
+ const likeCount=Number(comment.likes??comment.like_count??comment.likeCount??0)||0,replies=allComments.filter(reply=>String(reply.parent_id??reply.parentId??0)===String(id)),deleted=Number(comment.status??1)===0;
+ const initials=String(name||'S').trim().split(/\s+/).filter(Boolean).slice(0,2).map(value=>value.charAt(0)).join('').toUpperCase()||'S';
+ const avatarMarkup=avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(initials)+'</span>';
+ return '<div class="updateComment sharedCommentRow" data-shared-comment-id="'+esc(id)+'" data-parent-id="'+parent+'" '+(parent?'hidden':'')+'><div class="sharedCommentHeading"><span class="sharedCommentAvatar">'+avatarMarkup+'</span>'+(authorId?'<button type="button" class="sharedCommentAuthor" data-shared-comment-author="'+esc(authorId)+'">'+esc(name)+'</button>':'<b>'+esc(name)+'</b>')+(groupAdminBadgeMarkup(comment)||'')+(created?'<small>'+esc(created)+'</small>':'')+'</div><div class="sharedCommentBody '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div>'+renderAttachments(comment.attachments||comment.attachment||{})+'<div class="sharedCommentActions">'+(!deleted?'<button type="button" data-shared-comment-reply="'+esc(id)+'">Reply</button>':'')+'<button type="button" data-shared-comment-like="'+esc(id)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button type="button" class="sharedCommentLikeCount" data-shared-comment-like-count="'+esc(id)+'" data-like-count="'+likeCount+'">'+sharedPostIcon('like')+'<span>'+likeCount+'</span></button>'+(replies.length?'<button type="button" data-shared-comment-replies-toggle="'+esc(id)+'" aria-expanded="false">⌄ '+replies.length+' '+(replies.length===1?'reply':'replies')+'</button>':'')+'</div></div>';
 }
 
-async function loadCourseUpdateComments(sectionId,updateId,panel){
- if(!panel)return;
- panel.hidden=false;panel.innerHTML='<div class="loading">Loading comments…</div>';
+async function showLikeUsers(path){
+ const old=document.getElementById('sharedLikeUsersDialog');old?.remove();
+ const wrap=document.createElement('div');wrap.id='sharedLikeUsersDialog';wrap.className='sharedOverlay';
+ wrap.innerHTML='<m3e-dialog open class="sharedM3eDialog" disable-close><span slot="header">Likes</span><div class="sharedLikeUsersBody"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div><span slot="actions" end><m3e-button data-shared-close variant="text">Close</m3e-button></span></m3e-dialog>';
+ document.body.appendChild(wrap);wrap.querySelector('[data-shared-close]')?.addEventListener('click',()=>wrap.remove());
  try{
-   const x=await A.api({path:`sections/${sectionId}/updates/${updateId}/comments`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
-   const arr=x.comment||x.comments||[];
-   panel.innerHTML=`<div class="updateCommentsList">${arr.map(c=>`<div class="updateComment"><b>${esc(c.display_name||c.user_name||'Schoology')}</b><div>${c.body||c.comment||''}</div><small>${esc(formatSchoologyDate(c.created||c.timestamp||''))}</small></div>`).join('')||'<div class="empty">No comments yet.</div>'}<div class="updateCommentComposer"><textarea placeholder="Write a comment…" id="update-comment-${esc(updateId)}"></textarea><button data-post-update-comment="${esc(updateId)}">Post</button></div></div>`;
-   panel.querySelector('[data-post-update-comment]')?.addEventListener('click',async()=>{
-     const ta=panel.querySelector('textarea'),body=ta?.value.trim();if(!body)return;
-     try{await A.api({path:`sections/${sectionId}/updates/${updateId}/comments`,method:'POST',params:{comment:body,parent_id:0},json:true});await loadCourseUpdateComments(sectionId,updateId,panel)}catch(e){alert('Unable to post comment: '+e.message)}
-   });
- }catch(e){panel.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}
+  const response=await A.api({path,params:{start:0,limit:100}}),raw=response?.users?.user??response?.users??response?.user??response?.like??response?.likes??response?.data?.likes??[],rows=Array.isArray(raw)?raw:(raw&&typeof raw==='object'?[raw]:[]),hydrated=await hydrateDialogPeople(rows),body=wrap.querySelector('.sharedLikeUsersBody');
+  if(body)body.innerHTML=hydrated.length?'<m3e-list variant="segmented">'+hydrated.map(({person,profile,id})=>{const name=dialogPersonName(person,profile),avatar=dialogPersonAvatar(person,profile),initials=String(name).trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toUpperCase()||'S';return '<m3e-list-action data-shared-like-user="'+esc(id||'')+'"><span slot="leading" class="sharedLikeAvatar">'+(avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(initials)+'</span>')+'</span><span>'+esc(name)+'</span><span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>'}).join('')+'</m3e-list>':'<div class="empty">No likes to show.</div>';
+  if(body){await hydrateMediaImages(body);body.querySelectorAll('[data-shared-like-user]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedLikeUser;if(id){wrap.remove();openProfileById(id,button.textContent||'Profile')}})}
+ }catch(error){const body=wrap.querySelector('.sharedLikeUsersBody');if(body)body.innerHTML='<div class="error apiError">'+esc(error?.message||String(error))+'</div>'}
 }
+
+async function loadSharedPostPreview(realm,realmId,updateId,preview){
+ if(!preview)return;
+ try{
+  const response=await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',params:{start:0,limit:100,with_attachments:'TRUE',richtext:1}});
+  const comments=flattenSharedComments(response),roots=comments.filter(row=>Number(row.parent_id??row.parentId??0)===0),recent=roots.slice(-2);
+  if(!recent.length){preview.innerHTML='';return}
+  preview.innerHTML='<div class="sharedPostPreviewList">'+recent.map(comment=>{const name=comment.display_name||comment.name_display||comment.user_name||comment.author_name||'Schoology',body=comment.body||comment.comment||comment.message||'',created=comment.created||comment.timestamp||'';return '<div class="sharedPostPreviewComment"><b>'+esc(name)+'</b><div class="sharedPostPreviewBody">'+body+'</div><small>'+esc(formatSchoologyDate(created))+'</small></div>'}).join('')+'</div><button type="button" class="sharedPostViewMore">View more comments</button>';
+  preview.querySelector('.sharedPostViewMore')?.addEventListener('click',()=>openSharedPostCommentsDialog(realm,realmId,updateId));
+ }catch{preview.innerHTML=''}
+}
+async function loadSharedPostComments(realm,realmId,updateId,panel,{inline=false}={}){
+ if(!panel)return 0;panel.hidden=false;panel.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading comments…</span></div>';
+ try{
+  const response=await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',params:{start:0,limit:100,with_attachments:'TRUE',richtext:1}});
+  const comments=flattenSharedComments(response),hydrated=await hydrateDialogPeople(comments);
+  panel.innerHTML='<div class="updateCommentsList sharedCommentsList">'+(comments.map((row,index)=>renderSharedCommentRow(row,comments,updateId,hydrated[index])).join('')||'<div class="empty">No comments yet.</div>')+'</div><div class="updateCommentComposer sharedCommentInlineComposer" hidden><textarea aria-label="Write a comment" placeholder="Write a comment…"></textarea><div class="sharedCommentComposerActions"><button type="button" data-shared-cancel-reply>Cancel reply</button><button type="button" data-shared-post-comment>Post comment</button></div></div>';
+  await hydrateMediaImages(panel);
+  panel.querySelectorAll('[data-shared-comment-author]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentAuthor;if(id)openProfileById(id,button.textContent||'Profile')});
+  panel.querySelectorAll('[data-shared-comment-replies-toggle]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentRepliesToggle,rows=[...panel.querySelectorAll('[data-shared-comment-id][data-parent-id]')].filter(row=>String(row.dataset.parentId)===String(id)),expanded=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!expanded));rows.forEach(row=>row.hidden=expanded);button.textContent=(expanded?'⌄ ':'⌃ ')+rows.length+' '+(rows.length===1?'reply':'replies')});
+  panel.querySelectorAll('[data-shared-comment-reply]').forEach(button=>button.onclick=()=>{const composer=panel.querySelector('.sharedCommentInlineComposer'),field=composer?.querySelector('textarea');if(composer)composer.hidden=false;if(field){field.dataset.parentId=button.dataset.sharedCommentReply||'0';field.placeholder='Write a reply…';field.focus()}});
+  panel.querySelectorAll('[data-shared-comment-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedCommentLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+updateId+'/comment/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';button.textContent=next?'Unlike':'Like';const count=button.parentElement?.querySelector('[data-shared-comment-like-count] span');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)))}catch(error){showAppDialog('Unable to update comment like',error?.message||String(error))}finally{button.disabled=false}});
+  panel.querySelectorAll('[data-shared-comment-like-count]').forEach(button=>button.onclick=()=>showLikeUsers('like/'+updateId+'/comment/'+button.dataset.sharedCommentLikeCount));
+  panel.querySelector('[data-shared-cancel-reply]')?.addEventListener('click',()=>{const composer=panel.querySelector('.sharedCommentInlineComposer');if(composer)composer.hidden=true});
+  panel.querySelector('[data-shared-post-comment]')?.addEventListener('click',async()=>{const field=panel.querySelector('.sharedCommentInlineComposer textarea'),body=field?.value.trim(),button=panel.querySelector('[data-shared-post-comment]');if(!body)return;button.disabled=true;try{await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',method:'POST',params:{comment:body,parent_id:Number(field.dataset.parentId||0)},json:true});await loadSharedPostComments(realm,realmId,updateId,panel,{inline})}catch(error){button.disabled=false;showAppDialog('Unable to post comment',error?.message||String(error))}});
+  return comments.length;
+ }catch(error){panel.innerHTML='<div class="error apiError">'+esc(error?.message||String(error))+'</div>';return 0}
+}
+function openSharedCommentComposer(realm,realmId,updateId){
+ const old=document.getElementById('sharedCommentComposerDialog');old?.remove();
+ const wrap=document.createElement('div');wrap.id='sharedCommentComposerDialog';wrap.className='sharedOverlay';
+ wrap.innerHTML='<m3e-dialog open class="sharedM3eDialog" disable-close><span slot="header">Add comment</span><div class="sharedComposerBody"><textarea id="sharedCommentComposerText" aria-label="Write a comment" placeholder="Write a comment…"></textarea></div><span slot="actions" end><m3e-button data-shared-composer-cancel variant="text">Cancel</m3e-button><m3e-button data-shared-composer-post variant="filled">Post</m3e-button></span></m3e-dialog>';
+ document.body.appendChild(wrap);wrap.querySelector('[data-shared-composer-cancel]')?.addEventListener('click',()=>wrap.remove());
+ wrap.querySelector('[data-shared-composer-post]')?.addEventListener('click',async()=>{const field=wrap.querySelector('textarea'),body=field?.value.trim(),button=wrap.querySelector('[data-shared-composer-post]');if(!body)return;button.disabled=true;try{await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',method:'POST',params:{comment:body,parent_id:0},json:true});wrap.remove();const openDialog=document.getElementById('sharedPostCommentsDialog');if(openDialog){openDialog.remove();openSharedPostCommentsDialog(realm,realmId,updateId);return}const panel=[...document.querySelectorAll('[data-shared-post-panel]')].find(node=>String(node.dataset.sharedPostPanel)===String(updateId));if(panel)await loadSharedPostComments(realm,realmId,updateId,panel);else openSharedPostCommentsDialog(realm,realmId,updateId)}catch(error){button.disabled=false;showAppDialog('Unable to post comment',error?.message||String(error))}});
+ requestAnimationFrame(()=>wrap.querySelector('textarea')?.focus());
+}
+function openSharedPostCommentsDialog(realm,realmId,updateId){
+ const old=document.getElementById('sharedPostCommentsDialog');old?.remove();
+ const wrap=document.createElement('div');wrap.id='sharedPostCommentsDialog';wrap.className='sharedOverlay';
+ wrap.innerHTML='<m3e-dialog open class="sharedM3eDialog sharedCommentsDialog" disable-close><span slot="header">Comments</span><div class="sharedCommentsDialogBody" id="sharedPostCommentsDialogBody"></div><span slot="actions" end><m3e-button data-shared-comment-compose variant="text">Add comment</m3e-button><m3e-button data-shared-comments-close variant="text">Close</m3e-button></span></m3e-dialog>';
+ document.body.appendChild(wrap);wrap.querySelector('[data-shared-comments-close]')?.addEventListener('click',()=>wrap.remove());wrap.querySelector('[data-shared-comment-compose]')?.addEventListener('click',()=>openSharedCommentComposer(realm,realmId,updateId));
+ loadSharedPostComments(realm,realmId,updateId,wrap.querySelector('#sharedPostCommentsDialogBody'));
+}
+function wireSharedPostList(root,realm,realmId,posts,{authorUsers={},canDelete=false,deletePathPrefix=null}={}){
+ root.querySelectorAll('[data-shared-post-author]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedPostAuthor;if(id)openProfileById(id,button.textContent||'Profile')});
+ root.querySelectorAll('[data-shared-post-comment]').forEach(button=>button.onclick=()=>openSharedCommentComposer(realm,realmId,button.dataset.sharedPostComment));
+ root.querySelectorAll('[data-shared-post-comments]').forEach(button=>button.onclick=()=>openSharedPostCommentsDialog(realm,realmId,button.dataset.sharedPostComments));
+ root.querySelectorAll('[data-shared-post-like-count]').forEach(button=>button.onclick=()=>showLikeUsers('like/'+button.dataset.sharedPostLikeCount));
+ root.querySelectorAll('[data-shared-post-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedPostLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';button.textContent=next?'Unlike':'Like';const count=button.parentElement?.querySelector('[data-shared-post-like-count] span');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)));const post=posts.find(row=>String(sharedPostId(row))===String(id));if(post){post.user_liked=next;post.liked=next;post.likes=Number(post.likes??post.like_count??0)+(next?1:-1)}}catch(error){showAppDialog('Unable to update like',error?.message||String(error))}finally{button.disabled=false}});
+ root.querySelectorAll('[data-shared-post-delete]').forEach(button=>button.onclick=async()=>{if(!confirm('Delete this update?'))return;const id=button.dataset.sharedPostDelete;try{await A.api({path:deletePathPrefix?deletePathPrefix+'/'+id:realm+'/'+realmId+'/updates/'+id,method:'DELETE',params:{}});button.closest('[data-shared-post-id]')?.remove()}catch(error){showAppDialog('Unable to delete update',error?.message||String(error))}});
+ root.querySelectorAll('[data-shared-post-preview]').forEach(preview=>{const id=preview.dataset.sharedPostPreview,card=preview.closest('[data-shared-post-id]'),count=Number(card?.querySelector('[data-shared-post-comments] span')?.textContent||0);if(count>0)void loadSharedPostPreview(realm,realmId,id,preview)});
+ root.querySelectorAll('[data-shared-post-panel]').forEach(panel=>{const id=panel.dataset.sharedPostPanel;const card=panel.closest('[data-shared-post-id]');const likeCount=card?.querySelector('[data-shared-post-like-count] span');const commentCount=card?.querySelector('[data-shared-post-comments] span');if(likeCount)likeCount.textContent=likeCount.textContent||'0';if(commentCount)commentCount.textContent=commentCount.textContent||'0'});
+}
+async function loadCourseUpdates(course,el){
+ const sid=course.id||course.section_id||course.sectionId,uid=state.auth?.userId||state.auth?.user?.id;
+ if(!sid)throw new Error('Course section ID is missing.');
+ let start=0,limit=20,all=[],authorUsers={},next=true,loading=false;
+ const render=async()=>{const cards=all.map(post=>{const id=sharedPostId(post),au=authorUsers[Number(post.user_id||post.uid||post.author_id||post.authorId)]||{},author=post.display_name||post.author_name||au.name_display||au.display_name||au.name||'Schoology',avatar=normalizeImageUrl(au.picture_url||au.pictureUrl||au.picture||au.photo_url||post.user_photo||post.photo_url||''),canDelete=uid&&String(post.uid||post.user_id||post.author_id||'')===String(uid);return renderSharedPostCard({post,id,realm:'sections',realmId:sid,author,avatar,authorId:au.id||post.user_id||post.uid||post.author_id||post.authorId||'',canDelete,cardClass:'sectionFullUpdate'})}).join('');
+  el.innerHTML=(cards||'<div class="empty"><h2>No updates</h2><p>There are no updates in this course.</p></div>')+(next?'<button id="courseUpdateMore" class="androidMoreButton">Load more</button>':'');
+  await hydrateMediaImages(el);wireSharedPostList(el,'sections',sid,all,{authorUsers,canDelete:true,deletePathPrefix:'sections/'+sid+'/updates'});
+  el.querySelector('#courseUpdateMore')?.addEventListener('click',()=>loadPage(false));
+ };
+ const loadPage=async(reset)=>{if(loading)return;loading=true;if(reset){start=0;all=[];next=true}try{const x=await A.api({path:'sections/'+sid+'/updates',params:{start,limit,with_attachments:'TRUE',richtext:1}});const rows=x.update||x.updates||x.update_list||[];const ids=[...new Set(rows.map(post=>post.user_id||post.uid||post.author_id||post.authorId).filter(Boolean).map(Number))];await Promise.all(ids.map(async id=>{if(authorUsers[id])return;try{const q=await A.api({path:'users/'+id,params:{}});authorUsers[id]=q?.user||q}catch{}}));all=all.concat(rows);next=!!(x.links?.next||x.link?.next||rows.length>=limit);start+=rows.length;await render()}finally{loading=false}};
+ await loadPage(true);
+}
+async function loadCourseUpdateComments(sectionId,updateId,panel){return loadSharedPostComments('sections',sectionId,updateId,panel,{inline:true})}
 
 function openCourseUpdateComposer(course){
  const sid=course.id||course.section_id||course.sectionId;
@@ -1661,6 +1826,13 @@ async function loadCourseTab(course,tab){
  }
  if(tab==='updates'){
    await loadCourseUpdates(course,el);
+   return;
+ }
+ if(tab==='members'){
+   const response=await A.api({path:'sections/'+sid+'/enrollments',params:{start:0,limit:200,enrollment_status:1}});
+   const raw=response?.enrollment||response?.enrollments||response?.data?.enrollment||[],entries=Array.isArray(raw)?raw:(raw?.enrollment||raw?.items||[]);
+   const people=entries.filter(person=>String(person.status??1)==='1').map(person=>({...person,id:person.uid||person.user_id||person.userId||person.user?.id||'',uid:person.uid||person.user_id||person.userId||person.user?.id||'',name_first:person.name_first||person.user?.name_first||'',name_last:person.name_last||person.user?.name_last||'',name_display:person.name_display||person.user?.name_display||person.user?.name||'',name_first_preferred:person.name_first_preferred||person.user?.name_first_preferred||'',picture_url:person.picture_url||person.pictureUrl||person.user?.picture_url||person.user?.pictureUrl||'',admin:person.admin??person.is_admin??person.isAdmin,is_admin:person.is_admin??person.isAdmin,role:person.role??person.role_name??person.roleName})).filter(person=>person.id);
+   renderM3ePeopleDirectoryInto(el,people,{placeholder:'Search course members',membersMode:true,onRefresh:()=>loadCourseTab(course,'members'),onSelect:person=>openProfileById(person.id,person.name_display||[person.name_first,person.name_last].filter(Boolean).join(' ')||'Profile')});
    return;
  }
  if(tab==='upcoming'){
@@ -1995,12 +2167,12 @@ async function openSchoolProfile(schoolId,title='School'){
       content.innerHTML=rows.length?`<div class="schoolProfileInfoRows">${rows.map(([k,v])=>`<div class="schoolProfileInfoRow"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>`:'<div class="empty">No information available.</div>';return;
      }
      if(tab==='updates'){
-      const response=await A.api({path:`schools/${schoolId}/updates`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
-      const items=response?.update||response?.updates||response?.update_list||[];
-      const ids=[...new Set(items.map(u=>u.user_id||u.uid||u.author_id||u.authorId).filter(Boolean).map(Number))],users={};
-      await Promise.all(ids.map(async id=>{try{const result=await A.api({path:`users/${id}`,params:{}});users[id]=result?.user||result}catch{}}));
-      content.innerHTML=items.length?`<div class="schoolProfileUpdates">${items.map(item=>{const id=item.user_id||item.uid||item.author_id||item.authorId,user=users[Number(id)]||{},name=user.name_display||user.name||item.display_name||item.user_name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||item.picture_url||item.pictureUrl||''),initials=String(name).trim().split(/\\s+/).slice(0,2).map(v=>v.charAt(0)).join('').toUpperCase()||'S';return `<m3e-card variant="filled" class="schoolProfileUpdate"><div class="schoolProfileUpdateContent"><div class="schoolProfileUpdateAuthorRow"><span class="schoolProfileUpdateAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="">`:`<span>${esc(initials)}</span>`}</span><button type="button" class="schoolProfileUpdateAuthor" data-school-profile-author-id="${esc(id||'')}">${esc(name)}</button></div><div class="schoolProfileUpdateBody">${item.body||item.message||''}</div>${renderAttachments(item.attachments||item.attachment||item.files||{})}<small>${esc(formatSchoologyDate(item.created||item.timestamp||item.last_updated||''))}</small></div></m3e-card>`}).join('')}</div>`:'<div class="empty">No updates.</div>';
-      await hydrateMediaImages(content);content.querySelectorAll('[data-school-profile-author-id]').forEach(button=>button.onclick=()=>{if(button.dataset.schoolProfileAuthorId)openProfileById(button.dataset.schoolProfileAuthorId,button.textContent||'Profile')});return;
+      const response=await A.api({path:'schools/'+schoolId+'/updates',params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
+      const items=response?.update||response?.updates||response?.update_list||[],users={};
+      const ids=[...new Set(items.map(item=>item.user_id||item.uid||item.author_id||item.authorId).filter(Boolean).map(Number))];
+      await Promise.all(ids.map(async id=>{try{const result=await A.api({path:'users/'+id,params:{}});users[id]=result?.user||result}catch{}}));
+      content.innerHTML=items.length?'<div class="schoolProfileUpdates">'+items.map(item=>{const uid=item.user_id||item.uid||item.author_id||item.authorId||'',user=users[Number(uid)]||{},name=user.name_display||user.display_name||user.name||item.display_name||item.user_name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||item.picture_url||item.pictureUrl||'');return renderSharedPostCard({post:item,id:sharedPostId(item),realm:'schools',realmId:schoolId,author:name,avatar,authorId:user.id||uid,cardClass:'schoolProfileUpdate'})}).join('')+'</div>':'<div class="empty">No updates.</div>';
+      await hydrateMediaImages(content);wireSharedPostList(content,'schools',schoolId,items,{authorUsers:users});return;
      }
      if(tab==='upcoming'){
       const events=state.schoolProfile.events.length?state.schoolProfile.events:await loadSchoolProfileUpcoming();
@@ -2025,17 +2197,70 @@ async function openSchoolProfile(schoolId,title='School'){
   }catch(error){c.innerHTML=`<div class="error apiError">${esc(error.message||String(error))}</div>`}
 }
 
+function isSchoologyAdminMember(person){
+ const truthy=value=>value===true||value===1||value==='1'||String(value??'').toLowerCase()==='true';
+ const flags=[person?.admin,person?.is_admin,person?.isAdmin,person?.group_admin,person?.groupAdmin,person?.is_group_admin,person?.isGroupAdmin,person?.owner,person?.is_owner,person?.isOwner];
+ if(flags.some(truthy))return true;
+ const roles=[person?.role,person?.role_name,person?.roleName,person?.role_title,person?.roleTitle,person?.position,person?.member_role,person?.memberRole];
+ return roles.some(value=>{const text=typeof value==='object'?String(value?.name||value?.title||value?.label||value?.role||''):String(value??'');return /(^|[\s_-])(admin|administrator|owner|group admin|course admin)([\s_-]|$)/i.test(text)||/^(admin|administrator|owner)$/i.test(text.trim())});
+}
+function renderM3ePeopleDirectoryInto(container,people,{placeholder='Search people',onRefresh=null,onSelect=null,membersMode=false}={}){
+ if(!container)return;
+ const arr=(Array.isArray(people)?people:[]).slice(),lastName=p=>String(p.name_last||p.last_name||p.nameLast||''),firstName=p=>String(p.name_display_start||p.nameDisplayStart||p.name_first||p.first_name||p.name||p.name_display||p.display_name||'');
+ arr.sort((a,b)=>(membersMode?(Number(isSchoologyAdminMember(b))-Number(isSchoologyAdminMember(a))):0)||lastName(a).localeCompare(lastName(b))||firstName(a).localeCompare(firstName(b)));
+ window.__schoologyPeople=arr;
+ container.innerHTML='<section class="peopleAndroidPage m3ePeopleDirectory"><div class="peopleDirectoryToolbar"><m3e-form-field variant="outlined" class="peopleDirectorySearchField"><label slot="label">Search</label><input class="peopleDirectorySearchInput" type="search" placeholder="'+esc(placeholder)+'" autocomplete="off"></m3e-form-field>'+(membersMode?'<m3e-tabs variant="secondary" class="peopleMemberFilterTabs"><m3e-tab data-member-filter="all" selected>All</m3e-tab><m3e-tab data-member-filter="members">Members</m3e-tab><m3e-tab data-member-filter="admins">Admins</m3e-tab></m3e-tabs>':'<m3e-button class="peopleDirectoryRefresh" variant="text">Refresh</m3e-button>')+'</div><m3e-list variant="segmented" class="peopleDirectoryList"></m3e-list></section>';
+ const page=container.querySelector('.m3ePeopleDirectory'),list=page?.querySelector('.peopleDirectoryList'),search=page?.querySelector('.peopleDirectorySearchInput');
+ let filter='all';
+ const render=async()=>{const query=String(search?.value||'').trim().toLocaleLowerCase(),visible=arr.filter(person=>{const admin=isSchoologyAdminMember(person);return (!membersMode||filter==='all'||(filter==='admins'?admin:!admin))&&(!query||[firstName(person),lastName(person),person.name_display,person.display_name,person.name_first_preferred].some(value=>String(value||'').toLocaleLowerCase().includes(query)))});let previousLetter='',adminHeader=false;
+  const html=visible.map(person=>{const admin=membersMode&&isSchoologyAdminMember(person),last=lastName(person),first=firstName(person),letter=(last.charAt(0)||'#').toUpperCase(),preferred=String(person.name_first_preferred||person.nameFirstPreferred||''),avatar=normalizeImageUrl(person.picture_url||person.pictureUrl||person.picture||person.photo_url||person.photoUrl||'');let header='';
+   if(membersMode&&filter==='all'&&admin){if(!adminHeader){header='<div class="peopleSectionHeader peopleAdminsSectionHeader">Admins</div>';adminHeader=true}previousLetter='__admins__'}
+   else{if(previousLetter==='__admins__')previousLetter='';if(letter!==previousLetter){header='<div class="peopleSectionHeader">'+esc(letter)+'</div>';previousLetter=letter}}
+   const adminIcon=admin?'<span class="peopleMemberAdminIcon" aria-label="Administrator">'+groupAdminBadgeMarkup({...person,admin:true,is_admin:true})+'</span>':'';
+   return header+'<m3e-list-action class="peopleListItem '+(admin?'peopleMemberAdmin':'')+'" data-person-index="'+arr.indexOf(person)+'"><span slot="leading" class="peopleAvatar">'+(avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(String(first||'S').charAt(0))+'</span>')+'</span><span class="peopleMemberNameBlock"><b>'+esc((first+' '+last).trim()||'Schoology user')+'</b>'+(preferred?'<small>'+esc(preferred)+'</small>':'')+(admin?'<small class="peopleMemberRole">Admin</small>':'')+'</span>'+adminIcon+'<span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>';
+  }).join('');
+  if(list)list.innerHTML=html||'<div class="empty">'+(membersMode&&filter==='admins'?'No admins found.':membersMode&&filter==='members'?'No members found.':'No people found.')+'</div>';
+  list?.querySelectorAll('[data-person-index]').forEach(button=>button.onclick=()=>{const person=arr[Number(button.dataset.personIndex)];if(person)onSelect?.(person)});
+  await hydrateMediaImages(container);
+ };
+ search?.addEventListener('input',()=>void render());
+ page?.querySelectorAll('[data-member-filter]').forEach(button=>button.addEventListener('click',()=>{filter=button.dataset.memberFilter||'all';page.querySelectorAll('[data-member-filter]').forEach(tab=>{tab.toggleAttribute('selected',tab.dataset.memberFilter===filter)});void render()}));
+ page?.querySelector('.peopleDirectoryRefresh')?.addEventListener('click',async event=>{const button=event.currentTarget;if(!onRefresh)return;button.disabled=true;try{await onRefresh()}finally{if(button.isConnected)button.disabled=false}});
+ void render();
+}
+function openGroupUpdateComposer(groupId){
+ if(!state.groupCanPostUpdates||!groupId)return;
+ const targetGroup=state.currentGroup,old=document.getElementById('groupUpdateComposer');old?.remove();
+ const wrap=document.createElement('div');wrap.id='groupUpdateComposer';wrap.className='courseUpdateComposer';
+ wrap.innerHTML='<m3e-dialog open class="courseUpdateDialog" disable-close><span slot="header">Post Update</span><div class="courseUpdateComposerInner"><textarea id="groupUpdateBody" aria-label="Write an update" placeholder="Write an update…"></textarea></div><span slot="actions" end><m3e-button id="cancelGroupUpdate" variant="text">Cancel</m3e-button><m3e-button id="submitGroupUpdate" variant="filled">Post</m3e-button></span></m3e-dialog>';
+ document.body.appendChild(wrap);wrap.querySelector('#cancelGroupUpdate')?.addEventListener('click',()=>wrap.remove());
+ wrap.querySelector('#submitGroupUpdate')?.addEventListener('click',async()=>{const body=wrap.querySelector('#groupUpdateBody')?.value.trim(),button=wrap.querySelector('#submitGroupUpdate');if(!body)return;button.disabled=true;try{await A.api({path:'groups/'+groupId+'/updates',method:'POST',params:{body},signBody:true});wrap.remove();if(targetGroup&&state.currentGroup===targetGroup)await showGroup(targetGroup,'updates')}catch(error){button.disabled=false;showAppDialog('Unable to post update',error?.message||String(error))}});
+ requestAnimationFrame(()=>wrap.querySelector('#groupUpdateBody')?.focus());
+}
+async function loadGroupCreationPermissions(groupId){
+ state.groupCanPostUpdates=false;state.groupCanCreateDiscussion=false;
+ if(!groupId)return;
+ try{
+  const paths=['updates','discussions'].map(kind=>'/v1/groups/'+groupId+'/'+kind);
+  const response=await A.api({path:'multioptions',method:'POST',params:{request:paths}});
+  const rows=Array.isArray(response?.response)?response.response:(Array.isArray(response?.responses)?response.responses:[]);
+  const bodies={};for(const row of rows){if(!row?.location)continue;let body=row.body??row.data??'';try{if(typeof body==='string')body=JSON.parse(body)}catch{}bodies[String(row.location)]=body}
+  const canPost=value=>{if(value==null)return false;if(typeof value==='boolean')return value;if(typeof value==='number')return value===1;if(typeof value==='string'){const text=value.trim().toLowerCase();if(text==='true'||text==='1'||text==='post')return true;try{return canPost(JSON.parse(value))}catch{return /\bpost\b/i.test(value)}}if(Array.isArray(value))return value.some(canPost);if(typeof value==='object'){for(const [key,val] of Object.entries(value)){if(String(key).toLowerCase()==='post'&&canPost(val))return true}return canPost(value.permissions??value.permission_map??value.permissionMap??value.data)}return false};
+  state.groupCanPostUpdates=canPost(bodies[paths[0]]);state.groupCanCreateDiscussion=canPost(bodies[paths[1]]);
+ }catch{state.groupCanPostUpdates=false;state.groupCanCreateDiscussion=false}
+}
 async function showGroup(group,activeTab='updates'){
   if(!group)return;
   state.currentGroup=group;state.groupTab=activeTab;state.courseView=null;state.selectedCourse=null;state.assignmentView=null;state.embeddedTitle=null;state.profileUser=null;state.message=null;state.composeMessage=false;state.toolbarTitle=group.name||group.title||'Group';syncToolbar();
   const c=document.getElementById('content');if(!c)return;
   const gid=group.id||group.group_id;
   let groupDetail=group;try{const gx=await A.api({path:`groups/${gid}`,params:{}});groupDetail=gx?.group||gx||group}catch{}
+  await loadGroupCreationPermissions(gid);if(state.currentGroup===group)syncToolbar();
   let groupSchoolId=groupDetail?.school_id??groupDetail?.schoolId;
   let groupSchool='';
   if(groupSchoolId){try{const sx=await A.api({path:`schools/${groupSchoolId}`,params:{}});const sch=sx?.school||sx;groupSchool=String(sch?.title||sch?.name||'')}catch{}}
   const groupLandscape=window.matchMedia('(min-width: 801px)').matches;
-  const groupTabsMarkup=`<div class="groupTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs groupTabsM3e">${['updates','upcoming','discussions','albums','resources'].map((id)=>`<m3e-tab class="groupTab ${id==='upcoming'?'groupUpcomingTab':''}" data-group-tab="${id}" ${activeTab===id?'selected':''}>${({updates:'Updates',upcoming:'Upcoming',discussions:'Discussions',albums:'Albums',resources:'Resources'})[id]}</m3e-tab>`).join('')}</m3e-tabs></div>`;
+  const groupTabsMarkup=`<div class="groupTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs groupTabsM3e">${['updates','members','upcoming','discussions','albums','resources'].map((id)=>`<m3e-tab class="groupTab ${id==='upcoming'?'groupUpcomingTab':''}" data-group-tab="${id}" ${activeTab===id?'selected':''}>${({updates:'Updates',members:'Members',upcoming:'Upcoming',discussions:'Discussions',albums:'Albums',resources:'Resources'})[id]}</m3e-tab>`).join('')}</m3e-tabs></div>`;
   const groupMain=`<section slot="start" class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img src="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
   const groupUpcoming=`<aside slot="end" id="groupUpcomingPane" class="groupUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="groupUpcomingContent"></div></aside>`;
   c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" data-persist-key="group-${esc(gid)}" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
@@ -2043,21 +2268,24 @@ async function showGroup(group,activeTab='updates'){
   const groupSchoolButton=document.querySelector('[data-group-school-id]');if(groupSchoolButton)groupSchoolButton.onclick=()=>{const id=Number(groupSchoolButton.getAttribute('data-group-school-id')||0);if(id)openSchoolProfile(id,groupSchoolButton.textContent||'School')};
   const loadGroupUpcoming=async()=>{const up=document.getElementById('groupUpcomingContent');if(!up)return;try{const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));up.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';up.querySelectorAll('[data-course-upcoming-id]').forEach(b=>b.onclick=()=>{const e=a.find(v=>String(v.id||'')===String(b.dataset.courseUpcomingId));if(!e)return;const aid=e.assignment_id??e.assignmentId??e.assignment?.id;if(String(e.type||'').toLowerCase()==='assignment'&&aid){showAssignment(gid,aid);}else if(['assessment','assessment_v2','managed_assessment','quiz'].includes(String(e.type||'').toLowerCase())){const id=aid??e.id;(async()=>{await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,e.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})})()}else if(String(e.type||'').toLowerCase()==='event'&&e.id){openWithPressTransition(b,()=>showEventNative('groups',gid,e.id,e.title||'Event'));}})}catch(e){up.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}};
   const load=async(tab)=>{
-    state.groupTab=tab;syncM3eTabSelection(document.getElementById('content'),'groupTab',tab);
+    state.groupTab=tab;syncM3eTabSelection(document.getElementById('content'),'groupTab',tab);syncToolbar();
     gc.innerHTML='<div class="loading groupTabLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
     try{
       if(tab==='updates'){
-        const x=await A.api({path:`groups/${gid}/updates`,params:{start:0,limit:20,with_attachments:'TRUE',richtext:1}});
-        const a=x.update||x.updates||x.update_list||[];
-        const ids=[...new Set(a.map(u=>u.user_id||u.uid||u.author_id||u.authorId).filter(Boolean).map(Number))], users={};
-        await Promise.all(ids.map(async id=>{try{const q=await A.api({path:`users/${id}`,params:{}});users[id]=q?.user||q}catch{}}));
-        gc.innerHTML=a.length?a.map(u=>{
-          const au=users[Number(u.user_id||u.uid||u.author_id||u.authorId)]||{};
-          const name=u.display_name||u.author_name||au.name_display||au.display_name||au.name||'Schoology';
-          const avatar=normalizeImageUrl(au.picture_url||au.pictureUrl||au.picture||au.photo_url||'');
-          return `<article class="androidActivityCard groupFullUpdate"><div class="activityHeader">${avatar?`<img class="activityAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="activityAvatar">${esc(String(name).charAt(0))}</span>`}<button class="activityUser activityAuthorLink" data-author-id="${esc(u.user_id||u.uid||u.author_id||u.authorId||u.creator_id||u.creatorId||'')}">${esc(name)}</button></div><div class="activityBody">${u.body||u.message||''}</div>${renderAttachments(u.attachments||u.attachment||u.files||{})}<div class="activityMeta">${esc(formatSchoologyDate(u.created||u.timestamp||u.last_updated||u.lastUpdated||''))}</div><div class="activityActions"><button>Comment${u.num_comments?` (${esc(u.num_comments)})`:''}</button><button>${u.liked?'Unlike':'Like'}${u.likes?` (${esc(u.likes)})`:''}</button></div></article>`;
-        }).join(''):'<div class="empty">No updates.</div>';
-        await hydrateMediaImages(gc);document.querySelectorAll('[data-author-id]').forEach(b=>b.onclick=()=>{const id=b.dataset.authorId;if(id)openProfileById(id,b.textContent||'Profile')});
+        const x=await A.api({path:'groups/'+gid+'/updates',params:{start:0,limit:20,with_attachments:'TRUE',richtext:1}});
+        const items=x.update||x.updates||x.update_list||[],users={};
+        const ids=[...new Set(items.map(post=>post.user_id||post.uid||post.author_id||post.authorId).filter(Boolean).map(Number))];
+        await Promise.all(ids.map(async id=>{try{const q=await A.api({path:'users/'+id,params:{}});users[id]=q?.user||q}catch{}}));
+        gc.innerHTML=items.length?items.map(post=>{const uid=post.user_id||post.uid||post.author_id||post.authorId||post.creator_id||post.creatorId||'',user=users[Number(uid)]||{},name=post.display_name||post.author_name||user.name_display||user.display_name||user.name||'Schoology',avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||user.photo_url||'');return renderSharedPostCard({post,id:sharedPostId(post),realm:'groups',realmId:gid,author:name,avatar,authorId:user.id||uid,cardClass:'groupFullUpdate'})}).join(''):'<div class="empty">No updates.</div>';
+        await hydrateMediaImages(gc);wireSharedPostList(gc,'groups',gid,items,{authorUsers:users});
+      }
+      else if(tab==='members'){
+        const response=await A.api({path:'groups/'+gid+'/enrollments',params:{start:0,limit:200,enrollment_status:1}});
+        const raw=response?.enrollment||response?.enrollments||response?.data?.enrollment||response?.member||response?.members||response?.user||response?.users||response?.data?.member||response?.data?.members||[];
+        const entries=Array.isArray(raw)?raw:(raw?.enrollment||raw?.enrollments||raw?.member||raw?.items||raw?.data||[]);
+        const people=entries.map(entry=>{const nested=entry?.user||entry?.member||entry?.profile,person=nested||entry,id=nested?(person.id??person.uid??person.user_id??person.userId??entry?.user_id??entry?.userId??entry?.uid??''):(entry?.user_id??entry?.userId??entry?.uid??entry?.id??'');return {...entry,...person,id,uid:id,name_first:person.name_first||person.first_name||person.nameFirst||'',name_last:person.name_last||person.last_name||person.nameLast||'',name_display_start:person.name_display_start||person.nameDisplayStart||person.name_first||person.first_name||person.name_display||person.display_name||person.name||'',name_display:person.name_display||person.display_name||person.name||'',name_first_preferred:person.name_first_preferred||person.nameFirstPreferred||'',picture_url:person.picture_url||person.pictureUrl||person.picture||person.photo_url||'',admin:entry?.admin??entry?.is_admin??entry?.isAdmin??person.admin??person.is_admin??person.isAdmin,role:entry?.role??entry?.role_name??entry?.roleName??person.role}}).filter(person=>person.id);
+        if(!Array.isArray(raw)&&!entries.length)throw new Error('The group-members response did not contain a member list.');
+        renderM3ePeopleDirectoryInto(gc,people,{placeholder:'Search group members',membersMode:true,onSelect:person=>openProfileById(person.id,person.name_display||[person.name_first,person.name_last].filter(Boolean).join(' ')||'Profile')});
       }
       else if(tab==='upcoming'){const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));gc.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';}
       else if(tab==='discussions'){const x=await A.api({path:`groups/${gid}/discussions`,params:{limit:50}});const a=x.discussion||x.discussions||[];gc.innerHTML=a.length?`<m3e-action-list variant="segmented" class="groupSegmentedList">${a.map(d=>{const creator=d.creater_id??d.creator_id??d.created_by??d.user_id??d.uid??d.author_id??'';return `<m3e-list-action tabindex="0" data-group-discussion-id="${esc(d.id||d.discussion_id||'')}"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon('ic_discussion.png','')}</span><span>${esc(d.title||'Discussion')}</span><span slot="supporting-text">Created by ${esc(creator)}</span></m3e-list-action>`}).join('')}</m3e-action-list>`:'<div class="empty">No discussions.</div>';gc.querySelectorAll('[data-group-discussion-id]').forEach(b=>b.onclick=async()=>{const d=a.find(v=>String(v.id||v.discussion_id||'')===String(b.dataset.groupDiscussionId));if(!d)return;try{await showDiscussionNative('groups',gid,d.id||d.discussion_id,d.title||'Discussion')}catch(e){alert('Unable to open discussion: '+e.message)}});}
@@ -2339,7 +2567,7 @@ async function loadTab(){
       }else if(tab==='badges'){
         try{const x=await A.api({path:`users/${puid}/badges`,params:{}});const arr=x.badge||x.badges||x.items||[];pane.innerHTML=arr.length?`<div class="badgeGrid">${arr.map(b=>`<article class="badgeCard"><b>${esc(b.name||b.title||'Badge')}</b><small>${esc(b.description||'')}</small></article>`).join('')}</div>`:'<div class="empty">No badges.</div>'}catch(e){pane.innerHTML='<div class="empty">No badges.</div>'}
       }else{
-        try{const x=await A.api({path:`users/${puid}/updates`,params:{start:0,limit:20}});const arr=x.update||x.updates||[];pane.innerHTML=arr.length?arr.map(u=>`<m3e-card variant="filled" class="profileUpdateCard"><div class="profileUpdateCardContent"><b>${esc(user.name_display||'')}</b><div class="activityBody">${u.body||u.message||''}</div><small>${esc(formatSchoologyDate(u.created||u.timestamp||u.last_updated||u.lastUpdated||''))}</small></div></m3e-card>`).join(''):'<div class="empty">No updates.</div>'}catch(e){pane.innerHTML='<div class="empty">No updates.</div>'}
+        try{const x=await A.api({path:'users/'+puid+'/updates',params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});const arr=x.update||x.updates||x.update_list||[];const avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||user.photo_url||'');pane.innerHTML=arr.length?'<div class="profileUpdatesShared">'+arr.map(post=>renderSharedPostCard({post,id:sharedPostId(post),realm:'users',realmId:puid,author:user.name_display||user.display_name||user.name||'Schoology',avatar,authorId:puid,cardClass:'profileUpdateCard'})).join('')+'</div>':'<div class="empty">No updates.</div>';await hydrateMediaImages(pane);wireSharedPostList(pane,'users',puid,arr,{authorUsers:{[puid]:user}})}catch(e){pane.innerHTML='<div class="empty">No updates.</div>'}
       }
     };
     document.querySelectorAll('[data-profile-tab]').forEach(b=>b.onclick=()=>loadProfileTab(b.dataset.profileTab));
@@ -2446,11 +2674,7 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
       }
       arr=[...seen.values()];
     }
-    arr=arr.slice().sort((a,b)=>String(a.name_last||a.last_name||'').localeCompare(String(b.name_last||b.last_name||''))||String(a.name_first||a.first_name||'').localeCompare(String(b.name_first||b.first_name||'')));
-    window.__schoologyPeople=arr;
-    let last='';const rows=arr.map((u,i)=>{const lastName=String(u.name_last||u.last_name||'');const firstName=String(u.name_first||u.first_name||u.name_display_start||u.name||'');const preferred=String(u.name_first_preferred||u.nameFirstPreferred||'');const letter=(lastName.charAt(0)||'#').toUpperCase();let h='';if(letter!==last){last=letter;h=`<div class="peopleSectionHeader">${esc(letter)}</div>`}const image=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||u.photo_url||'');return `${h}<button class="peopleListItem" data-person-index="${i}"><img class="peopleAvatar" src="${image||'../assets/icons/profile_default_website.png'}" alt=""><span><b>${esc(firstName)} ${esc(lastName)}</b>${preferred?`<small>${esc(preferred)}</small>`:''}</span></button>`}).join('');
-    c.innerHTML=`<section class="peopleAndroidPage"><div class="peopleList">${rows||'<div class="empty">No people found.</div>'}</div></section>`;
-    document.querySelectorAll('[data-person-index]').forEach(b=>b.onclick=()=>{const u=window.__schoologyPeople[+b.dataset.personIndex];state.profileUser=u;state.tab='profile';state.profileTab='updates';state.toolbarTitle='Profile';render();loadTab()});
+    renderM3ePeopleDirectoryInto(c,arr,{placeholder:'Search school directory',onRefresh:()=>loadTab(),onSelect:person=>{state.profileUser=person;state.tab='profile';state.profileTab='updates';state.toolbarTitle='Profile';render();loadTab()}});
   }else if(state.tab==='settings'){
     if(state.settingsPage==='theme'){
       const t=getThemeSettings();
