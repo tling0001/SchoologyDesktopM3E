@@ -559,13 +559,20 @@ async fn create_embedded_webview(app: &AppHandle, info: &Value) -> Result<Value,
         if target_host == "app.schoology.com" || target_host.ends_with(".schoology.com") ||
             target_host == "app.schoologyca.com" || target_host.ends_with(".schoologyca.com") {
             if let Some(view) = app.get_webview(&label) {
-                let default_domain = if target_host == "app.schoologyca.com" || target_host.ends_with(".schoologyca.com") { "schoologyca.com" } else { "schoology.com" };
+                // WebView2's native cookie store uses a leading dot to express
+                // domain cookies shared with subdomains. Preserve that scope instead
+                // of stripping it: otherwise cookies issued for .schoology.com can
+                // become host-only on Windows and the first app.schoology.com request
+                // is unauthenticated.
+                let default_domain = if target_host == "app.schoologyca.com" || target_host.ends_with(".schoologyca.com") { ".schoologyca.com" } else { ".schoology.com" };
                 let mut cookie_entries: Vec<(String, String, String, String)> = session_cookies.iter().filter_map(|cookie| {
                     let name = cookie.get("key").or_else(|| cookie.get("name")).and_then(Value::as_str)?.trim();
                     let value = cookie.get("value").or_else(|| cookie.get("val")).and_then(Value::as_str)?;
-                    let domain = cookie.get("domain").and_then(Value::as_str).unwrap_or(default_domain).trim().trim_start_matches(".").to_ascii_lowercase();
+                    let raw_domain = cookie.get("domain").and_then(Value::as_str).unwrap_or(default_domain).trim().to_ascii_lowercase();
+                    let domain = if raw_domain.starts_with('.') { raw_domain } else if raw_domain == "schoology.com" || raw_domain == "schoologyca.com" { format!(".{raw_domain}") } else { raw_domain };
+                    let normalized_domain = domain.trim_start_matches('.');
                     let path = cookie.get("path").and_then(Value::as_str).filter(|path| path.starts_with("/")).unwrap_or("/");
-                    let valid_domain = domain == "schoology.com" || domain.ends_with(".schoology.com") || domain == "schoologyca.com" || domain.ends_with(".schoologyca.com");
+                    let valid_domain = normalized_domain == "schoology.com" || normalized_domain.ends_with(".schoology.com") || normalized_domain == "schoologyca.com" || normalized_domain.ends_with(".schoologyca.com");
                     if name.is_empty() || !valid_domain || name.chars().any(|ch| ch.is_control() || ch == ';' || ch == '=' || ch == ',') || value.chars().any(|ch| ch.is_control() || ch == ';' || ch == ',') { return None; }
                     Some((name.to_owned(), value.to_owned(), domain, path.to_owned()))
                 }).collect();
