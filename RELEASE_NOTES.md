@@ -1,4 +1,19 @@
-# Schoology Desktop M3E — port 2026.10.0-port.1
+# Schoology Desktop M3E — port 2026.10.0-port.2
+
+## [2026.10.0-port.2]
+
+### Landscape navigation and member directory
+- Match the course sidebar to the Upcoming segmented-list styling and place course apps directly below core course destinations.
+- Add the shared three-column landscape layout to course, group, and school profile pages.
+- Add searchable member lists separated into administrator and alphabetic sections, with responsive All/Members/Admins controls.
+- Render Upcoming dates as plain headings above their own segmented event lists.
+
+### Startup and update fixes
+- Permit Tauri IPC in the renderer Content Security Policy so iOS startup no longer treats IPC as a fatal splash error.
+- Match window controls and the pre-render background to the app-bar surface and reserve space on the correct side.
+- Guard alternate-release actions against missing bridge methods and bump the port version.
+
+---
 
 ## [2026.10.0-port.1]
 
