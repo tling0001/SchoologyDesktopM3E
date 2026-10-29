@@ -54,11 +54,7 @@ function syncM3eTabSelection(container, attr, value){
     tab.selected=selected;
   });
   // Segmented action-list navigation shares the same selection state as M3E tabs.
-  root.querySelectorAll('m3e-list-action[data-course-tab]').forEach(item=>{
-    const selected=String(item.dataset?.[attr]||'')===String(value);
-    item.classList.toggle('courseSidebarActive',selected);
-    if(selected)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');
-  });
+  for(const [dataKey,attribute] of [['courseTab','course-tab'],['groupTab','group-tab'],['schoolProfileTab','school-profile-tab']])root.querySelectorAll('m3e-list-action[data-'+attribute+']').forEach(item=>{const selected=String(item.dataset?.[dataKey]||'')===String(value);item.classList.toggle('courseSidebarActive',selected);if(selected)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
 }
 function alert(message){showAppDialog('Schoology',String(message));}
 function showAppDialog(title,message,actions=[{label:'OK',action:null}]){
@@ -105,21 +101,12 @@ function showUpdateDialog(u){
 
 window.closeDrawerThen=function closeDrawerThen(fn){const c=document.getElementById('appDrawerContainer');if(c)c.start=false;setTimeout(()=>{state.drawerPage=null;if(typeof fn==='function')fn()},280)};const closeDrawerThen=(fn)=>window.closeDrawerThen(fn);
 function messageDetail(){
- const m=state.message||{}; const thread=state.messageThread;
- const msgs=thread?.messages||[]; const users=thread?.users||{};
- const subject=m.subject||msgs[0]?.subject||'Message';
+ const m=state.message||{},thread=state.messageThread,msgs=thread?.messages||[],users=thread?.users||{},subject=m.subject||msgs[0]?.subject||'Message';
  const cards=msgs.length?msgs.map(msg=>{
-   const uid=Number(msg.author_id||msg.authorId||msg.author?.id||msg.author?.user_id||msg.uid||msg.user_id||msg.sender_id||msg.senderId||msg.sender?.id||msg.sender?.user_id||msg.creator_id||0); const u=users[uid]||msg.author?.user||msg.author||msg.sender?.user||msg.sender||msg.user||{};
-   const me=uid && Number(state.auth?.userId||state.auth?.user?.id||0)===uid;
-   const name=me?'You':(u.name_display||u.nameDisplay||u.display_name||u.name||'Schoology');
-   const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');
-   const ts=msg.last_updated||msg.lastUpdated||msg.created||msg.timestamp;
-   const date=ts?(typeof ts==='number'||/^\d+$/.test(String(ts))?new Date(Number(ts)*1000).toLocaleString():String(ts)):'';
-   const body=msg.message||msg.body||'';
-   const attachments=renderMessageAttachments(msg.attachments||msg.attachment||{});
-   return `<m3e-card variant="filled" class="messageThreadCard"><div class="messageThreadHeader">${avatar?`<img class="messageThreadAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="messageThreadAvatarFallback">${esc(String(name).charAt(0))}</span>`}<div><b>${esc(name)}</b><small>${esc(date)}</small></div></div><div class="messageThreadBody">${esc(body)}</div>${attachments}</m3e-card>`;
- }).join(''):`<div class="messageThreadLoading">Loading message…</div>`;
- return m3eTheme(`<main class="messageDetailPage"><m3e-app-bar class="m3eMainAppBar"><m3e-icon-button id="messageBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">${originalM3Icon('arrow_back')}</span></m3e-icon-button><span slot="title">${esc(subject)}</span><m3e-icon-button id="messageRefresh" slot="trailing" aria-label="Refresh"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_refresh.png','Refresh')}</span></m3e-icon-button><m3e-icon-button id="messageReply" slot="trailing" aria-label="Reply"><span class="m3eOriginalIcon">${officialOrAssetIcon('ic_action_reply.png','Reply')}</span></m3e-icon-button></m3e-app-bar><main class="messageDetail">${thread?cards:'<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading message…</span></div>'}</main></main>`,'m3eMessageDetailScreen');
+  const uid=Number(msg.author_id||msg.authorId||msg.author?.id||msg.author?.user_id||msg.uid||msg.user_id||msg.sender_id||msg.senderId||msg.sender?.id||msg.sender?.user_id||msg.creator_id||0),user=users[uid]||msg.author?.user||msg.author||msg.sender?.user||msg.sender||msg.user||{},me=uid&&Number(state.auth?.userId||state.auth?.user?.id||0)===uid,name=me?'You':(user.name_display||user.nameDisplay||user.display_name||user.name||'Schoology'),avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||''),timestamp=msg.last_updated||msg.lastUpdated||msg.created||msg.timestamp,date=timestamp?(typeof timestamp==='number'||/^\\d+$/.test(String(timestamp))?new Date(Number(timestamp)*1000).toLocaleString():String(timestamp)):'',body=msg.message||msg.body||'',attachments=renderMessageAttachments(msg.attachments||msg.attachment||{});
+  return '<m3e-card variant="filled" class="messageThreadCard"><div slot="header" class="messageThreadHeader">'+(avatar?'<img class="messageThreadAvatar" data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="messageThreadAvatarFallback">'+esc(String(name).charAt(0))+'</span>')+'<div class="messageThreadAuthorBlock"><b>'+esc(name)+'</b><small>'+esc(date)+'</small></div></div><div slot="content" class="messageThreadBody">'+esc(body)+'</div>'+(attachments?'<div slot="footer" class="messageThreadAttachments">'+attachments+'</div>':'')+'</m3e-card>';
+ }).join(''):'<div class="messageThreadLoading">Loading message…</div>';
+ return m3eTheme('<main class="messageDetailPage"><m3e-app-bar class="m3eMainAppBar"><m3e-icon-button id="messageBack" slot="leading" aria-label="Back"><span class="m3eOriginalIcon">'+originalM3Icon('arrow_back')+'</span></m3e-icon-button><span slot="title">'+esc(subject)+'</span><m3e-icon-button id="messageRefresh" slot="trailing" aria-label="Refresh"><span class="m3eOriginalIcon">'+officialOrAssetIcon('ic_action_refresh.png','Refresh')+'</span></m3e-icon-button><m3e-icon-button id="messageReply" slot="trailing" aria-label="Reply"><span class="m3eOriginalIcon">'+officialOrAssetIcon('ic_action_reply.png','Reply')+'</span></m3e-icon-button></m3e-app-bar><main class="messageDetail">'+(thread?cards:'<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading message…</span></div>')+'</main></main>','m3eMessageDetailScreen');
 }
 function renderMessageAttachments(a){
  const rows=[];
@@ -248,13 +235,40 @@ function createFabMenuFor(plusId,menuId,itemsHtml){
   return menu;
 }
 
-function showHomeCreateMenu(){
-  const plus=document.getElementById('homeCreatePlus');if(!plus)return;
-  const menu=createFabMenuFor('homeCreatePlus','homeCreateMenu',`<m3e-fab-menu-item id="createHomeDiscussion"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Event</m3e-fab-menu-item>`);if(!menu)return;
-  document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide();showCreatePostDialog('discussion','',null)});
-  document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide();showCreatePostDialog('event','',null)});
+let homePostableUpdateDestinations=[];
+let homePermissionLoadPromise=null;
+async function loadHomeCreationPermissions(force=false){
+ if(homePermissionLoadPromise&&!force)return homePermissionLoadPromise;
+ homePermissionLoadPromise=(async()=>{
+  const uid=state.auth?.userId||state.auth?.user?.id;if(!uid)return [];
+  try{
+   const pair=await Promise.all([A.api({path:'users/'+uid+'/sections',params:{limit:100}}),A.api({path:'users/'+uid+'/groups',params:{limit:100}})]);
+   const sections=pair[0]?.section||pair[0]?.sections||[],groups=pair[1]?.group||pair[1]?.groups||[];
+   const destinations=[...sections.map(x=>({realm:'sections',id:x.id||x.section_id,label:x.section_title||x.course_title||x.title||'Course'})),...groups.map(x=>({realm:'groups',id:x.id||x.group_id,label:x.name||x.title||'Group'}))].filter(x=>x.id!=null);
+   if(!destinations.length){homePostableUpdateDestinations=[];return []}
+   const paths=destinations.map(x=>'/v1/'+x.realm+'/'+x.id+'/updates'),response=await A.api({path:'multioptions',method:'POST',params:{request:paths}}),rows=Array.isArray(response?.response)?response.response:(Array.isArray(response?.responses)?response.responses:[]),bodies={};
+   for(const row of rows){if(!row?.location)continue;let body=row.body??row.data??'';try{if(typeof body==='string')body=JSON.parse(body)}catch{}bodies[String(row.location)]=body}
+   const canPost=value=>{if(value==null)return false;if(typeof value==='boolean')return value;if(typeof value==='number')return value===1;if(typeof value==='string'){const v=value.toLowerCase();if(v==='true'||v==='1'||v==='post')return true;try{return canPost(JSON.parse(value))}catch{return v.includes('post')}}if(Array.isArray(value))return value.some(canPost);if(typeof value==='object'){for(const [key,val] of Object.entries(value))if(String(key).toLowerCase()==='post'&&canPost(val))return true;return canPost(value.permissions??value.permission_map??value.permissionMap??value.data)}return false};
+   homePostableUpdateDestinations=destinations.filter(x=>canPost(bodies['/v1/'+x.realm+'/'+x.id+'/updates']));return homePostableUpdateDestinations;
+  }catch(error){console.warn('Unable to check homepage update permissions:',error?.message||error);homePostableUpdateDestinations=[];return []}
+ })();
+ const result=await homePermissionLoadPromise;showHomeCreateMenu();return result;
 }
-
+function openHomeUpdateComposer(){
+ const destinations=homePostableUpdateDestinations;if(!destinations.length){showAppDialog('Post Update','Your account does not have permission to post updates in an available course or group.');return}
+ document.getElementById('homeUpdateComposer')?.remove();const wrap=document.createElement('div');wrap.id='homeUpdateComposer';wrap.className='sharedOverlay';
+ wrap.innerHTML='<m3e-dialog open class="sharedM3eDialog homeUpdateComposerDialog" disable-close><span slot="header">Post Update</span><div class="homeUpdateComposerBody"><label for="homeUpdatePostTo">Post to</label><m3e-select id="homeUpdatePostTo" block><m3e-option value="">Select a course or group</m3e-option>'+destinations.map((item,index)=>'<m3e-option value="'+index+'">'+esc(item.label)+'</m3e-option>').join('')+'</m3e-select><label for="homeUpdateBody">Update</label><textarea id="homeUpdateBody" rows="4" placeholder="Write an update…"></textarea><div id="homeUpdateStatus" role="status"></div></div><span slot="actions" end><m3e-button data-home-update-cancel variant="text">Cancel</m3e-button><m3e-button data-home-update-submit variant="filled">Post</m3e-button></span></m3e-dialog>';
+ document.body.appendChild(wrap);wrap.querySelector('[data-home-update-cancel]')?.addEventListener('click',()=>wrap.remove());
+ wrap.querySelector('[data-home-update-submit]')?.addEventListener('click',async()=>{const select=wrap.querySelector('#homeUpdatePostTo'),field=wrap.querySelector('#homeUpdateBody'),status=wrap.querySelector('#homeUpdateStatus'),target=destinations[Number(select?.value)],body=String(field?.value||'').trim();if(!target){status.textContent='Select a course or group.';return}if(!body){status.textContent='Write an update before posting.';return}const button=wrap.querySelector('[data-home-update-submit]');button.disabled=true;status.textContent='Posting…';try{await A.api({path:target.realm+'/'+target.id+'/updates',method:'POST',params:{body},json:true});wrap.remove();await loadHomeTab()}catch(error){button.disabled=false;status.textContent=error?.message||String(error)}});
+}
+function showHomeCreateMenu(){
+ const plus=document.getElementById('homeCreatePlus');if(!plus)return;document.getElementById('homeCreateMenu')?.remove();
+ const updateItem=homePostableUpdateDestinations.length?'<m3e-fab-menu-item id="createHomeUpdate"><m3e-icon slot="icon" name="edit" variant="outlined"></m3e-icon>Update</m3e-fab-menu-item>':'';
+ const menu=createFabMenuFor('homeCreatePlus','homeCreateMenu',updateItem+'<m3e-fab-menu-item id="createHomeDiscussion"><m3e-icon slot="icon" name="add" variant="outlined"></m3e-icon>Discussion</m3e-fab-menu-item><m3e-fab-menu-item id="createHomeEvent"><m3e-icon slot="icon" name="event" variant="outlined"></m3e-icon>Event</m3e-fab-menu-item>');if(!menu)return;
+ document.getElementById('createHomeUpdate')?.addEventListener('click',()=>{menu.hide?.();openHomeUpdateComposer()});
+ document.getElementById('createHomeDiscussion')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('discussion','',null)});
+ document.getElementById('createHomeEvent')?.addEventListener('click',()=>{menu.hide?.();showCreatePostDialog('event','',null)});
+}
 function showCreatePostDialog(kind,realm,realmId){
   const old=document.getElementById('createPostDialog');old?.remove();
   const wrap=document.createElement('div');wrap.id='createPostDialog';wrap.className='assignmentCommentDialogOverlay';
@@ -776,7 +790,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
  // Mount the Android-like course shell immediately. Network-dependent metadata and
  // permissions are hydrated after the page is visible so slow connections show the
  // native loading indicators instead of blocking navigation.
- const initialTabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[['courseapp','Course Apps']]:[['upcoming','Upcoming'],['courseapp','Course App']]),['grades','Grades'],['attendance','Attendance']];
+ const initialTabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming'],['courseapp','Course App']]),['grades','Grades'],['attendance','Attendance']];
  let effectiveTab=activeTab;
  if(landscape&&effectiveTab==='upcoming')effectiveTab='materials';
  
@@ -787,7 +801,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
     <m3e-split-pane slot="start" orientation="horizontal" class="courseInnerSplit" data-persist-key="courses-apps" value="20" min="12" max="40" step="1" label="Resize course navigation and content">
      <aside slot="start" class="courseAppsSidePane courseInfoSidePane">
       <div class="courseLandscapeImage"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:${image?'block':'none'}" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div>
-      <m3e-action-list variant="segmented" class="courseSidebarSegmentedList">${courseSidebarMarkup(initialTabs)}</m3e-action-list>
+      <m3e-action-list variant="segmented" class="upcomingSegmentedList courseSidebarSegmentedList">${courseSidebarMarkup(initialTabs)}</m3e-action-list>
      </aside>
      <section slot="end" class="courseMainPane">
       <div class="sectionProfileHeader courseIdentityCard courseIdentityMainInfo"><div class="courseIdentityImageWrap"><img class="sectionProfileImage" data-course-image-url="${esc(image)}" style="display:none" alt=""><span class="sectionProfileFallback" style="display:${image?'none':'flex'}">${esc(title.charAt(0)||'C')}</span></div><div class="courseIdentityInfoBar"><div class="sectionProfileTitle">${esc(title)}</div><div class="sectionProfileSubtitle">${esc(section||'')}</div><span class="courseSchoolLoading" aria-hidden="true"></span></div></div>
@@ -827,7 +841,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    const school=await resolveCourseSchoolName(sectionDetail||course)||schoolFromList;
    if(renderToken!==courseRenderToken||state.screen!=='app'||state.courseView!=='course'||state.selectedCourse!==course)return;
    const canGradebook=!!navPerms?.sectionGradesPut, canGrades=!!navPerms?.userGradesGet, attendanceEnabled=!!navPerms?.attendanceGet;
-   const tabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[['courseapp','Course Apps']]:[['upcoming','Upcoming'],['courseapp','Course App']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[])];
+   const tabs=[['materials','Materials'],['updates','Updates'],['members','Members'],...(landscape?[]:[['upcoming','Upcoming'],['courseapp','Course App']]),...(canGradebook?[['gradebook','Gradebook']]:canGrades?[['grades','Grades']]:[]),...(attendanceEnabled?[['attendance','Attendance']]:[])];
    effectiveTab=activeTab;
    if(effectiveTab==='grades'&&canGradebook)effectiveTab='gradebook';
    if(effectiveTab==='gradebook'&&!canGradebook)effectiveTab='grades';
@@ -841,6 +855,7 @@ async function showCourse(course,activeTab='materials',forceRebuild=false){
    const loadingSchool=info?.querySelector('.courseSchoolLoading');
    if(loadingSchool){loadingSchool.outerHTML=school?`<button class="courseSchoolLink" data-course-school-id="${esc(sectionDetail?.school_id??sectionDetail?.schoolId??course?.school_id??course?.schoolId??'')}" type="button">${esc(school)}</button>`:'';const infoSchoolButton=info?.querySelector('[data-course-school-id]');if(infoSchoolButton)infoSchoolButton.onclick=()=>{const id=Number(infoSchoolButton.getAttribute('data-course-school-id')||0);if(id)openSchoolProfile(id,infoSchoolButton.textContent||'School')};}
    loadCourseTab(course,effectiveTab).catch(e=>{const el=document.getElementById('sectionProfileContent');if(el)el.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`});
+   if(landscape)loadCourseApps(course,document.querySelector('.courseSidebarSegmentedList')).catch(e=>{const nav=document.querySelector('.courseSidebarSegmentedList');if(nav)nav.insertAdjacentHTML('beforeend',`<div class="error apiError">${esc(e.message)}</div>`)});
    if(landscape)loadCourseUpcomingPane(course).catch(e=>{const el=document.getElementById('courseUpcomingContent');if(el)el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`});
  })();
 }
@@ -1003,36 +1018,16 @@ async function showAssignment(sectionId,assignmentId){
 }
 
 async function openAssignmentComments(sectionId,assignmentId,assignment){
-  const c=state.assignmentLandscape?(document.getElementById('assignmentTabContent')||document.getElementById('content')):(document.getElementById('assignmentTabContent')||document.getElementById('content'));if(!c)return;
-  c.innerHTML='<div class="commentsPage officialComments"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading comments…</span></div></div>';
-  try{
-    const x=await A.api({path:`sections/${sectionId}/assignments/${assignmentId}/comments`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
-    const arr=x.comments||x.comment||[];
-    const flat=[];
-    const walk=(node,depth=0)=>{if(!node||typeof node!=='object')return;flat.push({node,depth});const children=node.children||node.replies||node.comments||node.comment_replies||[];if(Array.isArray(children))children.forEach(ch=>walk(ch,depth+1));};
-    arr.forEach(v=>walk(v,0));
-    const userIds=[...new Set(flat.map(({node})=>Number(node.creater_id??node.creator_id??node.uid??node.user_id??node.author_id??0)).filter(Boolean))];
-    const users={};await Promise.all(userIds.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{picture_size:'sm'}});users[id]=u?.user||u}catch{}}));
-    const cards=flat.map(({node,depth})=>{
-      const uid=Number(node.creater_id??node.creator_id??node.uid??node.user_id??node.author_id??0),u=users[uid]||{};
-      const name=u.name_display||u.display_name||u.name||node.display_name||node.user_name||'Schoology';
-      const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');
-      const body=node.comment??node.body??node.message??'';
-      const created=formatSchoologyDate(node.created??node.timestamp??'');
-      const likes=Number(node.likes??node.like_count??0),liked=!!(node.userLiked||node.user_liked||node.liked);
-      const cid=node.comment_id??node.id??'';
-      const att=renderAttachments(node.attachments||node.attachment||{});
-      const deleted=Number(node.status??1)===0;
-      return `<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:${Math.min(depth,8)};"><div class="androidCommentLayout"><div class="androidCommentAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>'}</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="${esc(uid)}">${esc(name)}</button><div class="commentBodyHtml ${deleted?'commentDeleted':''}">${deleted?'Comment deleted':body}</div><div class="commentCreated">${esc(created)}</div>${att}<div class="androidCommentActions">${!deleted&&depth===0?`<button data-comment-reply="${esc(cid)}">Reply</button>`:''}<button data-comment-like="${esc(cid)}" data-liked="${liked?'1':'0'}">${liked?'Unlike':'Like'}</button><button disabled>♥ ${likes}</button></div></div></div></m3e-card>`;
-    }).join('');
-    c.innerHTML=`<div class="commentsAndroidList">${cards||'<div class="androidEmptyState">No comments yet.</div>'}</div>`;
-    await hydrateMediaImages(c);
-    document.querySelectorAll('[data-comment-like]').forEach(btn=>btn.onclick=async()=>{const id=btn.dataset.commentLike;if(!id)return;const liked=btn.dataset.liked==='1';try{await A.api({path:`like/${assignmentId}/comment/${id}`,method:'POST',params:{like_action:!liked},json:true});btn.dataset.liked=liked?'0':'1';btn.textContent=liked?'Like':'Unlike'}catch(e){alert('Unable to update like: '+e.message)}});
-    document.querySelectorAll('[data-comment-user]').forEach(btn=>btn.onclick=()=>{const uid=btn.dataset.commentUser;if(uid){state.profileUser={id:uid};state.toolbarTitle=btn.textContent||'Profile';openProfileById(uid,btn.textContent||'Profile')}});
-    document.querySelectorAll('[data-comment-reply]').forEach(btn=>btn.onclick=()=>openAssignmentCommentComposer(sectionId,assignmentId,btn.dataset.commentReply));
-  }catch(e){c.innerHTML=`<div class="error apiError"><b>Schoology could not load comments.</b><br>${esc(e.message)}</div>`}
+ const c=document.getElementById('assignmentTabContent')||document.getElementById('content');if(!c)return;
+ c.innerHTML='<div class="commentsPage officialComments"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading comments…</span></div></div>';
+ try{
+  const response=await A.api({path:'sections/'+sectionId+'/assignments/'+assignmentId+'/comments',params:{start:0,limit:100,with_attachments:'TRUE',richtext:1}});
+  const comments=flattenSharedComments(response),hydrated=await hydrateDialogPeople(comments);
+  c.innerHTML='<div class="commentsPage officialComments"><div class="commentsList sharedCommentsList">'+(comments.map((row,index)=>renderSharedCommentRow(row,comments,assignmentId,hydrated[index])).join('')||'<div class="androidEmptyState">No comments yet.</div>')+'</div></div>';
+  await hydrateMediaImages(c);
+  wireSharedCommentRows(c,{likePath:id=>'like/'+assignmentId+'/comment/'+id,replyHandler:id=>openAssignmentCommentComposer(sectionId,assignmentId,id)});
+ }catch(error){c.innerHTML='<div class="error apiError"><b>Schoology could not load comments.</b><br>'+esc(error?.message||String(error))+'</div>'}
 }
-
 async function chooseSchoologyResource(onSelect,title='Attach Resource'){
  const old=document.getElementById('schoologyResourcePicker');old?.remove();
  const wrap=document.createElement('div');wrap.id='schoologyResourcePicker';wrap.className='assignmentCommentDialogOverlay schoologyResourcePickerOverlay';
@@ -1583,31 +1578,24 @@ async function loadAttendanceTab(course){
 }
 
 async function loadCourseApps(course,targetEl){
-  const el=targetEl||document.getElementById('sectionProfileContent');if(!el)return;
+  const landscapeApps=window.matchMedia('(min-width: 801px) and (orientation: landscape)').matches;
+  const el=targetEl||(landscapeApps?document.querySelector('.courseSidebarSegmentedList'):document.getElementById('sectionProfileContent'));if(!el)return;
   const sid=course.id||course.section_id||course.sectionId;
   const x=await A.api({path:`v2/sections/${sid}/applications`,params:{}});
   const apps=x?.['@extra']||x.extra||x.data?.['@extra']||x.data?.extra||[];
-  el.innerHTML=apps.length?`<m3e-action-list variant="segmented" class="courseAppList">${apps.map((a,i)=>{
-    const title=a.title||a.name||'Course App', logo=normalizeImageUrl(a.logoUrl||a.logo_url||a.logo||'');
-    return `<m3e-list-action class="courseAppRow" data-app-index="${i}" tabindex="0">
-      <span slot="leading" class="courseAppIcon">${logo?`<img data-course-image-url="${esc(logo)}" alt="" style="display:none">`:`<span class="courseAppFallback"><img src="../assets/icons/ic_resourceapps.png" alt=""></span>`}</span>
-      <span class="courseAppText"><b>${esc(title)}</b></span><span slot="trailing" class="rowChevron"><span class="m3eOriginalIcon">${originalM3Icon("chevron_right")}</span></span>
-    </m3e-list-action>`;
-  }).join('')}</m3e-action-list>`:'<div class="empty"><h2>No course apps</h2></div>';
   window.__schoologyCourseApps=apps;
-  document.querySelectorAll('[data-app-index]').forEach(b=>b.onclick=async()=>{
-    const a=window.__schoologyCourseApps[+b.dataset.appIndex];
-    const launch=a?.['@links']?.launch||a?.links?.launch||a?.['@links']?.['launch']||a?.links?.['launch'];
+  const rows=apps.map((a,i)=>{const title=a.title||a.name||'Course App',logo=normalizeImageUrl(a.logoUrl||a.logo_url||a.logo||'');
+    if(landscapeApps)return `<m3e-list-action class="courseSidebarNavItem courseAppSidebarItem" data-app-index="${i}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${originalM3Icon('apps')}</span><span>${esc(title)}</span></m3e-list-action>`;
+    return `<m3e-list-action class="courseAppRow" data-app-index="${i}" tabindex="0"><span slot="leading" class="courseAppIcon">${logo?`<img data-course-image-url="${esc(logo)}" alt="" loading="lazy">`:`<span class="courseAppFallback">${originalM3Icon('apps')}</span>`}</span><span class="courseAppText"><b>${esc(title)}</b></span><span slot="trailing" class="m3eOriginalIcon">${originalM3Icon('chevron_right')}</span></m3e-list-action>`;
+  }).join('');
+  if(landscapeApps){el.querySelectorAll('.courseAppSidebarItem').forEach(item=>item.remove());if(rows)el.insertAdjacentHTML('beforeend',rows);}
+  else el.innerHTML=apps.length?`<m3e-action-list variant="segmented" class="courseAppList">${rows}</m3e-action-list>`:'<div class="empty"><h2>No course apps</h2></div>';
+  el.querySelectorAll('[data-app-index]').forEach(b=>b.onclick=async()=>{
+    const a=window.__schoologyCourseApps[+b.dataset.appIndex];const launch=a?.['@links']?.launch||a?.links?.launch||a?.['@links']?.launch||a?.links?.launch;
     const href=launch?.['@id']||launch?.id||launch?.href||launch?.url;
     const appId=Number(a?.id??a?.application_id??a?.applicationId??a?.resource_app_id??a?.resourceAppId??a?.app_id??a?.appId);
-    if(!href&&!Number.isFinite(appId)){el.innerHTML='<div class="error apiError">This course app did not provide a launch target.</div>';return}
-    try{
-      openWithPressTransition(b,()=>{}); await A.prepareWebSession();
-      const launchResult=Number.isFinite(appId)?await A.launchCourseApp({appId}):await A.launchCourseApp({launchUrl:href});
-      const url=launchResult?.url||launchResult?.launchTokenUrl||launchResult?.data?.url||launchResult?.data?.launchTokenUrl||launchResult?.launch_url||launchResult?.launchUrl||href;
-      if(!url)throw new Error('Schoology did not return a course-app launch URL.');
-      openWithPressTransition(b,()=>{});const openError=await A.openExternal(url);if(openError)throw new Error(openError);
-    }catch(e){el.innerHTML=`<div class="error apiError"><b>Schoology could not launch this course app.</b><br>${esc(e.message)}</div>`}
+    if(!href&&(!Number.isSafeInteger(appId)||appId<=0)){showAppDialog('Unable to launch course app','Schoology did not provide a launch target for this course app.');return}
+    try{await A.prepareWebSession();const result=await A.launchCourseApp({launchUrl:href,appId:Number.isSafeInteger(appId)&&appId>0?appId:undefined,sectionId:Number(sid)});const url=result?.url||result?.launchTokenUrl||result?.data?.url||result?.data?.launchTokenUrl||result?.launch_url||result?.launchUrl||href;if(!url)throw new Error('Schoology did not return a course-app launch URL.');if(landscapeApps){state.embeddedReturn={tab:state.tab,homeTab:state.homeTab,title:sectionTitleOf(course)||courseTitleOf(course),course,courseTab:state.courseTab};await showEmbeddedWeb(url,a.title||a.name||'Course App',{allowBrowser:false,courseApp:true})}else{const error=await A.openExternal(url);if(error)throw new Error(error)}}catch(error){showAppDialog('Unable to launch course app',error?.message||String(error))}
   });
   await hydrateCourseImages(el);
 }
@@ -1706,14 +1694,20 @@ function renderUpdatePoll(update,updateId){
  const optionCount=o=>Number(o?.count??o?.votes??o?.vote_count??o?.voteCount??o?.total_votes??o?.totalVotes??o?.num_votes??o?.numVotes??0)||0;const total=options.reduce((sum,o)=>sum+optionCount(o),0),voted=update?.pollVoteRecorded===true||options.some(o=>o?.selected===true||o?.selected===1||o?.selected==='true'||o?.is_selected===true||o?.isSelected===true);
  return `<section class="updatePoll ${voted?'resultsVisible':''}" data-update-poll="${esc(updateId)}"><div class="updatePollHeading">Poll</div>${options.map(o=>{const id=o?.id??o?.pollOptionID??o?.poll_option_id??'',title=o?.title??o?.name??'Option',count=optionCount(o),selected=o?.selected===true||o?.selected===1||o?.selected==='true'||o?.is_selected===true||o?.isSelected===true,percent=total?Math.round(count/total*100):0;return `<button type="button" class="updatePollOption ${selected?'selected':''}" data-poll-option="${esc(id)}" data-update-id="${esc(updateId)}" data-selected="${selected?'1':'0'}" aria-pressed="${selected?'true':'false'}"><span class="updatePollOptionTitle">${esc(title)}</span><span class="updatePollTrack"><span style="width:${percent}%"></span></span><span class="updatePollResult">${count} · ${percent}%</span></button>`}).join('')}<small>${voted?`${total} vote${total===1?'':'s'} · Your vote is recorded`:'Select an option to vote'}</small></section>`;
 }
-function renderSharedPostCard({post={},id=sharedPostId(post),realm,realmId,author='Schoology',avatar='',authorId='',contextLabel='',canDelete=false,cardClass='' }={}){
- const counts=sharedPostCounts(post),body=post.body||post.message||post.description||'',created=post.created||post.timestamp||post.last_updated||post.lastUpdated||post.updated||'';
- const safeId=String(id??'');
+function renderSharedPostCard({post={},id=sharedPostId(post),realm,realmId,author='Schoology',avatar='',authorId='',contextLabel='',contextId='',canDelete=false,cardClass='' }={}){
+ const counts=sharedPostCounts(post),body=post.body||post.message||post.description||post.title||'',created=post.created||post.timestamp||post.last_updated||post.lastUpdated||post.updated||'';
+ const safeId=String(id??''),safeRealm=String(realm||''),safeRealmId=String(realmId??'');
  const authorMarkup='<button type="button" class="activityUser activityAuthorLink" data-shared-post-author="'+esc(authorId||post.user_id||post.uid||post.author_id||post.authorId||'')+'">'+esc(author||'Schoology')+'</button>';
  const avatarMarkup=avatar?'<img class="activityAvatar" data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="activityAvatar">'+esc(String(author||'S').trim().charAt(0)||'S')+'</span>';
- const contextMarkup=contextLabel?'<span class="sharedPostContext">'+esc(contextLabel)+'</span>':'';
+ const contextMarkup=contextLabel?'<button type="button" class="sharedPostContext" data-shared-post-context-group="'+esc(contextId||'')+'">'+esc(contextLabel)+'</button>':'';
  const del=canDelete?'<button type="button" class="updateDeleteButton" data-shared-post-delete="'+esc(safeId)+'" aria-label="Delete update">⋮</button>':'';
- return '<m3e-card variant="filled" class="androidActivityCard sharedPostCard '+esc(cardClass)+'" data-shared-post-id="'+esc(safeId)+'" data-shared-post-realm="'+esc(realm||'')+'" data-shared-post-realm-id="'+esc(realmId||'')+'"><div class="activityHeader">'+avatarMarkup+authorMarkup+contextMarkup+del+'</div><div class="activityBody">'+body+'</div>'+renderAttachments(post.attachments||post.attachment||post.files||{})+renderUpdatePoll(post,safeId)+'<div class="activityMeta">'+esc(formatSchoologyDate(created))+'</div><div class="activityActions sharedPostActions"><button type="button" class="sharedPostCommentButton" data-shared-post-comment="'+esc(safeId)+'">Comment</button><button type="button" class="sharedPostCommentCount" data-shared-post-comments="'+esc(safeId)+'" aria-label="'+counts.comments+' comments">'+sharedPostIcon('comment')+'<span>'+counts.comments+'</span></button><button type="button" class="sharedPostLikeButton" data-shared-post-like="'+esc(safeId)+'" data-liked="'+(counts.liked?'1':'0')+'">'+(counts.liked?'Unlike':'Like')+'</button><button type="button" class="sharedPostLikeCount" data-shared-post-like-count="'+esc(safeId)+'" aria-label="'+counts.likes+' likes">'+sharedPostIcon('like')+'<span>'+counts.likes+'</span></button></div><div class="sharedPostCommentPreview" data-shared-post-preview="'+esc(safeId)+'"></div><div class="updateCommentsPanel sharedPostInlineComments" data-shared-post-panel="'+esc(safeId)+'" hidden></div></m3e-card>';
+ return '<m3e-card variant="filled" class="androidActivityCard sharedPostCard '+esc(cardClass)+'" data-shared-post-id="'+esc(safeId)+'" data-shared-post-realm="'+esc(safeRealm)+'" data-shared-post-realm-id="'+esc(safeRealmId)+'">'+
+ '<div slot="header" class="activityHeader">'+avatarMarkup+authorMarkup+contextMarkup+del+'</div>'+
+ '<div slot="content" class="sharedPostContent"><div class="activityBody">'+body+'</div>'+renderAttachments(post.attachments||post.attachment||post.files||{})+renderUpdatePoll(post,safeId)+'<div class="activityMeta">'+esc(formatSchoologyDate(created))+'</div></div>'+
+ '<div slot="actions" class="activityActions sharedPostActions">'+
+ '<m3e-button-group variant="connected" class="sharedActionGroup sharedPostCommentGroup"><m3e-button variant="tonal" size="small" class="sharedPostCommentButton" data-shared-post-comment="'+esc(safeId)+'">Comment</m3e-button><m3e-button variant="tonal" size="small" class="sharedPostCommentCount" data-shared-post-comments="'+esc(safeId)+'" aria-label="'+counts.comments+' comments">'+sharedPostIcon('comment')+'<span class="sharedPostCountLabel">'+counts.comments+'</span></m3e-button></m3e-button-group>'+
+ '<m3e-button-group variant="connected" class="sharedActionGroup sharedPostLikeGroup"><m3e-button variant="tonal" size="small" class="sharedPostLikeButton" data-shared-post-like="'+esc(safeId)+'" data-liked="'+(counts.liked?'1':'0')+'"><span class="sharedPostLikeLabel">'+(counts.liked?'Unlike':'Like')+'</span></m3e-button><m3e-button variant="tonal" size="small" class="sharedPostLikeCount" data-shared-post-like-count="'+esc(safeId)+'" aria-label="'+counts.likes+' likes">'+sharedPostIcon('like')+'<span class="sharedPostCountLabel">'+counts.likes+'</span></m3e-button></m3e-button-group></div>'+
+ '<div slot="footer" class="sharedPostCommentPreview" data-shared-post-preview="'+esc(safeId)+'"></div><div slot="footer" class="updateCommentsPanel sharedPostInlineComments" data-shared-post-panel="'+esc(safeId)+'" hidden></div></m3e-card>';
 }
 function flattenSharedComments(response){
  const raw=response?.comment??response?.comments??response?.data?.comment??response?.data?.comments??[];
@@ -1729,9 +1723,21 @@ function renderSharedCommentRow(comment,allComments,updateId,hydratedRow=null){
  const likeCount=Number(comment.likes??comment.like_count??comment.likeCount??0)||0,replies=allComments.filter(reply=>String(reply.parent_id??reply.parentId??0)===String(id)),deleted=Number(comment.status??1)===0;
  const initials=String(name||'S').trim().split(/\s+/).filter(Boolean).slice(0,2).map(value=>value.charAt(0)).join('').toUpperCase()||'S';
  const avatarMarkup=avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(initials)+'</span>';
- return '<div class="updateComment sharedCommentRow" data-shared-comment-id="'+esc(id)+'" data-parent-id="'+parent+'" '+(parent?'hidden':'')+'><div class="sharedCommentHeading"><span class="sharedCommentAvatar">'+avatarMarkup+'</span>'+(authorId?'<button type="button" class="sharedCommentAuthor" data-shared-comment-author="'+esc(authorId)+'">'+esc(name)+'</button>':'<b>'+esc(name)+'</b>')+(groupAdminBadgeMarkup(comment)||'')+(created?'<small>'+esc(created)+'</small>':'')+'</div><div class="sharedCommentBody '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div>'+renderAttachments(comment.attachments||comment.attachment||{})+'<div class="sharedCommentActions">'+(!deleted?'<button type="button" data-shared-comment-reply="'+esc(id)+'">Reply</button>':'')+'<button type="button" data-shared-comment-like="'+esc(id)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button type="button" class="sharedCommentLikeCount" data-shared-comment-like-count="'+esc(id)+'" data-like-count="'+likeCount+'">'+sharedPostIcon('like')+'<span>'+likeCount+'</span></button>'+(replies.length?'<button type="button" data-shared-comment-replies-toggle="'+esc(id)+'" aria-expanded="false">⌄ '+replies.length+' '+(replies.length===1?'reply':'replies')+'</button>':'')+'</div></div>';
+ return '<m3e-card variant="outlined" class="updateComment sharedCommentRow sharedCommentCard" data-shared-comment-id="'+esc(id)+'" data-parent-id="'+parent+'" '+(parent?'hidden':'')+'>'+
+ '<div slot="header" class="sharedCommentHeading"><span class="sharedCommentAvatar">'+avatarMarkup+'</span>'+(authorId?'<button type="button" class="sharedCommentAuthor" data-shared-comment-author="'+esc(authorId)+'">'+esc(name)+'</button>':'<b>'+esc(name)+'</b>')+(groupAdminBadgeMarkup(comment)||'')+'</div>'+
+ '<div slot="content" class="sharedCommentContent"><div class="sharedCommentBody '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div>'+renderAttachments(comment.attachments||comment.attachment||{})+'</div>'+
+ '<div slot="actions" class="sharedCommentActions">'+
+ '<m3e-button-group variant="connected" class="sharedActionGroup sharedCommentReplyGroup"><m3e-button variant="tonal" size="small" '+(deleted?'disabled':'')+' data-shared-comment-reply="'+esc(id)+'">Reply</m3e-button><m3e-button variant="tonal" size="small" data-shared-comment-replies-toggle="'+esc(id)+'" aria-expanded="false" '+(!replies.length?'disabled':'')+'><span class="sharedCommentReplyCount">'+replies.length+'</span></m3e-button></m3e-button-group>'+
+ '<m3e-button-group variant="connected" class="sharedActionGroup sharedCommentLikeGroup"><m3e-button variant="tonal" size="small" data-shared-comment-like="'+esc(id)+'" data-liked="'+(liked?'1':'0')+'"><span class="sharedCommentLikeLabel">'+(liked?'Unlike':'Like')+'</span></m3e-button><m3e-button variant="tonal" size="small" class="sharedCommentLikeCount" data-shared-comment-like-count="'+esc(id)+'" data-like-count="'+likeCount+'" aria-label="'+likeCount+' likes">'+sharedPostIcon('like')+'<span class="sharedCommentLikeNumber">'+likeCount+'</span></m3e-button></m3e-button-group></div>'+
+ (created?'<div slot="footer" class="sharedCommentMeta">'+esc(created)+'</div>':'')+'</m3e-card>';
 }
-
+function wireSharedCommentRows(root,{likePath,replyHandler}={}){
+ root.querySelectorAll('[data-shared-comment-author]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentAuthor;if(id)openProfileById(id,button.textContent||'Profile')});
+ root.querySelectorAll('[data-shared-comment-replies-toggle]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentRepliesToggle,rows=[...root.querySelectorAll('[data-shared-comment-id][data-parent-id]')].filter(row=>String(row.dataset.parentId)===String(id)),expanded=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!expanded));rows.forEach(row=>row.hidden=expanded)});
+ root.querySelectorAll('[data-shared-comment-reply]').forEach(button=>button.onclick=()=>replyHandler?.(button.dataset.sharedCommentReply));
+ root.querySelectorAll('[data-shared-comment-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedCommentLike,liked=button.dataset.liked==='1';if(!id||button.disabled||!likePath)return;button.disabled=true;try{const result=await A.api({path:likePath(id),method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';const label=button.querySelector('.sharedCommentLikeLabel');if(label)label.textContent=next?'Unlike':'Like';const count=button.closest('.sharedCommentRow')?.querySelector('[data-shared-comment-like-count]');if(count){const value=count.querySelector('.sharedCommentLikeNumber'),n=Math.max(0,(Number(value?.textContent)||0)+(next?1:-1));if(value)value.textContent=String(n);count.dataset.likeCount=String(n)}}catch(error){showAppDialog('Unable to update comment like',error?.message||String(error))}finally{button.disabled=false}});
+ root.querySelectorAll('[data-shared-comment-like-count]').forEach(button=>button.onclick=()=>{if(likePath)showLikeUsers(likePath(button.dataset.sharedCommentLikeCount))});
+}
 async function showLikeUsers(path){
  const old=document.getElementById('sharedLikeUsersDialog');old?.remove();
  const wrap=document.createElement('div');wrap.id='sharedLikeUsersDialog';wrap.className='sharedOverlay';
@@ -1748,9 +1754,10 @@ async function loadSharedPostPreview(realm,realmId,updateId,preview){
  if(!preview)return;
  try{
   const response=await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',params:{start:0,limit:100,with_attachments:'TRUE',richtext:1}});
-  const comments=flattenSharedComments(response),roots=comments.filter(row=>Number(row.parent_id??row.parentId??0)===0),recent=roots.slice(-2);
+  const comments=flattenSharedComments(response),roots=comments.filter(row=>Number(row.parent_id??row.parentId??0)===0),recent=roots.slice(-2),hydrated=await hydrateDialogPeople(recent);
   if(!recent.length){preview.innerHTML='';return}
-  preview.innerHTML='<div class="sharedPostPreviewList">'+recent.map(comment=>{const name=comment.display_name||comment.name_display||comment.user_name||comment.author_name||'Schoology',body=comment.body||comment.comment||comment.message||'',created=comment.created||comment.timestamp||'';return '<div class="sharedPostPreviewComment"><b>'+esc(name)+'</b><div class="sharedPostPreviewBody">'+body+'</div><small>'+esc(formatSchoologyDate(created))+'</small></div>'}).join('')+'</div><button type="button" class="sharedPostViewMore">View more comments</button>';
+  preview.innerHTML='<div class="sharedPostPreviewList">'+recent.map((comment,index)=>renderSharedCommentRow(comment,recent,updateId,hydrated[index])).join('')+'</div><button type="button" class="sharedPostViewMore">View more comments</button>';
+  await hydrateMediaImages(preview);
   preview.querySelector('.sharedPostViewMore')?.addEventListener('click',()=>openSharedPostCommentsDialog(realm,realmId,updateId));
  }catch{preview.innerHTML=''}
 }
@@ -1762,9 +1769,9 @@ async function loadSharedPostComments(realm,realmId,updateId,panel,{inline=false
   panel.innerHTML='<div class="updateCommentsList sharedCommentsList">'+(comments.map((row,index)=>renderSharedCommentRow(row,comments,updateId,hydrated[index])).join('')||'<div class="empty">No comments yet.</div>')+'</div><div class="updateCommentComposer sharedCommentInlineComposer" hidden><textarea aria-label="Write a comment" placeholder="Write a comment…"></textarea><div class="sharedCommentComposerActions"><button type="button" data-shared-cancel-reply>Cancel reply</button><button type="button" data-shared-post-comment>Post comment</button></div></div>';
   await hydrateMediaImages(panel);
   panel.querySelectorAll('[data-shared-comment-author]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentAuthor;if(id)openProfileById(id,button.textContent||'Profile')});
-  panel.querySelectorAll('[data-shared-comment-replies-toggle]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentRepliesToggle,rows=[...panel.querySelectorAll('[data-shared-comment-id][data-parent-id]')].filter(row=>String(row.dataset.parentId)===String(id)),expanded=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!expanded));rows.forEach(row=>row.hidden=expanded);button.textContent=(expanded?'⌄ ':'⌃ ')+rows.length+' '+(rows.length===1?'reply':'replies')});
+  panel.querySelectorAll('[data-shared-comment-replies-toggle]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedCommentRepliesToggle,rows=[...panel.querySelectorAll('[data-shared-comment-id][data-parent-id]')].filter(row=>String(row.dataset.parentId)===String(id)),expanded=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!expanded));rows.forEach(row=>row.hidden=expanded);const replyCount=button.querySelector('.sharedCommentReplyCount');if(replyCount)replyCount.textContent=String(rows.length)});
   panel.querySelectorAll('[data-shared-comment-reply]').forEach(button=>button.onclick=()=>{const composer=panel.querySelector('.sharedCommentInlineComposer'),field=composer?.querySelector('textarea');if(composer)composer.hidden=false;if(field){field.dataset.parentId=button.dataset.sharedCommentReply||'0';field.placeholder='Write a reply…';field.focus()}});
-  panel.querySelectorAll('[data-shared-comment-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedCommentLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+updateId+'/comment/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';button.textContent=next?'Unlike':'Like';const count=button.parentElement?.querySelector('[data-shared-comment-like-count] span');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)))}catch(error){showAppDialog('Unable to update comment like',error?.message||String(error))}finally{button.disabled=false}});
+  panel.querySelectorAll('[data-shared-comment-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedCommentLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+updateId+'/comment/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';const label=button.querySelector('.sharedCommentLikeLabel');if(label)label.textContent=next?'Unlike':'Like';const count=button.closest('.sharedCommentCard')?.querySelector('.sharedCommentLikeNumber');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)))}catch(error){showAppDialog('Unable to update comment like',error?.message||String(error))}finally{button.disabled=false}});
   panel.querySelectorAll('[data-shared-comment-like-count]').forEach(button=>button.onclick=()=>showLikeUsers('like/'+updateId+'/comment/'+button.dataset.sharedCommentLikeCount));
   panel.querySelector('[data-shared-cancel-reply]')?.addEventListener('click',()=>{const composer=panel.querySelector('.sharedCommentInlineComposer');if(composer)composer.hidden=true});
   panel.querySelector('[data-shared-post-comment]')?.addEventListener('click',async()=>{const field=panel.querySelector('.sharedCommentInlineComposer textarea'),body=field?.value.trim(),button=panel.querySelector('[data-shared-post-comment]');if(!body)return;button.disabled=true;try{await A.api({path:realm+'/'+realmId+'/updates/'+updateId+'/comments',method:'POST',params:{comment:body,parent_id:Number(field.dataset.parentId||0)},json:true});await loadSharedPostComments(realm,realmId,updateId,panel,{inline})}catch(error){button.disabled=false;showAppDialog('Unable to post comment',error?.message||String(error))}});
@@ -1787,14 +1794,16 @@ function openSharedPostCommentsDialog(realm,realmId,updateId){
  loadSharedPostComments(realm,realmId,updateId,wrap.querySelector('#sharedPostCommentsDialogBody'));
 }
 function wireSharedPostList(root,realm,realmId,posts,{authorUsers={},canDelete=false,deletePathPrefix=null}={}){
+ const context=element=>{const card=element?.closest('[data-shared-post-id]');return {realm:card?.dataset.sharedPostRealm||realm,realmId:card?.dataset.sharedPostRealmId||realmId}};
  root.querySelectorAll('[data-shared-post-author]').forEach(button=>button.onclick=()=>{const id=button.dataset.sharedPostAuthor;if(id)openProfileById(id,button.textContent||'Profile')});
- root.querySelectorAll('[data-shared-post-comment]').forEach(button=>button.onclick=()=>openSharedCommentComposer(realm,realmId,button.dataset.sharedPostComment));
- root.querySelectorAll('[data-shared-post-comments]').forEach(button=>button.onclick=()=>openSharedPostCommentsDialog(realm,realmId,button.dataset.sharedPostComments));
+ root.querySelectorAll('[data-shared-post-context-group]').forEach(button=>button.onclick=async()=>{const id=Number(button.dataset.sharedPostContextGroup||0);if(!id)return;const group=state.__activityGroups?.[id]||{id,name:button.textContent||'Group'};state.tab='groups';state.screen='app';state.currentGroup=group;state.toolbarTitle=group.name||group.title||'Group';render();await showGroup(group,'updates')});
+ root.querySelectorAll('[data-shared-post-comment]').forEach(button=>button.onclick=()=>{const c=context(button);openSharedCommentComposer(c.realm,c.realmId,button.dataset.sharedPostComment)});
+ root.querySelectorAll('[data-shared-post-comments]').forEach(button=>button.onclick=()=>{const c=context(button);openSharedPostCommentsDialog(c.realm,c.realmId,button.dataset.sharedPostComments)});
  root.querySelectorAll('[data-shared-post-like-count]').forEach(button=>button.onclick=()=>showLikeUsers('like/'+button.dataset.sharedPostLikeCount));
- root.querySelectorAll('[data-shared-post-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedPostLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';button.textContent=next?'Unlike':'Like';const count=button.parentElement?.querySelector('[data-shared-post-like-count] span');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)));const post=posts.find(row=>String(sharedPostId(row))===String(id));if(post){post.user_liked=next;post.liked=next;post.likes=Number(post.likes??post.like_count??0)+(next?1:-1)}}catch(error){showAppDialog('Unable to update like',error?.message||String(error))}finally{button.disabled=false}});
- root.querySelectorAll('[data-shared-post-delete]').forEach(button=>button.onclick=async()=>{if(!confirm('Delete this update?'))return;const id=button.dataset.sharedPostDelete;try{await A.api({path:deletePathPrefix?deletePathPrefix+'/'+id:realm+'/'+realmId+'/updates/'+id,method:'DELETE',params:{}});button.closest('[data-shared-post-id]')?.remove()}catch(error){showAppDialog('Unable to delete update',error?.message||String(error))}});
- root.querySelectorAll('[data-shared-post-preview]').forEach(preview=>{const id=preview.dataset.sharedPostPreview,card=preview.closest('[data-shared-post-id]'),count=Number(card?.querySelector('[data-shared-post-comments] span')?.textContent||0);if(count>0)void loadSharedPostPreview(realm,realmId,id,preview)});
- root.querySelectorAll('[data-shared-post-panel]').forEach(panel=>{const id=panel.dataset.sharedPostPanel;const card=panel.closest('[data-shared-post-id]');const likeCount=card?.querySelector('[data-shared-post-like-count] span');const commentCount=card?.querySelector('[data-shared-post-comments] span');if(likeCount)likeCount.textContent=likeCount.textContent||'0';if(commentCount)commentCount.textContent=commentCount.textContent||'0'});
+ root.querySelectorAll('[data-shared-post-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.sharedPostLike,liked=button.dataset.liked==='1';if(!id||button.disabled)return;button.disabled=true;try{const result=await A.api({path:'like/'+id,method:'POST',params:{like_action:!liked},json:true});const next=typeof result?.user_like_action==='boolean'?result.user_like_action:!liked;button.dataset.liked=next?'1':'0';const label=button.querySelector('.sharedPostLikeLabel');if(label)label.textContent=next?'Unlike':'Like';const card=button.closest('[data-shared-post-id]'),count=card?.querySelector('[data-shared-post-like-count] .sharedPostCountLabel');if(count)count.textContent=String(Math.max(0,(Number(count.textContent)||0)+(next?1:-1)));const post=posts.find(row=>String(sharedPostId(row))===String(id));if(post){post.user_liked=next;post.liked=next;post.likes=Math.max(0,Number(post.likes??post.like_count??0)+(next?1:-1))}}catch(error){showAppDialog('Unable to update like',error?.message||String(error))}finally{button.disabled=false}});
+ root.querySelectorAll('[data-shared-post-delete]').forEach(button=>button.onclick=async()=>{if(!confirm('Delete this update?'))return;const id=button.dataset.sharedPostDelete,c=context(button);try{await A.api({path:deletePathPrefix?deletePathPrefix+'/'+id:c.realm+'/'+c.realmId+'/updates/'+id,method:'DELETE',params:{}});button.closest('[data-shared-post-id]')?.remove()}catch(error){showAppDialog('Unable to delete update',error?.message||String(error))}});
+ root.querySelectorAll('[data-shared-post-preview]').forEach(preview=>{const c=context(preview),id=preview.dataset.sharedPostPreview,card=preview.closest('[data-shared-post-id]'),count=Number(card?.querySelector('[data-shared-post-comments] .sharedPostCountLabel')?.textContent||0);if(count>0)void loadSharedPostPreview(c.realm,c.realmId,id,preview)});
+ root.querySelectorAll('[data-shared-post-panel]').forEach(panel=>{const card=panel.closest('[data-shared-post-id]'),likeCount=card?.querySelector('[data-shared-post-like-count] .sharedPostCountLabel'),commentCount=card?.querySelector('[data-shared-post-comments] .sharedPostCountLabel');if(likeCount)likeCount.textContent=likeCount.textContent||'0';if(commentCount)commentCount.textContent=commentCount.textContent||'0'});
 }
 async function loadCourseUpdates(course,el){
  const sid=course.id||course.section_id||course.sectionId,uid=state.auth?.userId||state.auth?.user?.id;
@@ -1867,21 +1876,10 @@ async function loadCourseTab(course,tab){
 
 function animateTab(){ /* Restored to the Android pager's stable tab layout; no custom overlay animation. */ }
 function renderUpcoming(events){
- const arr=Array.isArray(events)?events:[];
- if(!arr.length)return '<div class="empty"><h2>No upcoming events</h2></div>';
- const groups=[];const byDate=new Map();
- const sorted=arr.slice().sort((a,b)=>new Date(String(a.start||a.due||'').replace(' ','T'))-new Date(String(b.start||b.due||'').replace(' ','T')));
- for(const e of sorted){
-  const rawDate=(String(e.type||'').toLowerCase()==='assignment'?(e.due||e.due_date||e.dueDate||e.start):(e.start||e.due||e.due_date||e.dueDate));
-  const d=new Date(String(rawDate||'').replace(' ','T'));const key=Number.isNaN(d.getTime())?'':`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  if(!byDate.has(key)){const g={key,date:d,items:[]};byDate.set(key,g);groups.push(g)} byDate.get(key).items.push(e);
- }
- const html=groups.map(g=>{
-  const dateLabel=Number.isNaN(g.date.getTime())?'':g.date.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'});
-  const rows=g.items.map(e=>`<m3e-list-action class="upcomingRow upcomingAssignment" data-course-upcoming-id="${esc(e.id||'')}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(upcomingIcon(e),'')}</span><span>${esc(e.title||e.name||'Upcoming')}</span><span slot="supporting-text">${esc(upcomingSupportingText(e))}</span></m3e-list-action>`).join('');
-  return `<div class="upcomingDateGroup"><m3e-action-list variant="segmented" class="upcomingSegmentedList"><m3e-list-item class="upcomingDateHeader"><span>${esc(dateLabel)}</span><m3e-divider class="upcomingDateDivider"></m3e-divider></m3e-list-item>${rows}</m3e-action-list></div>`;
- }).join('');
- return `<div class="upcomingList">${html}</div>`;
+ const arr=Array.isArray(events)?events:[];if(!arr.length)return '<div class="empty"><h2>No upcoming events</h2></div>';
+ const groups=[],byDate=new Map(),sorted=arr.slice().sort((a,b)=>new Date(String(a.start||a.due||'').replace(' ','T'))-new Date(String(b.start||b.due||'').replace(' ','T')));
+ for(const e of sorted){const rawDate=(String(e.type||'').toLowerCase()==='assignment'?(e.due||e.due_date||e.dueDate||e.start):(e.start||e.due||e.due_date||e.dueDate)),d=new Date(String(rawDate||'').replace(' ','T')),key=Number.isNaN(d.getTime())?'':d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!byDate.has(key)){const g={key,date:d,items:[]};byDate.set(key,g);groups.push(g)}byDate.get(key).items.push(e)}
+ return '<div class="upcomingList">'+groups.map(g=>{const label=Number.isNaN(g.date.getTime())?'':g.date.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'}),rows=g.items.map(e=>`<m3e-list-action class="upcomingRow upcomingAssignment" data-course-upcoming-id="${esc(e.id||'')}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${officialOrAssetIcon(upcomingIcon(e),'')}</span><span>${esc(e.title||e.name||'Upcoming')}</span><span slot="supporting-text">${esc(upcomingSupportingText(e))}</span></m3e-list-action>`).join('');return `<section class="upcomingDateGroup"><div class="upcomingDateHeader"><span class="upcomingDateLabel">${esc(label)}</span></div><m3e-action-list variant="segmented" class="upcomingSegmentedList">${rows}</m3e-action-list></section>`}).join('')+'</div>';
 }
 
 function upcomingIcon(e){const t=String(e?.type||'').toLowerCase();if(t==='assignment')return 'ic_assignment.png';if(t==='assessment')return 'ic_test_quiz.png';if(['assessment_v2','managed_assessment','quiz'].includes(t))return 'ic_assessment_48dp.png';if(t==='discussion')return 'ic_discussion.png';if(t==='external_tool')return 'ic_external_tool.png';if(t==='event')return 'home_dash_upcoming.png';return 'ic_date_range_24px.png';}
@@ -2057,10 +2055,19 @@ function openNativeCommentComposer(kind,view,parentId='0'){
 async function showDiscussionNative(realm,realmId,discussionId,title='Discussion',initialTab='info'){
  const c=document.getElementById('content');if(!c)return;const previousGroup=state.currentGroup,previousTab=state.groupTab;
  state.assignmentView=null;state.embeddedTitle=title;state.embeddedTheme='';state.embeddedReturn={tab:'groups',title:previousGroup?.name||'Groups',group:previousGroup,groupTab:previousTab||'discussions'};state.currentGroup=previousGroup;state.toolbarTitle=title;state.discussionView={realm,realmId,discussionId,tab:initialTab||'info',data:null};syncToolbar();
- c.innerHTML=`<section class="assignmentAndroidPage nativeGradeItemPage"><div class="assignmentTabs discussionTabs" id="discussionTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs"><m3e-tab class="assignmentTab" data-discussion-tab="info" ${initialTab==='info'?'selected':''}>Info</m3e-tab><m3e-tab class="assignmentTab" data-discussion-tab="comments" ${initialTab==='comments'?'selected':''}>Comments</m3e-tab></m3e-tabs></div><div id="discussionNativeContent" class="assignmentTabContent"></div></section>`;
+ c.innerHTML=`<section class="assignmentAndroidPage nativeGradeItemPage"><div class="assignmentTabs discussionTabs" id="discussionTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs"><m3e-tab class="assignmentTab" data-discussion-tab="info" ${initialTab==='info'?'selected':''}>Info</m3e-tab><m3e-tab class="assignmentTab" data-discussion-tab="comments" ${initialTab==='comments'?'selected':''}>Discussion</m3e-tab></m3e-tabs></div><div id="discussionNativeContent" class="assignmentTabContent"></div></section>`;
  const box=()=>document.getElementById('discussionNativeContent');
  const loadInfo=async()=>{const el=box();el.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';try{const x=await A.api({path:`${realm}/${realmId}/discussions/${discussionId}`,params:{with_attachments:'TRUE',richtext:1}});const d=x?.discussion||x?.data?.discussion||x;state.discussionView.data=d;el.innerHTML=`<m3e-card variant="filled" class="assignmentInfoCard"><div class="assignmentInfoHeader"><h1>${esc(d?.title||title)}</h1><div>${esc(d?.due||d?.due_date||d?.dueDate||'')}</div></div><div class="assignmentDescription">${d?.body||d?.description||d?.message||'<span class="muted">No discussion content.</span>'}</div>${renderAttachments(d?.attachments||d?.attachment||{})}</m3e-card>`;el.querySelectorAll('a[href]').forEach(a=>a.onclick=async ev=>{const href=a.href||a.getAttribute('href');if(!href)return;ev.preventDefault();if(await routeSchoologyLink(href))return;await A.prepareWebSession();showEmbeddedWeb(href,a.textContent?.trim()||'Link')});await hydrateMediaImages(el)}catch(e){el.innerHTML=`<div class="error apiError"><b>Schoology could not load this discussion.</b><br>${esc(e.message)}</div>`}};
- const loadComments=async()=>{const el=box();el.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading comments…</span></div>';try{const x=await A.api({path:`${realm}/${realmId}/discussions/${discussionId}/comments`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});const arr=x?.comments||x?.comment||x?.data?.comments||[];const flat=[];const walk=(n,depth=0)=>{if(!n||typeof n!=='object')return;flat.push({n,depth});const ch=n.children||n.replies||n.comments||n.comment_replies||[];if(Array.isArray(ch))ch.forEach(q=>walk(q,depth+1))};arr.forEach(q=>walk(q));const ids=[...new Set(flat.map(({n})=>Number(n.creater_id??n.creator_id??n.uid??n.user_id??n.author_id??0)).filter(Boolean))];const users={};await Promise.all(ids.map(async id=>{try{const q=await A.api({path:`users/${id}`,params:{picture_size:'sm'}});users[id]=q?.user||q}catch{}}));el.innerHTML=`<div class="commentsPage officialComments"><div class="commentsList">${flat.map(({n,depth})=>{const id=Number(n.creater_id??n.creator_id??n.uid??n.user_id??n.author_id??0),u=users[id]||{},name=u.name_display||u.display_name||u.name||n.display_name||n.user_name||'Schoology',av=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||''),body=n.comment??n.body??n.message??'',created=formatSchoologyDate(n.created??n.timestamp??''),att=renderAttachments(n.attachments||n.attachment||{});return `<m3e-card variant="filled" class="androidCommentCard groupDiscussionCommentCard" style="--comment-depth:${Math.min(depth,8)};"><div class="androidCommentLayout"><div class="androidCommentAvatar">${av?`<img data-media-image-url="${esc(av)}" alt="" style="display:none">`:`<span class="commentAvatar">${esc(String(name).charAt(0))}</span>`}</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="${id}">${esc(name)}</button><div class="commentBodyHtml">${body}</div><div class="commentCreated">${esc(created)}</div>${att}<div class="androidCommentActions"><button>Reply</button><button>Like</button></div></div></div></m3e-card>`}).join('')||'<div class="androidEmptyState">No comments yet.</div>'}</div></div>`;await hydrateMediaImages(el)}catch(e){el.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}};
+ const loadComments=async()=>{
+  const el=box();el.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading discussion…</span></div>';
+  try{
+   const response=await A.api({path:realm+'/'+realmId+'/discussions/'+discussionId+'/comments',params:{start:0,limit:100,with_attachments:'TRUE',richtext:1}});
+   const comments=flattenSharedComments(response),hydrated=await hydrateDialogPeople(comments);
+   el.innerHTML='<div class="commentsPage officialComments"><div class="commentsList sharedCommentsList">'+(comments.map((row,index)=>renderSharedCommentRow(row,comments,discussionId,hydrated[index])).join('')||'<div class="androidEmptyState">No discussion yet.</div>')+'</div></div>';
+   await hydrateMediaImages(el);
+   wireSharedCommentRows(el,{likePath:id=>'like/'+discussionId+'/comment/'+id,replyHandler:id=>openNativeCommentComposer('discussion',state.discussionView,id)});
+  }catch(error){el.innerHTML='<div class="error apiError">'+esc(error?.message||String(error))+'</div>'}
+ };
  const select=async tab=>{state.discussionView.tab=tab;syncM3eTabSelection(document.getElementById('discussionTabs'),'discussionTab',tab);syncToolbar();tab==='info'?await loadInfo():await loadComments()};document.querySelectorAll('#discussionTabs [data-discussion-tab]').forEach(b=>b.onclick=()=>select(b.dataset.discussionTab));await loadInfo();
 }
 async function showGroupAlbumNative(gid,albumId,title='Album'){
@@ -2077,30 +2084,10 @@ async function showGroupAlbumNative(gid,albumId,title='Album'){
 }
 
 async function renderEventComments(el,response,eventId){
- const raw=response?.comments||response?.comment||response?.data?.comments||[];
- const comments=Array.isArray(raw)?raw:(raw?[raw]:[]);
- const flat=[];
- const walk=(node,depth=0)=>{if(!node||typeof node!=='object')return;flat.push({node,depth});const children=node.children||node.replies||node.comments||node.comment_replies||[];if(Array.isArray(children))children.forEach(child=>walk(child,depth+1));};
- comments.forEach(node=>walk(node));
- const userIds=[...new Set(flat.map(({node})=>Number(node.creater_id??node.creator_id??node.uid??node.user_id??node.author_id??0)).filter(Boolean))];
- const users={};
- await Promise.all(userIds.map(async id=>{try{const result=await A.api({path:'users/'+id,params:{picture_size:'sm'}});users[id]=result?.user||result;}catch{}}));
- const cards=flat.map(({node,depth})=>{
-  const uid=Number(node.creater_id??node.creator_id??node.uid??node.user_id??node.author_id??0),user=users[uid]||{};
-  const name=user.name_display||user.display_name||user.name||node.display_name||node.user_name||node.author_name||node.name||'Schoology';
-  const avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||node.picture_url||node.pictureUrl||'');
-  const body=node.comment??node.body??node.message??'',created=formatSchoologyDate(node.created??node.timestamp??'');
-  const likes=Number(node.likes??node.like_count??0),liked=!!(node.userLiked||node.user_liked||node.liked),commentId=node.comment_id??node.id??'';
-  const attachments=renderAttachments(node.attachments||node.attachment||{}),deleted=Number(node.status??1)===0;
-  const avatarMarkup=avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':'<span class="commentAvatar">'+esc(String(name).charAt(0))+'</span>';
-  const replyMarkup=!deleted&&depth===0?'<button data-event-comment-reply="'+esc(commentId)+'">Reply</button>':'';
-  return '<m3e-card variant="filled" class="androidCommentCard" style="--comment-depth:'+Math.min(depth,8)+'"><div class="androidCommentLayout"><div class="androidCommentAvatar">'+avatarMarkup+'</div><div class="androidCommentContent"><button class="commentUserName" data-comment-user="'+esc(uid)+'">'+esc(name)+'</button><div class="commentBodyHtml '+(deleted?'commentDeleted':'')+'">'+(deleted?'Comment deleted':body)+'</div><div class="commentCreated">'+esc(created)+'</div>'+attachments+'<div class="androidCommentActions">'+replyMarkup+'<button data-event-comment-like="'+esc(commentId)+'" data-liked="'+(liked?'1':'0')+'">'+(liked?'Unlike':'Like')+'</button><button disabled>♥ '+likes+'</button></div></div></div></m3e-card>';
- }).join('');
- el.innerHTML='<div class="commentsPage officialComments"><div class="commentsList commentsAndroidList">'+(cards||'<div class="androidEmptyState">No comments yet.</div>')+'</div></div>';
+ const comments=flattenSharedComments(response),hydrated=await hydrateDialogPeople(comments);
+ el.innerHTML='<div class="commentsPage officialComments"><div class="commentsList sharedCommentsList">'+(comments.map((row,index)=>renderSharedCommentRow(row,comments,eventId,hydrated[index])).join('')||'<div class="androidEmptyState">No comments yet.</div>')+'</div></div>';
  await hydrateMediaImages(el);
- el.querySelectorAll('[data-comment-user]').forEach(button=>button.onclick=()=>{const uid=button.dataset.commentUser;if(uid&&uid!=='0')openProfileById(uid,button.textContent||'Profile')});
- el.querySelectorAll('[data-event-comment-reply]').forEach(button=>button.onclick=()=>openNativeCommentComposer('event',state.eventView,button.dataset.eventCommentReply));
- el.querySelectorAll('[data-event-comment-like]').forEach(button=>button.onclick=async()=>{const id=button.dataset.eventCommentLike;if(!id)return;const liked=button.dataset.liked==='1';try{await A.api({path:'like/'+eventId+'/comment/'+id,method:'POST',params:{like_action:!liked},json:true});button.dataset.liked=liked?'0':'1';button.textContent=liked?'Like':'Unlike';}catch(error){showAppDialog('Unable to update comment',error.message||String(error));}});
+ wireSharedCommentRows(el,{likePath:id=>'like/'+eventId+'/comment/'+id,replyHandler:id=>openNativeCommentComposer('event',state.eventView,id)});
 }
 async function showEventNative(realm,realmId,eventId,title='Event',initialTab='info'){
  const c=document.getElementById('content');if(!c)return;const previousGroup=state.currentGroup,previousTab=state.groupTab;state.embeddedTitle=title;state.embeddedTheme='';state.embeddedReturn={tab:previousGroup?'groups':'home',title:previousGroup?.name||'Home',group:previousGroup,groupTab:previousTab||'updates'};state.eventView={realm,realmId,eventId,tab:initialTab||'info'};state.toolbarTitle=title;syncToolbar();
@@ -2162,11 +2149,15 @@ async function openSchoolProfile(schoolId,title='School'){
    const x=await A.api({path:`schools/${schoolId}`,params:{}}),school=x?.school||x||{},schoolTitle=school.title||school.name||title;
    state.toolbarTitle=schoolTitle;syncToolbar();
    const image=normalizeImageUrl(school.picture_url||school.pictureUrl||school.picture||school.image||'');
-   c.innerHTML=`<section class="schoolProfileNativePage"><m3e-split-pane orientation="horizontal" class="schoolProfileLayout" data-persist-key="school-profile" value="73" min="55" max="85" step="1" label="Resize school profile and upcoming"><section slot="start" class="schoolProfileMainPane"><m3e-tabs variant="secondary" class="m3eSchoologyTabs schoolProfileTabs"><m3e-tab data-school-profile-tab="updates" selected>Updates</m3e-tab><m3e-tab data-school-profile-tab="info">Info</m3e-tab><m3e-tab data-school-profile-tab="upcoming">Upcoming</m3e-tab><m3e-tab data-school-profile-tab="resources">Resources</m3e-tab><m3e-tab data-school-profile-tab="discussions">Discussions</m3e-tab></m3e-tabs><div class="schoolProfileHeader"><div class="schoolProfileHeaderImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:'<img src="../assets/icons/group_default_website.png" alt="">'}</div><div class="schoolProfileHeaderText"><h1>${esc(schoolTitle)}</h1><p>${esc(school.description||school.location||'')}</p></div></div><div id="schoolProfileTabContent" class="schoolProfileTabContent"></div></section><aside slot="end" id="schoolProfileUpcomingPane" class="schoolProfileUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="schoolProfileUpcomingContent" class="schoolProfileUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside></m3e-split-pane></section>`;
+   const schoolLandscape=window.matchMedia('(min-width: 801px) and (orientation: landscape)').matches;
+   const schoolSidebar=`<aside slot="start" class="schoolProfileInfoSidePane"><div class="schoolProfileSidebarImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:`<span>${originalM3Icon('school')}</span>`}</div><m3e-action-list variant="segmented" class="upcomingSegmentedList schoolSidebarSegmentedList">${[['updates','Updates','campaign'],['info','Info','info'],['upcoming','Upcoming','event'],['resources','Resources','folder_open'],['discussions','Discussions','forum']].map(([id,label,icon])=>`<m3e-list-action class="schoolSidebarNavItem ${id==='updates'?'courseSidebarActive':''}" data-school-profile-tab="${id}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${originalM3Icon(icon)}</span><span>${label}</span></m3e-list-action>`).join('')}</m3e-action-list></aside>`;
+   const schoolMain=`<section slot="end" class="schoolProfileMainPane"><m3e-tabs variant="secondary" class="m3eSchoologyTabs schoolProfileTabs"><m3e-tab data-school-profile-tab="updates" selected>Updates</m3e-tab><m3e-tab data-school-profile-tab="info">Info</m3e-tab><m3e-tab data-school-profile-tab="upcoming">Upcoming</m3e-tab><m3e-tab data-school-profile-tab="resources">Resources</m3e-tab><m3e-tab data-school-profile-tab="discussions">Discussions</m3e-tab></m3e-tabs><div class="schoolProfileHeader"><div class="schoolProfileHeaderImage">${image?`<img data-media-image-url="${esc(image)}" alt="">`:`<span class="schoolProfileImageFallback">${originalM3Icon('school')}</span>`}</div><div class="schoolProfileHeaderText"><h1>${esc(schoolTitle)}</h1><p>${esc(school.description||school.location||'')}</p></div></div><div id="schoolProfileTabContent" class="schoolProfileTabContent"></div></section>`;
+   const schoolUpcoming=`<aside slot="end" id="schoolProfileUpcomingPane" class="schoolProfileUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="schoolProfileUpcomingContent" class="schoolProfileUpcomingContent"><div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div></div></aside>`;
+   c.innerHTML=`<section class="schoolProfileNativePage">${schoolLandscape?`<m3e-split-pane orientation="horizontal" class="schoolProfileOuterSplit" data-persist-key="school-profile" value="73" min="50" max="88" step="1" label="Resize school profile and upcoming"><m3e-split-pane slot="start" orientation="horizontal" class="schoolProfileInnerSplit" data-persist-key="school-profile-navigation" value="23" min="14" max="38" step="1" label="Resize school navigation and content">${schoolSidebar}${schoolMain}</m3e-split-pane>${schoolUpcoming}</m3e-split-pane>`:schoolMain}</section>`;
    await hydrateMediaImages(c);
    const content=document.getElementById('schoolProfileTabContent');
    const selectTab=async tab=>{
-    state.schoolProfile.tab=tab;syncM3eTabSelection(c,'schoolProfileTab',tab);
+    state.schoolProfile.tab=tab;syncM3eTabSelection(c,'schoolProfileTab',tab);c.querySelectorAll('[data-school-profile-tab]').forEach(item=>{const selected=item.dataset.schoolProfileTab===tab;item.classList.toggle('courseSidebarActive',selected);if(selected)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
     content.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
     try{
      if(tab==='info'){
@@ -2217,24 +2208,21 @@ function renderM3ePeopleDirectoryInto(container,people,{placeholder='Search peop
  const arr=(Array.isArray(people)?people:[]).slice(),lastName=p=>String(p.name_last||p.last_name||p.nameLast||''),firstName=p=>String(p.name_display_start||p.nameDisplayStart||p.name_first||p.first_name||p.name||p.name_display||p.display_name||'');
  arr.sort((a,b)=>(membersMode?(Number(isSchoologyAdminMember(b))-Number(isSchoologyAdminMember(a))):0)||lastName(a).localeCompare(lastName(b))||firstName(a).localeCompare(firstName(b)));
  window.__schoologyPeople=arr;
- container.innerHTML='<section class="peopleAndroidPage m3ePeopleDirectory"><div class="peopleDirectoryToolbar"><m3e-form-field variant="outlined" class="peopleDirectorySearchField"><label slot="label">Search</label><input class="peopleDirectorySearchInput" type="search" placeholder="'+esc(placeholder)+'" autocomplete="off"></m3e-form-field>'+(membersMode?'<m3e-tabs variant="secondary" class="peopleMemberFilterTabs"><m3e-tab data-member-filter="all" selected>All</m3e-tab><m3e-tab data-member-filter="members">Members</m3e-tab><m3e-tab data-member-filter="admins">Admins</m3e-tab></m3e-tabs>':'<m3e-button class="peopleDirectoryRefresh" variant="text">Refresh</m3e-button>')+'</div><m3e-list variant="segmented" class="peopleDirectoryList"></m3e-list></section>';
- const page=container.querySelector('.m3ePeopleDirectory'),list=page?.querySelector('.peopleDirectoryList'),search=page?.querySelector('.peopleDirectorySearchInput');
- let filter='all';
- const render=async()=>{const query=String(search?.value||'').trim().toLocaleLowerCase(),visible=arr.filter(person=>{const admin=isSchoologyAdminMember(person);return (!membersMode||filter==='all'||(filter==='admins'?admin:!admin))&&(!query||[firstName(person),lastName(person),person.name_display,person.display_name,person.name_first_preferred].some(value=>String(value||'').toLocaleLowerCase().includes(query)))});let previousLetter='',adminHeader=false;
-  const html=visible.map(person=>{const admin=membersMode&&isSchoologyAdminMember(person),last=lastName(person),first=firstName(person),letter=(last.charAt(0)||'#').toUpperCase(),preferred=String(person.name_first_preferred||person.nameFirstPreferred||''),avatar=normalizeImageUrl(person.picture_url||person.pictureUrl||person.picture||person.photo_url||person.photoUrl||'');let header='';
-   if(membersMode&&filter==='all'&&admin){if(!adminHeader){header='<div class="peopleSectionHeader peopleAdminsSectionHeader">Admins</div>';adminHeader=true}previousLetter='__admins__'}
-   else{if(previousLetter==='__admins__')previousLetter='';if(letter!==previousLetter){header='<div class="peopleSectionHeader">'+esc(letter)+'</div>';previousLetter=letter}}
-   const adminIcon=admin?'<span class="peopleMemberAdminIcon" aria-label="Administrator">'+groupAdminBadgeMarkup({...person,admin:true,is_admin:true})+'</span>':'';
-   return header+'<m3e-list-action class="peopleListItem '+(admin?'peopleMemberAdmin':'')+'" data-person-index="'+arr.indexOf(person)+'"><span slot="leading" class="peopleAvatar">'+(avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(String(first||'S').charAt(0))+'</span>')+'</span><span class="peopleMemberNameBlock"><b>'+esc((first+' '+last).trim()||'Schoology user')+'</b>'+(preferred?'<small>'+esc(preferred)+'</small>':'')+(admin?'<small class="peopleMemberRole">Admin</small>':'')+'</span>'+adminIcon+'<span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>';
-  }).join('');
-  if(list)list.innerHTML=html||'<div class="empty">'+(membersMode&&filter==='admins'?'No admins found.':membersMode&&filter==='members'?'No members found.':'No people found.')+'</div>';
-  list?.querySelectorAll('[data-person-index]').forEach(button=>button.onclick=()=>{const person=arr[Number(button.dataset.personIndex)];if(person)onSelect?.(person)});
-  await hydrateMediaImages(container);
- };
+ const menuId='peopleMemberSortMenu-'+(container.id||'directory').replace(/[^a-z0-9_-]/gi,'-');
+ const filters=membersMode?'<m3e-button-group variant="connected" class="peopleMemberFilterButtons" aria-label="Filter members"><m3e-button variant="tonal" toggle data-member-filter="all" selected>All</m3e-button><m3e-button variant="tonal" toggle data-member-filter="members">Members</m3e-button><m3e-button variant="tonal" toggle data-member-filter="admins">Admins</m3e-button></m3e-button-group><m3e-button class="peopleMemberSort" variant="tonal"><m3e-menu-trigger for="'+menuId+'">Sort</m3e-menu-trigger></m3e-button><m3e-menu id="'+menuId+'" class="peopleMemberSortMenu"><m3e-menu-item data-member-filter="all">All</m3e-menu-item><m3e-menu-item data-member-filter="members">Members</m3e-menu-item><m3e-menu-item data-member-filter="admins">Admins</m3e-menu-item></m3e-menu>':'<m3e-button class="peopleDirectoryRefresh" variant="text">Refresh</m3e-button>';
+ container.innerHTML='<section class="peopleAndroidPage m3ePeopleDirectory"><div class="peopleDirectoryToolbar"><m3e-form-field variant="outlined" class="peopleDirectorySearchField"><label slot="label">Search</label><input class="peopleDirectorySearchInput" type="search" placeholder="'+esc(placeholder)+'" autocomplete="off"></m3e-form-field>'+filters+'</div><div class="peopleDirectorySections"></div></section>';
+ const page=container.querySelector('.m3ePeopleDirectory'),sections=page?.querySelector('.peopleDirectorySections'),search=page?.querySelector('.peopleDirectorySearchInput');let filter='all';
+ const makeRow=person=>{const admin=membersMode&&isSchoologyAdminMember(person),last=lastName(person),first=firstName(person),preferred=String(person.name_first_preferred||person.nameFirstPreferred||''),avatar=normalizeImageUrl(person.picture_url||person.pictureUrl||person.picture||person.photo_url||person.photoUrl||''),adminIcon=admin?'<span class="peopleMemberAdminIcon" aria-label="Administrator">'+groupAdminBadgeMarkup({...person,admin:true,is_admin:true})+'</span>':'';
+ return '<m3e-list-action class="peopleListItem '+(admin?'peopleMemberAdmin':'')+'" data-person-index="'+arr.indexOf(person)+'"><span slot="leading" class="peopleAvatar">'+(avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" loading="lazy">':'<span>'+esc(String(first||'S').charAt(0))+'</span>')+'</span><span class="peopleMemberNameBlock"><b>'+esc((first+' '+last).trim()||'Schoology user')+'</b>'+(preferred?'<small>'+esc(preferred)+'</small>':'')+(admin?'<small class="peopleMemberRole">Admin</small>':'')+'</span>'+adminIcon+'<span slot="trailing" class="m3eOriginalIcon">'+originalM3Icon('chevron_right')+'</span></m3e-list-action>'};
+ const render=async()=>{const query=String(search?.value||'').trim().toLocaleLowerCase(),visible=arr.filter(person=>{const admin=isSchoologyAdminMember(person);return (!membersMode||filter==='all'||(filter==='admins'?admin:!admin))&&(!query||[firstName(person),lastName(person),person.name_display,person.display_name,person.name_first_preferred].some(value=>String(value||'').toLocaleLowerCase().includes(query)))});
+ const groups=[];if(membersMode&&filter!=='members'){const admins=visible.filter(isSchoologyAdminMember);if(admins.length)groups.push({label:'Admins',key:'admins',people:admins})}
+ const members=visible.filter(person=>!membersMode||!isSchoologyAdminMember(person)),byLetter=new Map();for(const person of members){const letter=(lastName(person).charAt(0)||'#').toLocaleUpperCase();if(!byLetter.has(letter))byLetter.set(letter,[]);byLetter.get(letter).push(person)}
+ for(const [letter,items] of [...byLetter.entries()].sort((a,b)=>a[0].localeCompare(b[0])))groups.push({label:letter,key:'letter-'+letter,people:items});
+ if(sections)sections.innerHTML=groups.map(group=>'<section class="peopleDirectorySection" data-people-section="'+esc(group.key)+'"><div class="peopleSectionHeader">'+esc(group.label)+'</div><m3e-action-list variant="segmented" class="peopleDirectoryList">'+group.people.map(makeRow).join('')+'</m3e-action-list></section>').join('')||'<div class="empty">'+(membersMode&&filter==='admins'?'No admins found.':membersMode&&filter==='members'?'No members found.':'No people found.')+'</div>';
+ sections?.querySelectorAll('[data-person-index]').forEach(button=>button.onclick=()=>{const person=arr[Number(button.dataset.personIndex)];if(person)onSelect?.(person)});await hydrateMediaImages(container)};
  search?.addEventListener('input',()=>void render());
- page?.querySelectorAll('[data-member-filter]').forEach(button=>button.addEventListener('click',()=>{filter=button.dataset.memberFilter||'all';page.querySelectorAll('[data-member-filter]').forEach(tab=>{tab.toggleAttribute('selected',tab.dataset.memberFilter===filter)});void render()}));
- page?.querySelector('.peopleDirectoryRefresh')?.addEventListener('click',async event=>{const button=event.currentTarget;if(!onRefresh)return;button.disabled=true;try{await onRefresh()}finally{if(button.isConnected)button.disabled=false}});
- void render();
+ page?.querySelectorAll('[data-member-filter]').forEach(button=>button.addEventListener('click',()=>{filter=button.dataset.memberFilter||'all';page.querySelectorAll('[data-member-filter]').forEach(item=>item.toggleAttribute('selected',item.dataset.memberFilter===filter));void render()}));
+ page?.querySelector('.peopleDirectoryRefresh')?.addEventListener('click',async event=>{const button=event.currentTarget;if(!onRefresh)return;button.disabled=true;try{await onRefresh()}finally{if(button.isConnected)button.disabled=false}});void render();
 }
 function openGroupUpdateComposer(groupId){
  if(!state.groupCanPostUpdates||!groupId)return;
@@ -2267,16 +2255,17 @@ async function showGroup(group,activeTab='updates'){
   let groupSchoolId=groupDetail?.school_id??groupDetail?.schoolId;
   let groupSchool='';
   if(groupSchoolId){try{const sx=await A.api({path:`schools/${groupSchoolId}`,params:{}});const sch=sx?.school||sx;groupSchool=String(sch?.title||sch?.name||'')}catch{}}
-  const groupLandscape=window.matchMedia('(min-width: 801px)').matches;
+  const groupLandscape=window.matchMedia('(min-width: 801px) and (orientation: landscape)').matches;
   const groupTabsMarkup=`<div class="groupTabs"><m3e-tabs variant="secondary" class="m3eSchoologyTabs groupTabsM3e">${['updates','members','upcoming','discussions','albums','resources'].map((id)=>`<m3e-tab class="groupTab ${id==='upcoming'?'groupUpcomingTab':''}" data-group-tab="${id}" ${activeTab===id?'selected':''}>${({updates:'Updates',members:'Members',upcoming:'Upcoming',discussions:'Discussions',albums:'Albums',resources:'Resources'})[id]}</m3e-tab>`).join('')}</m3e-tabs></div>`;
-  const groupMain=`<section slot="start" class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img src="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
+  const groupSidebar=`<aside slot="start" class="groupInfoSidePane"><div class="groupSidebarImage">${group.picture_url||group.pictureUrl?`<img data-media-image-url="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><m3e-action-list variant="segmented" class="upcomingSegmentedList groupSidebarSegmentedList">${[['updates','Updates','campaign'],['members','Members','groups'],['upcoming','Upcoming','event'],['discussions','Discussions','forum'],['albums','Albums','photo_library'],['resources','Resources','folder_open']].map(([id,label,icon])=>`<m3e-list-action class="groupSidebarNavItem ${activeTab===id?'courseSidebarActive':''}" data-group-tab="${id}" tabindex="0"><span slot="leading" class="m3eOriginalIcon">${originalM3Icon(icon)}</span><span>${label}</span></m3e-list-action>`).join('')}</m3e-action-list></aside>`;
+  const groupMain=`<section slot="end" class="groupMainPane">${groupTabsMarkup}<div class="groupHeader"><div class="groupHero">${group.picture_url||group.pictureUrl?`<img data-media-image-url="${esc(normalizeImageUrl(group.picture_url||group.pictureUrl))}" alt="">`:`<span>${esc(String(group.name||group.title||'G').charAt(0))}</span>`}</div><div><h1>${esc(group.name||group.title||'Group')}</h1><button class="groupSchoolLink" data-group-school-id="${esc(groupSchoolId||'')}" type="button">${esc(groupSchool)}</button></div></div><div id="groupTabContent"></div></section>`;
   const groupUpcoming=`<aside slot="end" id="groupUpcomingPane" class="groupUpcomingPane"><div class="homePaneHeader">Upcoming</div><div id="groupUpcomingContent"></div></aside>`;
-  c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" data-persist-key="group-${esc(gid)}" value="73" min="50" max="88" step="1" label="Resize group content and upcoming">${groupMain}${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
+  c.innerHTML=`<section class="groupProfilePage">${groupLandscape?`<m3e-split-pane orientation="horizontal" class="groupOuterSplit" data-persist-key="group-${esc(gid)}" value="73" min="50" max="88" step="1" label="Resize group content and upcoming"><m3e-split-pane slot="start" orientation="horizontal" class="groupInnerSplit" data-persist-key="group-navigation-${esc(gid)}" value="23" min="14" max="38" step="1" label="Resize group navigation and content">${groupSidebar}${groupMain}</m3e-split-pane>${groupUpcoming}</m3e-split-pane>`:groupMain}</section>`;
   const gc=document.getElementById('groupTabContent');
   const groupSchoolButton=document.querySelector('[data-group-school-id]');if(groupSchoolButton)groupSchoolButton.onclick=()=>{const id=Number(groupSchoolButton.getAttribute('data-group-school-id')||0);if(id)openSchoolProfile(id,groupSchoolButton.textContent||'School')};
   const loadGroupUpcoming=async()=>{const up=document.getElementById('groupUpcomingContent');if(!up)return;try{const x=await A.api({path:`groups/${gid}/events`,params:{start:formatApiDate(new Date()),limit:20}});const a=(x.event||x.events||[]).filter(e=>['assignment','assessment','assessment_v2','managed_assessment','discussion','external_tool','event'].includes(String(e.type||'')));up.innerHTML=a.length?renderUpcoming(a):'<div class="empty upcomingEmpty"><h2>No upcoming events</h2></div>';up.querySelectorAll('[data-course-upcoming-id]').forEach(b=>b.onclick=()=>{const e=a.find(v=>String(v.id||'')===String(b.dataset.courseUpcomingId));if(!e)return;const aid=e.assignment_id??e.assignmentId??e.assignment?.id;if(String(e.type||'').toLowerCase()==='assignment'&&aid){showAssignment(gid,aid);}else if(['assessment','assessment_v2','managed_assessment','quiz'].includes(String(e.type||'').toLowerCase())){const id=aid??e.id;(async()=>{await A.prepareWebSession();showEmbeddedWeb(`https://app.schoology.com/assignment/${id}`,e.title||'Quiz',{allowBrowser:false,quiz:true,assessment:true})})()}else if(String(e.type||'').toLowerCase()==='event'&&e.id){openWithPressTransition(b,()=>showEventNative('groups',gid,e.id,e.title||'Event'));}})}catch(e){up.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`}};
   const load=async(tab)=>{
-    state.groupTab=tab;syncM3eTabSelection(document.getElementById('content'),'groupTab',tab);syncToolbar();
+    state.groupTab=tab;syncM3eTabSelection(document.getElementById('content'),'groupTab',tab);document.querySelectorAll('[data-group-tab]').forEach(item=>{const selected=item.dataset.groupTab===tab;item.classList.toggle('courseSidebarActive',selected);if(selected)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});syncToolbar();
     gc.innerHTML='<div class="loading groupTabLoading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';
     try{
       if(tab==='updates'){
@@ -2303,6 +2292,8 @@ async function showGroup(group,activeTab='updates'){
   };
   document.querySelectorAll('[data-group-tab]').forEach(b=>b.onclick=()=>load(b.dataset.groupTab));
   await load(activeTab);
+  await hydrateMediaImages(c);
+  if(groupLandscape)await loadGroupUpcoming();
 }
 async function showGroupResourceFolder(gid,folderId,title,collectionId){
   const gc=document.getElementById('groupTabContent');if(!gc)return;
@@ -2481,25 +2472,40 @@ async function openNotification(n){
   }catch(e){alert('Unable to open notification: '+e.message)}
 }
 
-async function loadMessagesPage(c, force=false){
- const folder=state.messageTab==='sent'?'sent':'inbox';
- if(!force && state.messageCache?.[folder]){ renderMessageFolderInto(c,folder); return; }
- const endpoint=folder==='sent'?'messages/sent':'messages/inbox';
- const x=await A.api({path:endpoint,params:{limit:50}});const arr=x.message||x.messages||[];
- const ids=[...new Set(arr.map(m=>folder==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId)).map(Number).filter(Boolean))];
- const users={};await Promise.all(ids.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});users[id]=u?.user||u}catch{}}));
- state.messageCache=state.messageCache||{}; state.messageCache[folder]={arr,users};
- renderMessageFolderInto(c,folder);
+async function loadMessagesPage(c,force=false){
+ const wantsSplit=window.matchMedia('(min-width: 801px)').matches;const folders=['inbox','sent'];state.messageCache=state.messageCache||{};
+ await Promise.all(folders.map(async folder=>{
+  if(!force&&state.messageCache[folder])return;
+  const response=await A.api({path:folder==='sent'?'messages/sent':'messages/inbox',params:{limit:50}}),arr=response?.message||response?.messages||response?.data?.message||[];
+  const ids=[...new Set(arr.map(row=>Number(folder==='sent'?(row.recipient_ids||row.recipientIds||'').split(',')[0]:(row.author_id||row.authorId))).filter(Boolean))],users={};
+  await Promise.all(ids.map(async id=>{try{const result=await A.api({path:'users/'+id,params:{}});users[id]=result?.user||result}catch{} }));
+  state.messageCache[folder]={arr,users};
+ }));
+ if(wantsSplit)renderMessagesSplit(c);else renderMessageFolderInto(c,state.messageTab==='sent'?'sent':state.messageTab==='unread'?'unread':'inbox');
+}
+function isMessageUnread(message){const status=String(message?.message_status||message?.messageStatus||'').toLowerCase();return status==='unread'||message?.is_read===false||message?.isRead===false||message?.unread===true||message?.read===false}
+function messageRowsForFolder(folder){const cache=state.messageCache?.[folder==='unread'?'inbox':folder]||{arr:[],users:{}};return folder==='unread'?cache.arr.filter(isMessageUnread):cache.arr}
+function renderMessageListMarkup(folder){
+ const cache=state.messageCache?.[folder==='unread'?'inbox':folder]||{arr:[],users:{}},rows=messageRowsForFolder(folder),users=cache.users;
+ return rows.map((message,index)=>{const uid=Number(folder==='sent'?(message.recipient_ids||message.recipientIds||'').split(',')[0]:(message.author_id||message.authorId)),user=users[uid]||{},me=Number(state.auth?.userId||state.auth?.user?.id||0)===uid,name=me?'You':(user.name_display||user.nameDisplay||user.display_name||user.name||'Schoology'),avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||''),timestamp=message.last_updated||message.lastUpdated||message.created||message.timestamp,date=timestamp?(typeof timestamp==='number'||/^\\d+$/.test(String(timestamp))?new Date(Number(timestamp)*1000).toLocaleString():String(timestamp)):'';
+  return '<m3e-list-action class="messageListItem '+(isMessageUnread(message)?'unread':'')+'" data-message="'+index+'" data-message-folder="'+folder+'" tabindex="0"><span slot="leading" class="messageListAvatar">'+(avatar?'<img data-media-image-url="'+esc(avatar)+'" alt="" style="display:none">':esc(String(name).charAt(0)))+'</span><span>'+esc(name)+'</span><span slot="supporting-text">'+esc(message.subject||'Message')+(date?' · '+esc(date):'')+'</span>'+(isMessageUnread(message)?'<span slot="trailing" class="messageUnreadDot"></span>':'')+'</m3e-list-action>';
+ }).join('')||'<div class="empty">No messages.</div>';
+}
+function wireMessageList(root){root.querySelectorAll('[data-message]').forEach(button=>button.onclick=async()=>{const folder=button.dataset.messageFolder||state.messageTab||'inbox',rows=messageRowsForFolder(folder),message=rows[Number(button.dataset.message)];if(!message)return;state.messageTab=folder;state.messageFolder=folder;state.message=message;state.messageThread=null;render();await loadMessageThread(message)})}
+function renderMessagesSplit(c){
+ const active=state.messageTab==='unread'?'unread':'inbox';
+ c.innerHTML='<section class="messagesAndroidPage messagesSplitLayout"><section class="messagesSplitColumn messagesInboxSplitColumn"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e messageTabs messagesSplitTabs"><m3e-tab class="messageTab" data-split-message-tab="inbox" '+(active==='inbox'?'selected':'')+'>Inbox</m3e-tab><m3e-tab class="messageTab" data-split-message-tab="unread" '+(active==='unread'?'selected':'')+'>Unread</m3e-tab></m3e-tabs><m3e-action-list variant="segmented" class="messageList" data-split-folder="inbox" style="display:'+(active==='inbox'?'block':'none')+'">'+renderMessageListMarkup('inbox')+'</m3e-action-list><m3e-action-list variant="segmented" class="messageList" data-split-folder="unread" style="display:'+(active==='unread'?'block':'none')+'">'+renderMessageListMarkup('unread')+'</m3e-action-list></section><section class="messagesSplitColumn messagesSentSplitColumn"><div class="messagesSplitHeading">Sent</div><m3e-action-list variant="segmented" class="messageList" data-split-folder="sent">'+renderMessageListMarkup('sent')+'</m3e-action-list></section></section>';
+ c.querySelectorAll('[data-split-message-tab]').forEach(button=>button.onclick=()=>{const next=button.dataset.splitMessageTab;state.messageTab=next;c.querySelectorAll('[data-split-message-tab]').forEach(tab=>{tab.toggleAttribute('selected',tab===button);tab.selected=tab===button});for(const folder of ['inbox','unread']){const list=c.querySelector('[data-split-folder="'+folder+'"]');if(list)list.style.display=folder===next?'block':'none'}});
+ wireMessageList(c);void hydrateMediaImages(c);
 }
 function renderMessageFolderInto(c,folder){
- const cache=state.messageCache?.[folder]||{arr:[],users:{}};const arr=cache.arr,users=cache.users;window.__schoologyMessages=arr;window.__schoologyMessageUsers=users;
- const listHtml=arr.map((m,i)=>{const uid=Number(folder==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId));const u=users[uid]||{};const me=Number(state.auth?.userId||state.auth?.user?.id||0)===uid;const name=me?'You':(u.name_display||u.nameDisplay||u.display_name||u.name||'Schoology');const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||'');const ts=m.last_updated||m.lastUpdated||m.created||m.timestamp;const date=ts?(typeof ts==='number'||/^\d+$/.test(String(ts))?new Date(Number(ts)*1000).toLocaleString():String(ts)):'';return `<m3e-list-action data-message="${i}" tabindex="0"><span slot="leading" class="messageListAvatar">${avatar?`<img data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`${esc(String(name).charAt(0))}`}</span><span>${esc(name)}</span><span slot="supporting-text">${esc(m.subject||'Message')}${date?` · ${esc(date)}`:''}</span>${m.message_status==='unread'?'<span slot="trailing" class="messageUnreadDot"></span>':''}</m3e-list-action>`}).join('')||'<div class="empty">No messages.</div>';
- let page=c.querySelector('.messagesAndroidPage');
- if(!page){c.innerHTML=`<section class="messagesAndroidPage"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e"><m3e-tab class="messageTab" data-message-tab="inbox" ${folder==='inbox'?'selected':''}>Inbox</m3e-tab><m3e-tab class="messageTab" data-message-tab="sent" ${folder==='sent'?'selected':''}>Sent</m3e-tab></m3e-tabs><m3e-action-list variant="segmented" class="messageList"></m3e-action-list></section>`;page=c.querySelector('.messagesAndroidPage');}
- const list=page.querySelector('.messageList');if(list)list.innerHTML=listHtml;page.querySelectorAll('[data-message-tab]').forEach(b=>{syncM3eTabSelection(page,'messageTab',folder);b.onclick=async()=>{const next=b.dataset.messageTab;if(state.messageTab===next)return;state.messageTab=next;if(!state.messageCache?.[next]){list.innerHTML='<div class="loading"><m3e-circular-progress-indicator indeterminate class="m3eInlineProgress" aria-label="Loading"></m3e-circular-progress-indicator><span>Loading…</span></div>';const uid=state.auth?.userId||state.auth?.user?.id;const endpoint=next==='sent'?'messages/sent':'messages/inbox';try{const x=await A.api({path:endpoint,params:{limit:50}});const a=x.message||x.messages||[];const ids=[...new Set(a.map(m=>Number(next==='sent'?(m.recipient_ids||m.recipientIds||'').split(',')[0]:(m.author_id||m.authorId))).filter(Boolean))];const users2={};await Promise.all(ids.map(async id=>{try{const u=await A.api({path:`users/${id}`,params:{}});users2[id]=u?.user||u}catch{}}));state.messageCache=state.messageCache||{};state.messageCache[next]={arr:a,users:users2};}catch(e){list.innerHTML=`<div class="error apiError">${esc(e.message)}</div>`;return}}renderMessageFolderInto(c,next);};});
- hydrateMediaImages(page);list?.querySelectorAll('[data-message]').forEach(b=>b.onclick=async()=>{const m=window.__schoologyMessages?.[+b.dataset.message];if(!m)return;state.message=m;state.messageFolder=state.messageTab;state.messageThread=null;render();await loadMessageThread(m);});
+ const active=folder==='sent'?'sent':folder==='unread'?'unread':'inbox';state.messageTab=active;
+ c.innerHTML='<section class="messagesAndroidPage"><m3e-tabs variant="secondary" class="m3eSchoologyTabs messageTabsM3e messageTabs"><m3e-tab class="messageTab" data-message-tab="inbox" '+(active==='inbox'?'selected':'')+'>Inbox</m3e-tab><m3e-tab class="messageTab" data-message-tab="unread" '+(active==='unread'?'selected':'')+'>Unread</m3e-tab><m3e-tab class="messageTab" data-message-tab="sent" '+(active==='sent'?'selected':'')+'>Sent</m3e-tab></m3e-tabs><m3e-action-list variant="segmented" class="messageList">'+renderMessageListMarkup(active)+'</m3e-action-list></section>';
+ c.querySelectorAll('[data-message-tab]').forEach(button=>button.onclick=()=>{const next=button.dataset.messageTab;state.messageTab=next;renderMessageFolderInto(c,next)});
+ wireMessageList(c);void hydrateMediaImages(c);
 }
-
+let messageResizeFrame=0;
+window.addEventListener('resize',()=>{if(messageResizeFrame)return;messageResizeFrame=requestAnimationFrame(()=>{messageResizeFrame=0;const content=document.getElementById('content'),page=content?.querySelector('.messagesAndroidPage');if(!page)return;const split=window.matchMedia('(min-width: 801px)').matches,hasSplit=page.classList.contains('messagesSplitLayout');if(split!==hasSplit)loadMessagesPage(content,true).catch(error=>showAppDialog('Unable to resize messages',error?.message||String(error)))})});
 async function loadTab(){
  const c=document.getElementById('content');if(!c)return;
  const generation=++loadTabGeneration;
@@ -2515,6 +2521,7 @@ async function loadTab(){
  try{
   if(state.tab==='home'){
     installHomeLayoutWatcher();
+    await loadHomeCreationPermissions();
     const landscape=window.matchMedia('(min-width: 801px)').matches;
     if(landscape){
       const tabs=`<m3e-tabs variant="secondary" class="m3eSchoologyTabs homeTabsM3e">${`<m3e-tab data-home-tab="recent" ${state.homeTab==='recent'?'selected':''}>Recent Activity</m3e-tab>`}${state.courseDashboardEnabled?`<m3e-tab data-home-tab="dashboard" ${state.homeTab==='dashboard'?'selected':''}>Course Dashboard</m3e-tab>`:''}</m3e-tabs>`;
@@ -2728,16 +2735,16 @@ document.querySelectorAll('[data-notification-index]').forEach(b=>b.onclick=()=>
         <m3e-list-action id="tryLiquidGlass">Try Schoology Liquid Glass<span slot="supporting-text">Download the latest Schoology Liquid Glass release</span><span class="m3eOriginalIcon" slot="trailing">${originalM3Icon("chevron_right")}</span></m3e-list-action>
         <m3e-list-item>Window Controls Overlay<span slot="supporting-text">Place native window controls over the Schoology app bar (restart required)</span><m3e-switch slot="trailing" id="windowChromeOverlayToggle" ${state.windowChromeOverlay?'checked':''} aria-label="Window Controls Overlay"></m3e-switch></m3e-list-item>
       </m3e-list></div>
-      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.10.0-port.1')}</div></section>`;
+      <div class="settingsVersion">Version: ${esc(state.appVersion||'2026.10.0-port.2')}</div></section>`;
     document.getElementById('setupChromeLinkHandler')?.addEventListener('click',async()=>{try{state.openSchoologyLinks=await A.setOpenSchoologyLinks?.(true)!==false;const error=await A.openChromeExtensionFolder?.();if(error)throw new Error(error);showAppDialog('Chrome link handler','In Chrome, open chrome://extensions, enable Developer mode, choose Load unpacked, and select the chrome-link-handler folder that was opened. Supported Schoology links will now open in this app.')}catch(err){showAppDialog('Unable to open Chrome link handler folder',err.message||String(err))}});
     document.getElementById('desktopNotificationsToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.desktopNotifications=await A.setDesktopNotifications?.(next)!==false;const sound=document.getElementById('notificationSoundToggle');if(sound)sound.disabled=!state.desktopNotifications}catch(err){e.target.checked=state.desktopNotifications;showAppDialog('Unable to update notifications',err.message||String(err))}});
     document.getElementById('notificationSoundToggle')?.addEventListener('change',async e=>{const next=!!e.target.checked;try{state.notificationSound=await A.setNotificationSound?.(next)===true}catch(err){e.target.checked=state.notificationSound;showAppDialog('Unable to update notification sound',err.message||String(err))}});
     document.getElementById('themeSettings')?.addEventListener('click',()=>showThemeSettingsDialog());
     document.getElementById('accountInfo')?.addEventListener('click',async()=>{try{await A.prepareWebSession();state.embeddedReturn={tab:'settings',title:'Settings'};showEmbeddedWeb('https://app.schoology.com/settings/account','Account Info',{allowBrowser:false,accountInfo:true})}catch(e){showAppDialog('Unable to open Account Info',e.message||String(e))}});
     document.getElementById('checkForUpdates')?.addEventListener('click',async()=>{const b=document.getElementById('checkForUpdates');if(b)b.disabled=true;try{const u=await A.checkForUpdates(true);if(u?.available)showUpdateDialog(u);else showAppDialog('Up to date','You are using the latest available Schoology Desktop M3E release.')}catch(e){showAppDialog('Unable to check for updates',e.message||String(e))}finally{if(b)b.disabled=false}});
-    async function downloadAlternateRelease(buttonId,apiMethod,title,progressId,errorTitle){const b=document.getElementById(buttonId);if(b)b.disabled=true;try{const u=await apiMethod();const dlg=showAppDialog(title,`Downloading ${u.version?`v${esc(u.version)}`:'the latest release'}…`,[{label:'Cancel',action:()=>A.cancelUpdateDownload?.()}]);const msg=dlg?.querySelector('.appDialogMessage');if(msg)msg.innerHTML=`<div class="updateDownloadProgressWrap"><m3e-linear-progress-indicator id="${progressId}Bar" mode="determinate" value="0" max="100"></m3e-linear-progress-indicator><div id="${progressId}Text" class="updateDownloadProgressText">Downloading…</div></div>`;const off=A.onUpdateDownloadProgress?.(d=>{const bar=document.getElementById(`${progressId}Bar`),txt=document.getElementById(`${progressId}Text`);if(bar&&d?.percent!=null)bar.value=Math.max(0,Math.min(100,Number(d.percent)||0));if(txt)txt.textContent=d?.percent!=null?`Downloading… ${d.percent}%`:'Downloading…'});try{await A.installUpdate(u);off?.()}catch(e){off?.();if(dlg)dlg.open=false;showAppDialog(errorTitle,e.message||String(e))}}catch(e){showAppDialog(errorTitle,e.message||String(e))}finally{if(b)b.disabled=false}}
-    document.getElementById('trySchoologyClassic')?.addEventListener('click',()=>downloadAlternateRelease('trySchoologyClassic',A.downloadClassic,'Downloading Schoology Classic','classicDownloadProgress','Unable to download Schoology Classic'));
-    document.getElementById('tryLiquidGlass')?.addEventListener('click',()=>downloadAlternateRelease('tryLiquidGlass',A.downloadLiquidGlass,'Downloading Schoology Liquid Glass','liquidGlassDownloadProgress','Unable to download Schoology Liquid Glass'));
+    async function downloadAlternateRelease(buttonId,methodName,title,progressId,errorTitle){const b=document.getElementById(buttonId),getRelease=A[String(methodName||'')];if(typeof getRelease!=='function'){showAppDialog(errorTitle,'This release download is not available in the current app build. Please update Schoology and try again.');return}if(b)b.disabled=true;try{const u=await getRelease.call(A);const dlg=showAppDialog(title,`Downloading ${u.version?`v${esc(u.version)}`:'the latest release'}…`,[{label:'Cancel',action:()=>A.cancelUpdateDownload?.()}]);const msg=dlg?.querySelector('.appDialogMessage');if(msg)msg.innerHTML=`<div class="updateDownloadProgressWrap"><m3e-linear-progress-indicator id="${progressId}Bar" mode="determinate" value="0" max="100"></m3e-linear-progress-indicator><div id="${progressId}Text" class="updateDownloadProgressText">Downloading…</div></div>`;const off=A.onUpdateDownloadProgress?.(d=>{const bar=document.getElementById(`${progressId}Bar`),txt=document.getElementById(`${progressId}Text`);if(bar&&d?.percent!=null)bar.value=Math.max(0,Math.min(100,Number(d.percent)||0));if(txt)txt.textContent=d?.percent!=null?`Downloading… ${d.percent}%`:'Downloading…'});try{await A.installUpdate(u);off?.()}catch(e){off?.();if(dlg)dlg.open=false;showAppDialog(errorTitle,e.message||String(e))}}catch(e){showAppDialog(errorTitle,e.message||String(e))}finally{if(b)b.disabled=false}}
+    document.getElementById('trySchoologyClassic')?.addEventListener('click',()=>downloadAlternateRelease('trySchoologyClassic','downloadClassic','Downloading Schoology Classic','classicDownloadProgress','Unable to download Schoology Classic'));
+    document.getElementById('tryLiquidGlass')?.addEventListener('click',()=>downloadAlternateRelease('tryLiquidGlass','downloadLiquidGlass','Downloading Schoology Liquid Glass','liquidGlassDownloadProgress','Unable to download Schoology Liquid Glass'));
     document.getElementById('windowChromeOverlayToggle')?.addEventListener('change',async e=>{const checked=!!e.target.checked;try{await A.setWindowChromeMode(checked)}catch(err){e.target.checked=!checked;showAppDialog('Unable to change window controls',err.message||String(err))}});
   }
  }catch(e){if(generation!==loadTabGeneration||tabAtStart!==state.tab)return;c.innerHTML=`<div class="error apiError"><b>Schoology could not load this page.</b><br>${esc(e.message)}</div>`}
@@ -2768,42 +2775,19 @@ async function loadHomeTab(){
     const groupIds=[...new Set(updates.filter(x=>['group','groups'].includes(String(x.realm||x.realm_name||x.realmName||'').toLowerCase())).map(x=>Number(x.group_id||x.groupId||x.realm_id||x.realmId)).filter(id=>Number.isSafeInteger(id)&&id>0))];const groupMap={};await Promise.all(groupIds.slice(0,10).map(async id=>{try{const x=await A.api({path:`groups/${id}`,params:{}});groupMap[id]=x?.group||x}catch{}}));
     state.activityUsers=userMap;state.__activityById=Object.fromEntries(updates.map(u=>[String(u.id),u]));state.__activityGroups=groupMap;
     c.classList.add('recentActivityScroll');
-    c.innerHTML=updates.length?updates.map(x=>{
-      const uid=x.user_id||x.uid||x.author_id||x.authorId;
-      const u=userMap[uid]||{};
-      const name=x.display_name||x.author_name||u.name_display||u.display_name||u.name||x.user_name||x.author_name||'Schoology';
-      const body=x.body||x.message||x.description||x.title||'';
-      const created=formatSchoologyDate(x.created||x.timestamp||x.created_at||'');
-      const avatar=normalizeImageUrl(u.picture_url||u.pictureUrl||u.picture||u.photo_url||x.user_photo||x.photo_url||'');
-      const media=renderAttachments(x.attachments||x.attachment||x.files||{});
-      const comments=Number(x.num_comments||x.comment_count||0),realm=String(x.realm||x.realm_name||x.realmName||'').toLowerCase(),groupId=Number(x.group_id||x.groupId||x.realm_id||x.realmId||0),group=groupMap[groupId]||{},groupName=x.group_name||x.groupName||x.realm_title||x.realmTitle||group.name||group.title||'',groupContext=['group','groups'].includes(realm)&&groupId>0&&!!groupName;
-      return `<m3e-card variant="filled" class="androidActivityCard">
-        <div class="activityHeader">${avatar?`<img class="activityAvatar" data-media-image-url="${esc(avatar)}" alt="" style="display:none">`:`<span class="activityAvatar">${esc(String(name).charAt(0))}</span>`}<button class="activityUser activityAuthorLink" data-author-id="${esc(u.user_id||u.uid||u.author_id||u.authorId||u.creator_id||u.creatorId||'')}">${esc(name)}</button>${groupContext?`<span class="activityContextArrow" aria-hidden="true">›</span><button class="activityGroupLink" data-activity-group-id="${groupId}">${esc(groupName)}</button>`:''}</div>
-        <div class="activityBody">${body}</div>
-        ${media}
-        <div class="activityMeta">${esc(created)}</div>
-        <div class="activityActions"><button data-activity-comments="${esc(x.id||'')}">Comment${comments?` (${comments})`:''}</button><button data-activity-like="${esc(x.id||'')}" data-liked="${x.liked||x.is_liked?'1':'0'}">${x.liked||x.is_liked?'Unlike':'Like'}${x.likes?` (${esc(x.likes)})`:''}</button></div>
-      </m3e-card>`;
+    c.innerHTML=updates.length?updates.map(post=>{
+      const userId=post.user_id||post.uid||post.author_id||post.authorId,user=userMap[userId]||{};
+      const name=post.display_name||post.author_name||user.name_display||user.display_name||user.name||post.user_name||'Schoology';
+      const avatar=normalizeImageUrl(user.picture_url||user.pictureUrl||user.picture||user.photo_url||post.user_photo||post.photo_url||'');
+      const rawRealm=String(post.realm||post.realm_name||post.realmName||'user').toLowerCase();
+      const realm=({user:'users',users:'users',section:'sections',sections:'sections',group:'groups',groups:'groups',school:'schools',schools:'schools'})[rawRealm]||rawRealm;
+      const groupId=Number(post.group_id||post.groupId||post.realm_id||post.realmId||0),group=groupMap[groupId]||{};
+      const groupName=post.group_name||post.groupName||post.realm_title||post.realmTitle||group.name||group.title||'';
+      const realmId=(rawRealm==='user'||rawRealm==='users')?(post.user_id||post.uid||state.auth?.userId||state.auth?.user?.id):(rawRealm==='section'||rawRealm==='sections')?(post.section_id||post.sectionId||post.realm_id||post.realmId):(rawRealm==='group'||rawRealm==='groups')?(post.group_id||post.groupId||post.realm_id||post.realmId):(rawRealm==='school'||rawRealm==='schools')?(post.school_id||post.schoolId||post.realm_id||post.realmId):(post.realm_id||post.realmId);
+      return renderSharedPostCard({post:post,id:sharedPostId(post),realm:realm,realmId:realmId,author:name,avatar:avatar,authorId:user.user_id||user.uid||user.id||userId||'',contextLabel:(['group','groups'].includes(rawRealm)&&groupId&&groupName)?groupName:'',contextId:groupId,cardClass:'recentActivityPost'});
     }).join(''):'<div class="empty"><h2>No recent activity</h2><p>Your recent Schoology activity will appear here.</p></div>';
     await hydrateMediaImages(c);
-    document.querySelectorAll('[data-activityAuthorLink],[data-activity-author-id]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.activityAuthorId||btn.dataset.authorId;if(id)openProfileById(id,btn.textContent||'Profile')});
-    document.querySelectorAll('.activityAuthorLink[data-author-id]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.authorId;if(id)openProfileById(id,btn.textContent||'Profile')});
-    document.querySelectorAll('[data-activity-group-id]').forEach(btn=>btn.onclick=async()=>{const id=Number(btn.getAttribute('data-activity-group-id')||0);if(!id)return;const group=groupMap[id]||{id,name:btn.textContent||'Group'};state.tab='groups';state.screen='app';state.currentGroup=group;state.toolbarTitle=group.name||group.title||'Group';render();await showGroup(group,'updates')});
-    document.querySelectorAll('[data-activity-like]').forEach(btn=>btn.onclick=async()=>{
-      const id=btn.dataset.activityLike;if(!id)return;
-      const liked=btn.dataset.liked==='1';
-      try{await A.api({path:`like/${id}`,method:'POST',params:{like_action:!liked},json:true});btn.dataset.liked=liked?'0':'1';btn.textContent=liked?'Like':'Unlike';}
-      catch(e){alert('Unable to update like: '+e.message)}
-    });
-    document.querySelectorAll('[data-activity-comments]').forEach(btn=>btn.onclick=async()=>{
-      const id=btn.dataset.activityComments;if(!id)return;
-      try{
-        const uid=state.auth?.userId||state.auth?.user?.id;
-        const update=state.__activityById?.[String(id)]||{}; const rawRealm=String(update.realm||update.realm_name||update.realmName||'user').toLowerCase(); const realm=rawRealm==='user'?'users':rawRealm==='section'?'sections':rawRealm==='group'?'groups':rawRealm==='school'?'schools':rawRealm; const realmId=rawRealm==='user'?(update.user_id||update.uid||uid):rawRealm==='section'?(update.section_id||update.sectionId||uid):rawRealm==='group'?(update.group_id||update.groupId||uid):rawRealm==='school'?(update.school_id||update.schoolId||uid):(update.realm_id||update.realmId||uid); const x=await A.api({path:`${realm}/${realmId}/updates/${id}/comments`,params:{start:0,limit:50,with_attachments:'TRUE',richtext:1}});
-        const arr=x.comment||x.comments||[];
-        alert(arr.length?arr.map(c=>`${c.display_name||c.user_name||'User'}: ${c.body||c.comment||''}`).join('\n\n'):'No comments.');
-      }catch(e){alert('Unable to load comments: '+e.message)}
-    });
+    wireSharedPostList(c,'users',state.auth?.userId||state.auth?.user?.id,updates,{authorUsers:userMap});
   }else if(state.homeTab==='dashboard'){
     // Android 2026.10.0 uses a HybridView for this tab. The desktop port uses a
     // native equivalent so Chromium/WebView sizing cannot leave a blank bottom area.

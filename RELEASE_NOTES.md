@@ -1,4 +1,24 @@
-# Schoology Desktop M3E — port 2026.10.0-port.1
+# Schoology Desktop M3E — port 2026.10.0-port.3
+
+## [2026.10.0-port.3]
+
+### Shared posts and comments
+- Standardize Recent Activity on the shared post card used by course, group, school, and profile updates.
+- Use named M3E card slots and connected M3E button groups for post and comment actions.
+- Reuse the shared comment card for assignment, event, discussion, and post comments; show the two newest post comments inline.
+- Rename the discussion thread tab to “Discussion”.
+
+### Messages and creation permissions
+- Add an Unread messages tab and restore side-by-side Inbox/Unread and Sent lists on wide screens.
+- Correct message author/date header slot layout.
+- Load homepage update-posting permissions during homepage load and include Update in the FAB menu only when permitted.
+- Add Classic release download through the same native alternate-release flow used by other releases.
+
+### Layout polish
+- Keep Upcoming date headings directly on the surface behind segmented lists.
+- Make course sidebars scrollable and align safe-area and window-control backgrounds to the app bar.
+
+---
 
 ## [2026.10.0-port.1]
 

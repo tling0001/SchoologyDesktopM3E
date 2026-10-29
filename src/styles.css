@@ -3609,3 +3609,146 @@ html[data-theme-effective="dark"] .schoolProfileNativePage .schoolProfileInfoRow
 html[data-theme-effective="dark"] .schoolProfileNativePage .schoolProfileInfoRow span {
   color:var(--md-sys-color-on-surface-variant,#b7c0c9)!important;
 }
+
+/* Port.2: match titlebar controls and the pre-render surface to the active app bar. */
+:root{--tauri-window-controls-bg:var(--md-sys-color-surface-container,#f0f1f5)}
+html,body,#app{background:var(--md-sys-color-surface-container,#f0f1f5)}
+html[data-theme-effective="dark"],html[data-theme-effective="dark"] body,html[data-theme-effective="dark"] #app{background:var(--md-sys-color-surface-container,#20252b)}
+#tauriWindowControls{background:var(--tauri-window-controls-bg,var(--md-sys-color-surface-container,#f0f1f5))!important;color:var(--md-sys-color-on-surface,#202124)!important}
+#tauriWindowControls button{font:inherit!important;background:transparent!important;color:inherit!important}
+html[data-electron-platform="win32"] #tauriWindowControls button{font-family:"Segoe MDL2 Assets","Segoe UI Symbol",sans-serif!important;font-size:10px!important;font-weight:400!important}
+html[data-electron-platform="win32"] #tauriWindowControls [data-window-action="minimize"]::before{content:"\e921"!important}
+html[data-electron-platform="win32"] #tauriWindowControls [data-window-action="maximize"]::before{content:"\e922"!important}
+html[data-electron-platform="win32"] #tauriWindowControls [data-window-action="maximize"][data-maximized="true"]::before{content:"\e923"!important}
+html[data-electron-platform="win32"] #tauriWindowControls [data-window-action="close"]::before{content:"\e8bb"!important}
+html[data-electron-platform="linux"] #tauriWindowControls button{font-family:system-ui,"Noto Sans Symbols 2",sans-serif!important;font-size:18px!important}
+html[data-electron-platform="linux"] #tauriWindowControls [data-window-action="minimize"]::before{content:"−"!important}
+html[data-electron-platform="linux"] #tauriWindowControls [data-window-action="maximize"]::before{content:"□"!important}
+html[data-electron-platform="linux"] #tauriWindowControls [data-window-action="maximize"][data-maximized="true"]::before{content:"❐"!important}
+html[data-electron-platform="linux"] #tauriWindowControls [data-window-action="close"]::before{content:"×"!important}
+html[data-electron-platform="darwin"] #tauriWindowControls{top:28px!important;left:0!important;right:auto!important;width:80px!important;min-width:80px!important;height:56px!important;padding:0 10px!important;box-sizing:border-box!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important}
+html[data-electron-platform="darwin"] #tauriWindowControls .tauriWindowDragArea{order:4!important;flex:1 1 auto!important}
+html[data-electron-platform="darwin"] #tauriWindowControls button{flex:0 0 12px!important;width:12px!important;min-width:12px!important;height:12px!important;min-height:12px!important;border-radius:50%!important;border:1px solid rgba(0,0,0,.14)!important}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="minimize"]{background:#ffbd2e!important}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="maximize"]{background:#28c840!important}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="close"]{background:#ff5f57!important}
+html[data-electron-platform="darwin"] #tauriWindowControls button::before{font-family:system-ui,sans-serif!important;font-size:8px!important;font-weight:700!important;color:rgba(0,0,0,.72)!important;opacity:0}
+html[data-electron-platform="darwin"] #tauriWindowControls:hover button::before{opacity:1}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="close"]::before{content:"×"!important}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="minimize"]::before{content:"−"!important}
+html[data-electron-platform="darwin"] #tauriWindowControls [data-window-action="maximize"]::before{content:"+"!important}
+html[data-window-controls-overlay="true"] .m3eMainAppBar{box-sizing:border-box!important;min-width:0!important}
+html[data-electron-platform="win32"][data-window-controls-overlay="true"] .m3eMainAppBar,html[data-electron-platform="linux"][data-window-controls-overlay="true"] .m3eMainAppBar{padding-right:138px!important}
+html[data-electron-platform="darwin"][data-window-controls-overlay="true"] .m3eMainAppBar{padding-left:80px!important}
+html[data-window-controls-overlay="true"] .m3eMainAppBar [slot="trailing"]{position:relative!important;z-index:2!important}
+html[data-window-controls-overlay="true"] .m3eMainAppBar .toolbarTitle{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+
+/* Shared landscape sidebars use Upcoming's segmented-list spacing, surface colors, and row sizing. */
+.courseAppsSidePane.courseInfoSidePane,.groupInfoSidePane,.schoolProfileInfoSidePane{gap:0!important;padding:0!important;overflow-y:auto!important;background:var(--md-sys-color-surface,#fff)!important;color:var(--md-sys-color-on-surface,#263746)!important}
+.courseInfoSidePane .courseLandscapeImage,.groupSidebarImage,.schoolProfileSidebarImage{display:flex!important;flex:0 0 auto!important;width:100%!important;aspect-ratio:1/1!important;max-height:245px!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;padding:0!important;margin:0 0 8px!important;background:var(--md-sys-color-surface-container-low,#f4f6f8)!important;border-bottom:1px solid var(--md-sys-color-outline-variant,#d6dce2)!important}
+.courseInfoSidePane .courseLandscapeImage .sectionProfileImage,.courseInfoSidePane .courseLandscapeImage .sectionProfileFallback,.groupSidebarImage img,.groupSidebarImage>span,.schoolProfileSidebarImage img,.schoolProfileSidebarImage>span{display:flex!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;max-height:none!important;aspect-ratio:1/1!important;object-fit:cover!important;align-items:center!important;justify-content:center!important;border-radius:0!important}
+.groupSidebarImage>span,.schoolProfileSidebarImage>span{background:var(--md-sys-color-secondary-container,#dce8f5);color:var(--md-sys-color-on-secondary-container,#163a5b);font-size:48px;font-weight:600}
+.courseSidebarSegmentedList,.groupSidebarSegmentedList,.schoolSidebarSegmentedList{display:block!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;overflow:visible!important;--m3e-segmented-list-segment-gap:7px!important;gap:7px!important;background:transparent!important}
+.courseSidebarSegmentedList m3e-list-action,.groupSidebarSegmentedList m3e-list-action,.schoolSidebarSegmentedList m3e-list-action{display:block!important;width:100%!important;min-width:0!important;min-height:68px!important;margin:0 0 7px!important;padding-block:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--md-sys-color-on-surface,#263746)!important;box-shadow:none!important}
+.courseSidebarSegmentedList m3e-list-action:hover,.groupSidebarSegmentedList m3e-list-action:hover,.schoolSidebarSegmentedList m3e-list-action:hover{background:var(--md-sys-color-surface-container-low,#f4f6f8)!important}
+.courseSidebarSegmentedList m3e-list-action.courseSidebarActive,.groupSidebarSegmentedList m3e-list-action.courseSidebarActive,.schoolSidebarSegmentedList m3e-list-action.courseSidebarActive{background:var(--md-sys-color-secondary-container,#dce8f5)!important;color:var(--md-sys-color-on-secondary-container,#163a5b)!important;font-weight:600!important}
+.courseSidebarSegmentedList .m3eOriginalIcon,.groupSidebarSegmentedList .m3eOriginalIcon,.schoolSidebarSegmentedList .m3eOriginalIcon{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important}
+.courseSidebarSegmentedList .m3eOriginalIcon svg,.groupSidebarSegmentedList .m3eOriginalIcon svg,.schoolSidebarSegmentedList .m3eOriginalIcon svg{display:block!important;width:24px!important;height:24px!important}
+.courseSidebarSegmentedList .courseAppSidebarItem{min-height:56px!important}
+.courseLandscapePage .courseMainPane .courseIdentityImageWrap{display:none!important}
+.courseLandscapePage .courseInfoSidePane .courseLandscapeImage .sectionProfileImage{width:100%!important;height:100%!important;object-fit:cover!important}
+.groupProfilePage,.schoolProfileNativePage{min-width:0;min-height:0;height:100%;overflow:hidden}
+.groupOuterSplit,.schoolProfileOuterSplit,.groupInnerSplit,.schoolProfileInnerSplit{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+.groupInfoSidePane,.schoolProfileInfoSidePane{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:100%!important;border-right:1px solid var(--md-sys-color-outline-variant,#d6dce2)!important}
+.groupMainPane,.schoolProfileMainPane{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important}
+.groupMainPane #groupTabContent,.schoolProfileMainPane .schoolProfileTabContent{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.groupUpcomingPane,.schoolProfileUpcomingPane{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important;background:var(--md-sys-color-surface,#fff)!important;border-left:1px solid var(--md-sys-color-outline-variant,#d6dce2)!important}
+#groupUpcomingContent,#schoolProfileUpcomingContent{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+.schoolProfileImageFallback{display:flex;align-items:center;justify-content:center;width:72px;height:72px}
+html[data-theme-effective="dark"] .courseAppsSidePane.courseInfoSidePane,html[data-theme-effective="dark"] .groupInfoSidePane,html[data-theme-effective="dark"] .schoolProfileInfoSidePane{background:var(--md-sys-color-surface,#171a1e)!important;color:var(--md-sys-color-on-surface,#e3e7eb)!important;border-color:var(--md-sys-color-outline-variant,#454b52)!important}
+html[data-theme-effective="dark"] .courseInfoSidePane .courseLandscapeImage,html[data-theme-effective="dark"] .groupSidebarImage,html[data-theme-effective="dark"] .schoolProfileSidebarImage{background:var(--md-sys-color-surface-container-low,#20252b)!important;border-color:var(--md-sys-color-outline-variant,#454b52)!important}
+html[data-theme-effective="dark"] .groupSidebarImage>span,html[data-theme-effective="dark"] .schoolProfileSidebarImage>span{background:var(--md-sys-color-secondary-container,#354b61)!important;color:var(--md-sys-color-on-secondary-container,#e0e8f0)!important}
+html[data-theme-effective="dark"] .courseSidebarSegmentedList m3e-list-action,html[data-theme-effective="dark"] .groupSidebarSegmentedList m3e-list-action,html[data-theme-effective="dark"] .schoolSidebarSegmentedList m3e-list-action{color:var(--md-sys-color-on-surface,#e3e7eb)!important}
+html[data-theme-effective="dark"] .courseSidebarSegmentedList m3e-list-action.courseSidebarActive,html[data-theme-effective="dark"] .groupSidebarSegmentedList m3e-list-action.courseSidebarActive,html[data-theme-effective="dark"] .schoolSidebarSegmentedList m3e-list-action.courseSidebarActive{background:var(--md-sys-color-secondary-container,#354b61)!important;color:var(--md-sys-color-on-secondary-container,#e0e8f0)!important}
+.m3ePeopleDirectory{container-type:inline-size}.m3ePeopleDirectory .peopleDirectoryToolbar{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:4px 0 12px}
+.m3ePeopleDirectory .peopleDirectorySearchField{display:block;width:100%;max-width:none}
+.m3ePeopleDirectory .peopleMemberFilterButtons{display:flex;align-self:flex-start;max-width:100%}
+.m3ePeopleDirectory .peopleMemberFilterButtons m3e-button{white-space:nowrap}
+.m3ePeopleDirectory .peopleMemberSort{display:none}
+
+.m3ePeopleDirectory .peopleDirectorySections{display:flex;flex-direction:column;gap:12px;min-width:0}
+.m3ePeopleDirectory .peopleDirectorySection{min-width:0}
+.m3ePeopleDirectory .peopleSectionHeader{padding:8px 12px 6px;font-size:14px;line-height:20px;font-weight:600;color:var(--md-sys-color-on-surface-variant,#68727c)}
+.m3ePeopleDirectory .peopleDirectoryList{display:block!important;width:100%!important;margin:0!important;padding:0!important;--m3e-segmented-list-segment-gap:7px!important;gap:7px!important}
+.m3ePeopleDirectory .peopleDirectoryList m3e-list-action{display:block!important;width:100%!important;min-height:64px!important;margin:0 0 7px!important;border:0!important;border-radius:0!important;background:transparent!important}
+.m3ePeopleDirectory .peopleDirectoryList m3e-list-action:hover{background:var(--md-sys-color-surface-container-low,#f4f6f8)!important}
+.m3ePeopleDirectory .peopleAvatar{width:40px!important;height:40px!important;min-width:40px!important;border-radius:50%!important}
+@media(max-width:680px){.m3ePeopleDirectory .peopleMemberFilterButtons{display:none!important}.m3ePeopleDirectory .peopleMemberSort{display:inline-flex!important;align-self:flex-start!important}}
+html[data-theme-effective="dark"] .m3ePeopleDirectory .peopleSectionHeader{color:var(--md-sys-color-on-surface-variant,#b7c0c9)}
+html[data-theme-effective="dark"] .m3ePeopleDirectory .peopleDirectoryList m3e-list-action{color:var(--md-sys-color-on-surface,#e3e7eb)!important}
+html[data-theme-effective="dark"] .m3ePeopleDirectory .peopleDirectoryList m3e-list-action:hover{background:var(--md-sys-color-surface-container,#292f36)!important}
+@media(max-width:800px){.groupInfoSidePane,.schoolProfileInfoSidePane{display:none!important}.groupUpcomingPane,.schoolProfileUpcomingPane{display:none!important}.groupProfilePage,.schoolProfileNativePage{height:auto!important;min-height:100%!important;overflow:visible!important}.groupOuterSplit,.schoolProfileOuterSplit,.groupInnerSplit,.schoolProfileInnerSplit{display:block!important;height:auto!important;overflow:visible!important}.groupMainPane,.schoolProfileMainPane{height:auto!important;overflow:visible!important}}
+@media(prefers-reduced-motion:reduce){#tauriWindowControls button,.courseSidebarSegmentedList m3e-list-action,.groupSidebarSegmentedList m3e-list-action,.schoolSidebarSegmentedList m3e-list-action,.m3ePeopleDirectory .peopleDirectoryList m3e-list-action{transition:none!important;animation:none!important}}
+
+@container (max-width: 520px){.m3ePeopleDirectory .peopleMemberFilterButtons{display:none!important}.m3ePeopleDirectory .peopleMemberSort{display:inline-flex!important;align-self:flex-start!important}}
+
+/* Port .3: align safe-area and window-control surfaces with the app bar. */
+.iosStatusBarInset,.androidStatusBarInset{background:var(--md-sys-color-surface-container,var(--md-sys-color-surface,#f0f1f5))!important}
+#tauriWindowControls{height:56px!important;min-height:56px!important;box-sizing:border-box!important;background:var(--tauri-window-controls-bg,var(--md-sys-color-surface-container,#f0f1f5))!important;align-items:stretch!important}
+#tauriWindowControls button,#tauriWindowControls [role="button"],#tauriWindowControls .windowControl{height:56px!important;min-height:56px!important;align-self:stretch!important;box-sizing:border-box!important}
+.courseInfoSidePane,.courseInfoSidePane .upcomingSegmentedList,.courseLandscapePage .courseInfoSidePane,.courseLandscapePage aside[slot="start"]{min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.upcomingDateGroup,.upcomingDateHeader{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+@media(prefers-reduced-motion:reduce){.sharedPostCard,.sharedCommentCard,.messagesSplitLayout{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Port .3: shared post/comment M3E anatomy and connected action groups. */
+.sharedPostCard{display:block;min-width:0;margin:0 0 14px;padding:0;overflow:hidden;background:var(--md-sys-color-surface-container-low,#f8f9fb);color:var(--md-sys-color-on-surface,#20252b);border:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:16px}
+.sharedPostCard [slot="header"].activityHeader{display:flex;align-items:center;gap:10px;min-width:0;padding:14px 16px 0}
+.sharedPostCard [slot="content"].sharedPostContent{display:block;min-width:0;padding:10px 16px 0}
+.sharedPostCard .activityBody{overflow-wrap:anywhere;white-space:pre-wrap;margin:0}
+.sharedPostCard .activityMeta{padding:9px 0 0;color:var(--md-sys-color-on-surface-variant,#68727c);font-size:12px}
+.sharedPostCard [slot="actions"].sharedPostActions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 16px!important}
+.sharedActionGroup{display:inline-flex;max-width:100%;--md-sys-color-outline:var(--md-sys-color-outline-variant,#c8d0d8)}
+.sharedActionGroup m3e-button{min-height:36px;white-space:nowrap}
+.sharedActionGroup .sharedActionIcon{width:17px;height:17px;display:inline-block;vertical-align:middle;flex:0 0 17px;object-fit:contain}
+.sharedPostCard [slot="footer"].sharedPostCommentPreview{display:block;margin:0 16px 12px 72px;padding:0;border:0;background:transparent}
+.sharedPostPreviewList{display:flex;flex-direction:column;gap:8px;border-left:2px solid var(--md-sys-color-outline-variant,#d9dee2);padding-left:10px}
+.sharedPostPreviewList .sharedCommentCard{border:0;border-radius:0;background:transparent;box-shadow:none;padding:0}
+.sharedPostPreviewList .sharedCommentCard [slot="header"]{padding:0}
+.sharedPostPreviewList .sharedCommentCard [slot="content"]{padding:4px 0 0}
+.sharedPostPreviewList .sharedCommentCard [slot="actions"],.sharedPostPreviewList .sharedCommentCard [slot="footer"]{display:none}
+.sharedPostViewMore{margin:8px 0 0 12px;border:0;background:transparent;color:var(--md-sys-color-primary,#2e66a3);font:inherit;cursor:pointer}
+.sharedPostCard [slot="footer"].sharedPostInlineComments{display:block;margin:0 16px 14px 72px!important;padding:12px!important;border-top:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:12px;background:var(--md-sys-color-surface-container,#f2f4f7)}
+.sharedCommentsList{display:flex;flex-direction:column;gap:8px;min-width:0}
+.sharedCommentCard{display:block;min-width:0;padding:0;border:1px solid var(--md-sys-color-outline-variant,#d9dee2);border-radius:14px;background:var(--md-sys-color-surface-container-lowest,#fff);color:var(--md-sys-color-on-surface,#20252b);overflow:hidden}
+.sharedCommentCard [slot="header"].sharedCommentHeading{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:10px 12px 0}
+.sharedCommentCard [slot="content"].sharedCommentContent{padding:7px 12px 0;overflow-wrap:anywhere}
+.sharedCommentCard [slot="actions"].sharedCommentActions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 12px 10px}
+.sharedCommentCard [slot="footer"].sharedCommentMeta{padding:0 12px 9px;color:var(--md-sys-color-on-surface-variant,#68727c);font-size:12px}
+.sharedCommentActions .sharedActionGroup m3e-button{min-height:30px}
+.sharedCommentRow[hidden]{display:none!important}
+.sharedCommentAvatar,.sharedCommentAvatar img{display:inline-flex;width:32px;height:32px;min-width:32px;border-radius:50%;object-fit:cover;align-items:center;justify-content:center;overflow:hidden;background:var(--md-sys-color-surface-container-high,#e7ebee)}
+.sharedCommentBody{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}
+.sharedCommentAuthor{padding:0;border:0;background:transparent;color:var(--md-sys-color-primary,#2e66a3);font:inherit;font-weight:600;cursor:pointer}
+html[data-theme-effective="dark"] .sharedPostCard,html[data-theme-effective="dark"] .sharedCommentCard,html[data-theme="dark"] .sharedPostCard,html.dark .sharedPostCard,html[data-theme="dark"] .sharedCommentCard,html.dark .sharedCommentCard{background:var(--md-sys-color-surface-container-low,#20252b);border-color:var(--md-sys-color-outline-variant,#454b52);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme-effective="dark"] .sharedPostInlineComments,html[data-theme="dark"] .sharedPostInlineComments,html.dark .sharedPostInlineComments{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme-effective="dark"] .sharedPostPreviewList,html[data-theme="dark"] .sharedPostPreviewList,html.dark .sharedPostPreviewList{border-color:var(--md-sys-color-outline-variant,#454b52)}
+
+/* Port .3: wide messages split and corrected author/date message cards. */
+.messagesSplitLayout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:100%;min-height:0;overflow:hidden;background:var(--md-sys-color-surface,#fff)}
+.messagesSplitColumn{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-right:1px solid var(--md-sys-color-outline-variant,#d9dee2)}
+.messagesSplitColumn:last-child{border-right:0}
+.messagesSplitColumn .messageList{display:block;min-height:0;overflow:auto;flex:1}
+.messagesSplitHeading{padding:14px 16px;font-weight:600;border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dee2);background:var(--md-sys-color-surface-container,#f2f4f7)}
+.messagesSplitTabs{flex:0 0 auto}
+.messageListItem.unread{font-weight:600}
+.messageThreadCard{display:block;margin:0 0 12px;padding:0;overflow:hidden}
+.messageThreadCard [slot="header"].messageThreadHeader{display:flex;align-items:center;gap:12px;padding:14px 16px 0}
+.messageThreadAuthorBlock{display:flex;flex-direction:column;gap:3px;min-width:0}
+.messageThreadAuthorBlock b{font-weight:600;line-height:1.3}
+.messageThreadAuthorBlock small{color:var(--md-sys-color-on-surface-variant,#68727c);font-size:12px;line-height:1.3}
+.messageThreadCard [slot="content"].messageThreadBody{padding:12px 16px 16px 76px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}
+.messageThreadAttachments{padding:0 16px 12px 76px}
+html[data-theme-effective="dark"] .messagesSplitLayout,html[data-theme="dark"] .messagesSplitLayout,html.dark .messagesSplitLayout{background:var(--md-sys-color-surface,#171b20)}
+html[data-theme-effective="dark"] .messagesSplitColumn,html[data-theme="dark"] .messagesSplitColumn,html.dark .messagesSplitColumn{border-color:var(--md-sys-color-outline-variant,#454b52)}
+html[data-theme-effective="dark"] .messagesSplitHeading,html[data-theme="dark"] .messagesSplitHeading,html.dark .messagesSplitHeading{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52)}
+@media(max-width:800px){.messagesSplitLayout{display:block}.messagesSplitColumn{height:auto;max-height:none;border-right:0}}

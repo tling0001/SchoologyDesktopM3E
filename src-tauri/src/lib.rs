@@ -1644,6 +1644,7 @@ async fn schoology_invoke(app: AppHandle, state: State<'_, HostState>, name: Str
         #[cfg(any(target_os = "android", target_os = "ios"))]
         "window-is-maximized" => Ok(json!(false)),
         "check-for-updates" => check_for_updates().await,
+        "download-classic" => latest_alternate_release("tling0001/schoology-for-desktop-port", "Schoology Classic").await,
         "download-liquid-glass" => latest_alternate_release("tling0001/SchoologyDesktopLiquidGlass", "Schoology Liquid Glass").await,
         "download-expressive" => latest_alternate_release("tling0001/SchoologyDesktopM3E", "Schoology Expressive").await,
         "install-update" => install_update(&app, &args).await,

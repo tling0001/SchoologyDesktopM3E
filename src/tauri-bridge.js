@@ -188,6 +188,7 @@
     uploadSchoologyFile: value => invoke('upload-schoology-file', value),
     updateAssignmentGrade: value => invoke('update-assignment-grade', value),
     checkForUpdates: () => invoke('check-for-updates'),
+    downloadClassic: () => invoke('download-classic'),
     downloadLiquidGlass: () => invoke('download-liquid-glass'),
     downloadExpressive: () => invoke('download-expressive'),
     installUpdate: value => invoke('install-update', value),
@@ -265,9 +266,10 @@
     const updateControlWidth = () => {
       const width = controls.getBoundingClientRect().width;
       if (width > 0) document.documentElement.style.setProperty('--tauri-window-controls-width', `${Math.ceil(width)}px`);
-      const toolbar = document.querySelector('.shell > .toolbar');
-      if (toolbar) {
-        const background = getComputedStyle(toolbar).backgroundColor;
+      const appBar = document.querySelector('.m3eMainAppBar, .shell > .toolbar');
+      if (appBar) {
+        const style = getComputedStyle(appBar);
+        const background = style.getPropertyValue('--m3e-app-bar-container-color').trim() || style.backgroundColor;
         if (background && background !== 'rgba(0, 0, 0, 0)') document.documentElement.style.setProperty('--tauri-window-controls-bg', background);
       }
     };
@@ -280,7 +282,7 @@
     if (event.button !== 0 || event.isPrimary === false) return;
     if (document.documentElement.dataset.windowControlsOverlay !== 'true') return;
     const target = event.target;
-    const toolbar = target?.closest?.('.shell > .toolbar');
+    const toolbar = target?.closest?.('.shell > .toolbar, .m3eMainAppBar');
     const controlsWidth = document.getElementById('tauriWindowControls')?.getBoundingClientRect().width || 0;
     const topStrip = event.clientY >= 0 && event.clientY <= 56 && event.clientX < Math.max(0, window.innerWidth - controlsWidth);
     if (!toolbar && !topStrip) return;
