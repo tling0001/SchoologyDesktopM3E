@@ -767,13 +767,12 @@ async function getCourseNavigationPermissions(sectionId,userId){
  return {sectionGradesPut:sectionGradeBody.includes('put'),userGradesGet:userGradeBody.includes('get'),attendanceGet:attendanceBody.includes('get'),sectionUpdatesPost};
 }
 
-async 
 function schoologyNavIcon(name){
  const paths={materials:'<path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/>',updates:'<path d="M4 12a8 8 0 0 1 14-5l2 2"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5l-2-2"/><path d="M4 20v-5h5"/>',members:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1"/><path d="M17 5a3 3 0 0 1 0 6"/><path d="M18 14a5 5 0 0 1 3 5v1"/>',grades:'<path d="M4 4h16v16H4z"/><path d="m7 12 3 3 7-7"/>',upcoming:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',discussions:'<path d="M4 5h16v12H9l-5 4z"/><path d="M8 9h8M8 13h5"/>',albums:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m21 15-5-5L5 21"/>',resources:'<path d="M3 6h7l2 2h9v12H3z"/><path d="M3 10h18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/>',apps:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'};
  return '<svg class="schoologyNavSvg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(paths[name]||paths.materials)+'</svg>';
 }
 
-function showCourse(course,activeTab='materials',forceRebuild=false){
+async function showCourse(course,activeTab='materials',forceRebuild=false){
  const c=document.getElementById('content');if(!c)return;
  const renderToken=++courseRenderToken;
  if(!course){loadTab();return}
