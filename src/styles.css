@@ -3752,3 +3752,87 @@ html[data-theme-effective="dark"] .messagesSplitLayout,html[data-theme="dark"] .
 html[data-theme-effective="dark"] .messagesSplitColumn,html[data-theme="dark"] .messagesSplitColumn,html.dark .messagesSplitColumn{border-color:var(--md-sys-color-outline-variant,#454b52)}
 html[data-theme-effective="dark"] .messagesSplitHeading,html[data-theme="dark"] .messagesSplitHeading,html.dark .messagesSplitHeading{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52)}
 @media(max-width:800px){.messagesSplitLayout{display:block}.messagesSplitColumn{height:auto;max-height:none;border-right:0}}
+
+
+/* Port .4: native-feeling attachment viewer, cards and responsive profile layouts. */
+.pdfAttachmentOptionsOverlay{position:fixed;inset:0;z-index:14010;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,18,32,.48);opacity:0;transition:opacity .16s ease}
+.pdfAttachmentOptionsOverlay.open{opacity:1}
+.pdfAttachmentOptionsOverlay.closing{opacity:0;pointer-events:none}
+.pdfAttachmentOptionsOverlay .pdfAttachmentOptions{width:min(420px,100%);max-height:calc(100dvh - 40px);background:var(--md-sys-color-surface-container-low,#f8f9fb);color:var(--md-sys-color-on-surface,#20252b);border-radius:24px;box-shadow:0 16px 48px #0004}
+.pdfAttachmentTitle{padding:16px 24px;color:var(--md-sys-color-on-surface-variant,#68727c);overflow-wrap:anywhere}
+.pdfAttachmentActions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:8px 16px 16px}
+.sharedPdfViewerOverlay{position:fixed;inset:0;z-index:14000;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--md-sys-color-surface,#f4f6f8);color:var(--md-sys-color-on-surface,#263238)}
+.sharedPdfViewerAppBar{height:56px;min-height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--md-sys-color-surface-container,#f0f1f5);border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dee2);box-sizing:border-box}
+.sharedPdfViewerAppBar>b{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sharedPdfViewerAppBar>[data-viewer-back]{width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:inherit;display:grid;place-items:center}
+.sharedPdfViewerControls{display:flex;gap:4px;align-items:center}
+.sharedPdfViewerPages{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:20px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.sharedPdfPage{max-width:100%;background:white;box-shadow:0 2px 10px #0003;line-height:0}
+.sharedPdfPageCanvas{display:block;max-width:100%;height:auto}
+.sharedPdfViewerLoading,.sharedPdfViewerError{margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;color:var(--md-sys-color-on-surface-variant,#68727c)}
+.sharedPdfViewerError p{max-width:600px;overflow-wrap:anywhere}
+.sharedImageViewer{background:#111820;color:#f6f7f8}
+.sharedImageViewer .sharedPdfViewerAppBar{background:var(--tauri-window-controls-bg,var(--md-sys-color-surface-container,#20252b));color:var(--md-sys-color-on-surface,#f6f7f8);border-color:#ffffff24}
+.sharedImageViewerBody{flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:16px;overscroll-behavior:contain;touch-action:none}
+.sharedImageViewerImage{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;box-shadow:0 2px 18px #0005;transform-origin:center center;touch-action:none;user-select:none;-webkit-user-drag:none;cursor:grab}
+.sharedImageViewerImage:active{cursor:grabbing}
+.sharedImageViewerBody .sharedPdfViewerLoading{color:#fff}
+html.iosAppSafeArea .sharedPdfViewerOverlay{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+html[data-theme="dark"] .pdfAttachmentOptionsOverlay .pdfAttachmentOptions,html.dark .pdfAttachmentOptionsOverlay .pdfAttachmentOptions{background:var(--md-sys-color-surface-container-low,#20252b);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme="dark"] .sharedPdfViewerOverlay:not(.sharedImageViewer),html.dark .sharedPdfViewerOverlay:not(.sharedImageViewer){background:var(--md-sys-color-surface,#171b20);color:var(--md-sys-color-on-surface,#e3e7eb)}
+html[data-theme="dark"] .sharedPdfViewerAppBar,html.dark .sharedPdfViewerAppBar{background:var(--md-sys-color-surface-container,#292f36);border-color:var(--md-sys-color-outline-variant,#454b52)}
+@media(prefers-reduced-motion:reduce){.pdfAttachmentOptionsOverlay,.sharedPdfViewerOverlay{transition:none!important;animation:none!important}}
+@media(max-width:800px){.pdfAttachmentOptionsOverlay{padding:12px}.sharedPdfViewerPages{padding:10px}.sharedPdfViewerAppBar{padding:0 10px}.sharedPdfViewerControls{gap:0}}
+/* Profile photos remain visible in portrait; only the duplicate header photo is removed in landscape. */
+@media(min-width:801px){
+ .groupMainPane>.groupHeader .groupHero img,.schoolProfileMainPane .schoolProfileHeaderImage img{display:none!important}
+ .groupMainPane>.groupTabs,.schoolProfileMainPane>.schoolProfileTabs{display:none!important}
+ .groupMainPane,.schoolProfileMainPane,.groupMainPane #groupTabContent,.schoolProfileMainPane .schoolProfileTabContent{min-width:0!important;width:100%;max-width:100%;box-sizing:border-box}
+ .groupMainPane .sharedPostCard,.schoolProfileMainPane .sharedPostCard,.groupMainPane .androidActivityCard,.schoolProfileMainPane .androidActivityCard{min-width:0!important;width:100%;max-width:100%;box-sizing:border-box}
+}
+@media(max-width:800px){
+ .groupMainPane>.groupHeader .groupHero img,.schoolProfileMainPane .schoolProfileHeaderImage img{display:block!important}
+}
+.groupMainPane,.schoolProfileMainPane,.groupMainPane #groupTabContent,.schoolProfileMainPane .schoolProfileTabContent{min-width:0}
+.groupMainPane .sharedPostCard,.schoolProfileMainPane .sharedPostCard,.groupMainPane .androidActivityCard,.schoolProfileMainPane .androidActivityCard{min-width:0!important;max-width:100%;width:100%;box-sizing:border-box}
+.groupMainPane .sharedCommentsList,.schoolProfileMainPane .sharedCommentsList,.assignmentTabContent .sharedCommentsList,.discussionTabs~.assignmentTabContent .sharedCommentsList{margin:0 12px 16px}
+.sharedCommentCard{border:0!important;background:var(--md-sys-color-surface-container-low,#f4f6f8)!important;box-shadow:none!important}
+html[data-theme="dark"] .sharedCommentCard,html.dark .sharedCommentCard{background:var(--md-sys-color-surface-container,#292f36)!important}
+.upcomingDateGroup{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 14px!important}
+.upcomingDateHeader{display:block!important;background:var(--md-sys-color-surface,#fff)!important;color:var(--md-sys-color-on-surface-variant,#68727c)!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:12px 12px 8px!important;font-size:14px!important;font-weight:600!important}
+.upcomingDateLabel{color:var(--md-sys-color-on-surface-variant,#68727c)!important}
+.upcomingDateGroup .upcomingSegmentedList{background:var(--md-sys-color-surface-container-low,#f5f7f9)!important}
+html[data-theme="dark"] .upcomingDateHeader,html.dark .upcomingDateHeader{background:var(--md-sys-color-surface,#171b20)!important;color:var(--md-sys-color-on-surface-variant,#aab3bd)!important}
+html[data-theme="dark"] .upcomingDateGroup .upcomingSegmentedList,html.dark .upcomingDateGroup .upcomingSegmentedList{background:var(--md-sys-color-surface-container-low,#20252b)!important}
+.courseSidebarSegmentedList,.groupSidebarSegmentedList,.schoolSidebarSegmentedList{display:flex!important;flex-direction:column!important;gap:0!important;min-width:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;padding:0!important;background:var(--md-sys-color-surface-container-low,#f5f7f9)!important;border-radius:12px!important}
+.courseSidebarSegmentedList m3e-list-action,.groupSidebarSegmentedList m3e-list-action,.schoolSidebarSegmentedList m3e-list-action{display:flex!important;align-items:center!important;min-height:48px!important;height:auto!important;box-sizing:border-box!important;padding:0 16px!important;gap:16px!important;border-radius:0!important;border:0!important;border-bottom:1px solid var(--md-sys-color-outline-variant,#d9dee2)!important;background:transparent!important;color:var(--md-sys-color-on-surface,#20252b)!important;flex:0 0 auto!important}
+.courseSidebarSegmentedList m3e-list-action:last-child,.groupSidebarSegmentedList m3e-list-action:last-child,.schoolSidebarSegmentedList m3e-list-action:last-child{border-bottom:0!important}
+.courseSidebarSegmentedList m3e-list-action[active],.courseSidebarSegmentedList m3e-list-action.courseSidebarActive,.groupSidebarSegmentedList m3e-list-action.courseSidebarActive,.schoolSidebarSegmentedList m3e-list-action.courseSidebarActive{background:var(--md-sys-color-secondary-container,#dce8f6)!important;color:var(--md-sys-color-on-secondary-container,#18324d)!important}
+.courseSidebarSegmentedList [slot="leading"],.groupSidebarSegmentedList [slot="leading"],.schoolSidebarSegmentedList [slot="leading"]{width:24px!important;height:24px!important;min-width:24px!important;display:grid!important;place-items:center!important;flex:0 0 24px!important}
+.courseSidebarSegmentedList [slot="leading"] img,.groupSidebarSegmentedList [slot="leading"] img,.schoolSidebarSegmentedList [slot="leading"] img{width:24px!important;height:24px!important;object-fit:contain!important}
+html[data-theme="dark"] .courseSidebarSegmentedList,html[data-theme="dark"] .groupSidebarSegmentedList,html[data-theme="dark"] .schoolSidebarSegmentedList,html.dark .courseSidebarSegmentedList,html.dark .groupSidebarSegmentedList,html.dark .schoolSidebarSegmentedList{background:var(--md-sys-color-surface-container-low,#20252b)!important}
+html[data-theme="dark"] .courseSidebarSegmentedList m3e-list-action,html[data-theme="dark"] .groupSidebarSegmentedList m3e-list-action,html[data-theme="dark"] .schoolSidebarSegmentedList m3e-list-action,html.dark .courseSidebarSegmentedList m3e-list-action,html.dark .groupSidebarSegmentedList m3e-list-action,html.dark .schoolSidebarSegmentedList m3e-list-action{color:var(--md-sys-color-on-surface,#e3e7eb)!important;border-color:var(--md-sys-color-outline-variant,#454b52)!important}
+html.iosAppSafeArea .m3eMainAppBar,html.iosAppSafeArea .shell>.toolbar,html[data-tauri-platform="android"] .m3eMainAppBar{background:var(--md-sys-color-surface-container,#f0f1f5)!important}
+
+.schoologyNavSvg{display:block;width:24px;height:24px;flex:0 0 24px;color:inherit}
+.assignmentActionDialog{width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto}
+.assignmentActionList{padding:4px 0 8px}
+.assignmentActionList m3e-list-action{min-height:52px}
+@media(min-width:801px){.courseIdentityMainInfo .courseIdentityImageWrap{display:none!important}.courseIdentityMainInfo .courseIdentityHeader,.courseIdentityMainInfo .courseIdentityText{min-width:0!important}}
+@media(max-width:800px){.courseIdentityMainInfo .courseIdentityImageWrap{display:flex!important}.courseIdentityMainInfo .sectionProfileImage{display:block!important}}
+.calendarPagerPage,.calendarAndroidPage,.calendarStandaloneUpcoming{background:var(--md-sys-color-surface,#fff)!important;color:var(--md-sys-color-on-surface,#20252b)!important}
+.calendarPagerTabs{background:var(--md-sys-color-surface-container,#f0f1f5)!important}
+.calendarPagerTab{color:var(--md-sys-color-on-surface-variant,#68727c)!important}
+.calendarPagerTab.active{color:var(--md-sys-color-primary,#2e66a3)!important;border-bottom-color:var(--md-sys-color-primary,#2e66a3)!important}
+.calendarMonthHeader,.calendarUpcomingHeader{background:var(--md-sys-color-surface,#fff)!important;color:var(--md-sys-color-on-surface,#20252b)!important}
+.calendarDay{background:var(--md-sys-color-surface-container-lowest,#fff)!important;color:var(--md-sys-color-on-surface,#20252b)!important}
+.calendarDay.outside{background:var(--md-sys-color-surface-container-low,#f5f7f9)!important;color:var(--md-sys-color-on-surface-variant,#68727c)!important}
+.calendarEventRow,.calendarSelectedDayList,.calendarEventList{background:var(--md-sys-color-surface,#fff)!important;color:var(--md-sys-color-on-surface,#20252b)!important}
+html[data-theme="dark"] .calendarPagerPage,html[data-theme="dark"] .calendarAndroidPage,html[data-theme="dark"] .calendarStandaloneUpcoming,html.dark .calendarPagerPage,html.dark .calendarAndroidPage,html.dark .calendarStandaloneUpcoming{background:var(--md-sys-color-surface,#171b20)!important;color:var(--md-sys-color-on-surface,#e3e7eb)!important}
+html[data-theme="dark"] .calendarPagerTabs,html.dark .calendarPagerTabs{background:var(--md-sys-color-surface-container,#292f36)!important}
+html[data-theme="dark"] .calendarMonthHeader,html[data-theme="dark"] .calendarUpcomingHeader,html[data-theme="dark"] .calendarEventRow,html[data-theme="dark"] .calendarSelectedDayList,html[data-theme="dark"] .calendarEventList,html.dark .calendarMonthHeader,html.dark .calendarUpcomingHeader,html.dark .calendarEventRow,html.dark .calendarSelectedDayList,html.dark .calendarEventList{background:var(--md-sys-color-surface,#171b20)!important;color:var(--md-sys-color-on-surface,#e3e7eb)!important;border-color:var(--md-sys-color-outline-variant,#454b52)!important}
+html[data-theme="dark"] .calendarDay,html.dark .calendarDay{background:var(--md-sys-color-surface-container-lowest,#20252b)!important;color:var(--md-sys-color-on-surface,#e3e7eb)!important}
+html[data-theme="dark"] .calendarDay.outside,html.dark .calendarDay.outside{background:var(--md-sys-color-surface-container-low,#292f36)!important;color:var(--md-sys-color-on-surface-variant,#aab3bd)!important}
+
+#tauriWindowControls button::before{content:none!important;display:none!important}
+#tauriWindowControls button[data-window-action]::before{content:none!important;display:none!important}

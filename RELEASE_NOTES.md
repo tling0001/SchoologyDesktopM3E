@@ -1,4 +1,24 @@
-# Schoology Desktop M3E — port 2026.10.0-port.3
+# Schoology Desktop M3E — port 2026.10.0-port.4
+
+## [2026.10.0-port.4]
+
+### Attachments and viewers
+- Add the Classic-style View or Download dialog for PDFs, images, and supported Office documents.
+- Add a shared PDF canvas viewer with zoom controls and an image viewer with pinch/drag zoom.
+- Route course-material and Upcoming discussion rows to the native discussion view using the discussion ID.
+
+### Startup and navigation
+- Show an update confirmation before downloading and use the iOS installation explanation flow.
+- Show release notes once after a version update.
+- Fix the assignment-submission FAB menu by replacing the disconnected popover path with a connected M3E dialog.
+- Normalize course/group member response shapes and keep member lists renderable.
+
+### Layout and styling
+- Use embedded SVG sidebar icons, hide duplicate profile images and tabs only in landscape, and preserve portrait images.
+- Hide zero-count post/comment action buttons, use filled shared comment cards, and add comment edge margins.
+- Refine Upcoming date headers, calendar dark mode, the shared webview retry button, safe-area color, and full-height window controls.
+
+---
 
 ## [2026.10.0-port.3]
 
