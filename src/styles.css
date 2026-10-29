@@ -3836,3 +3836,17 @@ html[data-theme="dark"] .calendarDay.outside,html.dark .calendarDay.outside{back
 
 #tauriWindowControls button::before{content:none!important;display:none!important}
 #tauriWindowControls button[data-window-action]::before{content:none!important;display:none!important}
+
+/* Message folders use connected M3E toggles; the landscape lists use the same resizable split-pane primitive as Home and Courses. */
+.messagesSplitPaneM3e{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important;background:var(--md-sys-color-surface,#fff)!important}
+.messagesSplitPaneM3e>[slot="start"],.messagesSplitPaneM3e>[slot="end"]{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important;box-sizing:border-box!important}
+.messagesSplitColumn{height:100%;min-height:0;min-width:0;overflow:hidden}
+.messagesSplitColumn .messageList{flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden!important}
+.messageTabsToggleGroup{display:flex!important;align-self:flex-start!important;max-width:100%;padding:8px 12px!important;gap:0!important;background:var(--md-sys-color-surface-container,#f0f1f5)!important;border-radius:0!important;box-sizing:border-box!important}
+.messageTabsToggleGroup m3e-button{--md-sys-color-primary:var(--md-sys-color-primary,#2e66a3);min-height:38px!important;flex:0 0 auto!important}
+.messageTabsToggleGroup m3e-button[selected],.messageTabsToggleGroup m3e-button[aria-pressed="true"]{background:var(--md-sys-color-secondary-container,#dce8f6)!important;color:var(--md-sys-color-on-secondary-container,#18324d)!important}
+.messageTabsToggleGroup m3e-button:not([selected]){color:var(--md-sys-color-on-surface-variant,#68727c)!important}
+html[data-theme="dark"] .messagesSplitPaneM3e,html.dark .messagesSplitPaneM3e{background:var(--md-sys-color-surface,#171b20)!important}
+html[data-theme="dark"] .messageTabsToggleGroup,html.dark .messageTabsToggleGroup{background:var(--md-sys-color-surface-container,#292f36)!important}
+html[data-theme="dark"] .messageTabsToggleGroup m3e-button[selected],html.dark .messageTabsToggleGroup m3e-button[selected]{background:var(--md-sys-color-secondary-container,#34485b)!important;color:var(--md-sys-color-on-secondary-container,#e3e7eb)!important}
+@media(max-width:800px){.messagesSplitPaneM3e{display:block!important;height:auto!important;overflow:visible!important}.messagesSplitPaneM3e>[slot="start"],.messagesSplitPaneM3e>[slot="end"]{height:auto!important;min-height:320px!important}.messageTabsToggleGroup{width:100%;padding:8px 12px!important}}

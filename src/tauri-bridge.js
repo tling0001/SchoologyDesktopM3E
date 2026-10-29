@@ -426,7 +426,7 @@ Tauri child webviews do not implement Electron's native allowpopups/preload
       get src() { return this.getAttribute('src') || ''; }
       set src(value) {
         const next = String(value || '');
-        if (this.getAttribute('src') === next) { if (this.nativeView && next) this.loadURL(next).catch(() => {}); return; }
+        if (this.getAttribute('src') === next) { if (next) this.loadURL(next).catch(error => dispatchCompatEvent(this, 'did-fail-load', { errorDescription: String(error?.message || error), isMainFrame: true })); return; }
         this.setAttribute('src', next);
       }
       connectedCallback() {

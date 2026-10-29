@@ -1,4 +1,13 @@
-# Schoology Desktop M3E — port 2026.10.0-port.4
+# Schoology Desktop M3E — port 2026.10.0-port.5
+
+## [2026.10.0-port.5]
+
+### Messages and shared webview
+- Use connected M3E toggle button groups for Inbox/Unread/Sent and a persistent M3E split pane for landscape Inbox/Unread and Sent lists.
+- Make the shared webview Retry action recreate the native view when retrying the same URL after a failed load.
+- Keep message list and message detail surfaces responsive and theme-aware.
+
+---
 
 ## [2026.10.0-port.4]
 
